@@ -4,8 +4,14 @@ import base64
 from urllib.parse import quote
 import os
 
+def format_addr(addr):
+    """处理 IPv6 地址，如果包含冒号则加中括号"""
+    if ":" in addr and "[" not in addr:
+        return f"[{addr}]"
+    return addr
+
 def parse_clash_yaml(yaml_content):
-    """解析 YAML 并按照样板转换为 URI 链接"""
+    """解析 YAML 并转换为正确的 URI 链接"""
     nodes = []
     try:
         data = yaml.safe_load(yaml_content)
@@ -16,7 +22,8 @@ def parse_clash_yaml(yaml_content):
         for p in proxies:
             p_type = p.get('type')
             name = quote(p.get('name', 'node'))
-            server = p.get('server')
+            # 格式化服务器地址（处理 IPv6）
+            server = format_addr(str(p.get('server', '')))
             port = p.get('port')
             
             # 1. VLESS (Reality) 提取
@@ -34,7 +41,6 @@ def parse_clash_yaml(yaml_content):
             elif p_type == 'hysteria':
                 auth = p.get('auth-str', '')
                 sni = p.get('sni', '')
-                # 将 alpn 列表转为字符串，样板默认为 h3
                 alpn = ",".join(p.get('alpn', ['h3']))
                 uri = f"hysteria://{server}:{port}?auth={auth}&sni={sni}&alpn={alpn}#{name}"
                 nodes.append(uri)
@@ -44,8 +50,6 @@ def parse_clash_yaml(yaml_content):
 
 def main():
     all_extracted_nodes = []
-    
-    # 检查 sources.txt 是否存在
     if not os.path.exists('sources.txt'):
         print("Error: sources.txt not found!")
         return
@@ -68,18 +72,16 @@ def main():
                 if "YAML" in current_type:
                     nodes = parse_clash_yaml(resp.text)
                     all_extracted_nodes.extend(nodes)
-                # 后续 JSON 逻辑会在这里扩展
         except Exception as e:
             print(f"Request failed for {line}: {e}")
 
     # 汇总去重
     final_nodes = list(dict.fromkeys(all_extracted_nodes))
     
-    # 输出 1: sub.txt (明文链接，方便测试)
+    # 输出结果
     with open('sub.txt', 'w', encoding='utf-8') as f:
         f.write("\n".join(final_nodes))
     
-    # 输出 2: sub_base64.txt (标准订阅格式)
     combined_text = "\n".join(final_nodes)
     sub_base64 = base64.b64encode(combined_text.encode('utf-8')).decode('utf-8')
     with open('sub_base64.txt', 'w', encoding='utf-8') as f:
