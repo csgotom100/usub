@@ -1,9 +1,9 @@
 hysteria://89.144.35.30:23008?auth=dongtaiwang.com&sni=apple.com&alpn=h3#https%3A//github.com/Alvin9999-newpac/fanqiang/wiki
 hysteria://5.178.101.33:23008?auth=dongtaiwang.com&sni=apple.com&alpn=h3#dongtaiwang.com_1
 vless://add14a5b-f648-4423-8a1f-8b8f54c0daef@195.154.200.13:17401?security=tls&sni=itunes.apple.com&fp=chrome&type=tcp&pbk=IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU&sid=8ef4455ba637425b#dongtaiwang.com_2
-hysteria://2001:bc8:32d7:402::3:20001?auth=dongtaiwang.com&sni=apple.com&alpn=h3#dongtaiwang.com_3
-hysteria://2001:bc8:32d7:402::4:20001?auth=dongtaiwang.com&sni=apple.com&alpn=h3#dongtaiwang.com_4
+hysteria://[2001:bc8:32d7:402::3]:20001?auth=dongtaiwang.com&sni=apple.com&alpn=h3#dongtaiwang.com_3
+hysteria://[2001:bc8:32d7:402::4]:20001?auth=dongtaiwang.com&sni=apple.com&alpn=h3#dongtaiwang.com_4
 vless://add14a5b-f648-4423-8a1f-8b8f54c0daef@195.154.200.13:17401?security=tls&sni=itunes.apple.com&fp=chrome&type=tcp&pbk=IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU&sid=8ef4455ba637425b#https%3A//github.com/Alvin9999-newpac/fanqiang/wiki
-vless://add14a5b-f648-4423-8a1f-8b8f54c0daef@2001:bc8:32d7:181::2:17401?security=tls&sni=itunes.apple.com&fp=chrome&type=tcp&pbk=IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU&sid=8ef4455ba637425b#dongtaiwang.com_1
-vless://add14a5b-f648-4423-8a1f-8b8f54c0daef@2001:bc8:32d7:181::3:17401?security=tls&sni=itunes.apple.com&fp=chrome&type=tcp&pbk=IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU&sid=8ef4455ba637425b#dongtaiwang.com_2
-hysteria://2a14:7584:d097::a:54177?auth=dongtaiwang.com&sni=apple.com&alpn=h3#https%3A//github.com/Alvin9999-newpac/fanqiang/wiki
+vless://add14a5b-f648-4423-8a1f-8b8f54c0daef@[2001:bc8:32d7:181::2]:17401?security=tls&sni=itunes.apple.com&fp=chrome&type=tcp&pbk=IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU&sid=8ef4455ba637425b#dongtaiwang.com_1
+vless://add14a5b-f648-4423-8a1f-8b8f54c0daef@[2001:bc8:32d7:181::3]:17401?security=tls&sni=itunes.apple.com&fp=chrome&type=tcp&pbk=IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU&sid=8ef4455ba637425b#dongtaiwang.com_2
+hysteria://[2a14:7584:d097::a]:54177?auth=dongtaiwang.com&sni=apple.com&alpn=h3#https%3A//github.com/Alvin9999-newpac/fanqiang/wiki
