@@ -7,98 +7,129 @@ def get_beijing_time():
 
 def parse_content(content):
     nodes = []
-    # 策略 A: 深度解析 JSON (针对 Xray/Sing-box)
+    # --- 策略 A: 深度解析 JSON (不设限提取) ---
     try:
         data = json.loads(content)
-        if isinstance(data, dict) and 'outbounds' in data:
-            for out in data['outbounds']:
-                if out.get('protocol') == 'vless':
-                    v = out.get('settings', {}).get('vnext', [{}])[0]
-                    u = v.get('users', [{}])[0]
-                    s = out.get('streamSettings', {})
-                    r = s.get('realitySettings', {})
-                    xh = s.get('xhttpSettings', {})
+        if isinstance(data, dict):
+            # 1. 解析 Xray 标准/非标准 Outbounds
+            outbounds = data.get('outbounds', [])
+            for out in outbounds:
+                protocol = out.get('protocol') or out.get('type')
+                tag = out.get('tag', protocol)
+                
+                # VLESS 提取逻辑
+                if protocol == 'vless':
+                    settings = out.get('settings', {})
+                    vnext = settings.get('vnext', [{}])[0]
+                    user = vnext.get('users', [{}])[0]
+                    stream = out.get('streamSettings', {})
+                    reality = stream.get('realitySettings', {}) or out.get('tls', {}).get('reality', {})
+                    xh = stream.get('xhttpSettings', {})
                     
                     nodes.append({
-                        'name': out.get('tag', 'vless'),
+                        'name': tag,
                         'type': 'vless',
-                        'server': v.get('address'),
-                        'port': v.get('port'),
-                        'uuid': u.get('id'), # 提取超长ID
-                        'flow': u.get('flow', ''), # 提取流控 xtls-rprx-vision
-                        'network': s.get('network', 'tcp'),
-                        'servername': r.get('serverName', ''),
-                        'reality-opts': {'public-key': r.get('publicKey', ''), 'short-id': r.get('shortId', '')},
+                        'server': vnext.get('address') or out.get('server'),
+                        'port': vnext.get('port') or out.get('server_port'),
+                        'uuid': user.get('id') or out.get('uuid'),
+                        'flow': user.get('flow', ''),
+                        'network': stream.get('network') or out.get('transport', {}).get('type', 'tcp'),
+                        'servername': reality.get('serverName') or out.get('tls', {}).get('server_name', ''),
+                        'reality-opts': {'public-key': reality.get('publicKey') or reality.get('public_key', ''), 'short-id': reality.get('shortId') or reality.get('short_id', '')},
                         'xhttp-opts': {'path': xh.get('path', ''), 'mode': xh.get('mode', 'auto')},
-                        'client-fingerprint': r.get('fingerprint', 'chrome')
+                        'client-fingerprint': reality.get('fingerprint', 'chrome')
                     })
+                
+                # Hysteria2 提取逻辑
+                elif protocol in ['hysteria2', 'hy2']:
+                    nodes.append({
+                        'name': tag,
+                        'type': 'hysteria2',
+                        'server': out.get('server') or out.get('settings', {}).get('server'),
+                        'port': out.get('port') or out.get('server_port'),
+                        'password': out.get('settings', {}).get('auth') or out.get('password'),
+                        'sni': out.get('tls', {}).get('server_name') or out.get('sni', 'apple.com')
+                    })
+
+            # 2. 额外处理 Hysteria2 官方单节点格式
+            if 'server' in data and 'auth' in data and 'outbounds' not in data:
+                s_raw = data['server'].split(',')[0]
+                nodes.append({
+                    'type': 'hysteria2',
+                    'server': s_raw.rsplit(':', 1)[0],
+                    'port': int(s_raw.rsplit(':', 1)[1]),
+                    'password': data['auth'],
+                    'sni': data.get('tls', {}).get('sni', 'apple.com')
+                })
     except: pass
 
-    # 策略 B: 解析 YAML (针对 AnyTLS/Clash)
+    # --- 策略 B: 解析 YAML (AnyTLS/Clash) ---
     try:
-        y = yaml.safe_load(content)
-        if isinstance(y, dict) and 'proxies' in y:
-            nodes.extend(y['proxies'])
+        y_data = yaml.safe_load(content)
+        if isinstance(y_data, dict) and 'proxies' in y_data:
+            nodes.extend(y_data['proxies'])
     except: pass
+    
     return nodes
 
 def generate_uri(p):
     try:
-        n, addr, port = quote(p.get('name', 'node')), p.get('server'), p.get('port')
-        if p.get('type') == 'vless':
+        t = str(p.get('type', '')).lower()
+        name = quote(str(p.get('name', 'node')))
+        addr = p.get('server')
+        port = p.get('port')
+        if t == 'vless':
             ro, xh = p.get('reality-opts', {}), p.get('xhttp-opts', {})
-            # 这里的参数名必须严格对应 v2rayN 的识别逻辑
             params = {
-                "security": "reality",
-                "sni": p.get('servername') or p.get('sni'),
-                "pbk": ro.get('public-key'),
-                "sid": ro.get('short-id'),
-                "type": p.get('network'),
-                "flow": p.get('flow'), # 确保流控写入 URI
-                "fp": p.get('client-fingerprint', 'chrome')
+                "security": "reality", "sni": p.get('servername') or p.get('sni'),
+                "pbk": ro.get('public-key'), "sid": ro.get('short-id'),
+                "type": p.get('network'), "flow": p.get('flow'), "fp": p.get('client-fingerprint', 'chrome')
             }
             if p.get('network') == 'xhttp' and xh:
                 params["path"] = xh.get('path')
                 params["mode"] = xh.get('mode', 'auto')
-            
-            # 过滤空值并合并
-            query = urlencode({k: v for k, v in params.items() if v})
-            return f"vless://{p.get('uuid')}@{addr}:{port}?{query}#{n}"
-        elif p.get('type') in ['hysteria2', 'hy2']:
-            auth = p.get('password') or p.get('auth')
-            return f"hysteria2://{auth}@{addr}:{port}?insecure=1&sni={p.get('sni','')}#{n}"
-        elif p.get('type') == 'anytls':
+            return f"vless://{p.get('uuid')}@{addr}:{port}?{urlencode({k:v for k,v in params.items() if v})}#{name}"
+        elif t in ['hysteria2', 'hy2']:
+            pw = p.get('password') or p.get('auth')
+            return f"hysteria2://{pw}@{addr}:{port}?insecure=1&sni={p.get('sni','')}#{name}"
+        elif t == 'anytls':
             params = {"alpn": ",".join(p.get('alpn', [])), "insecure": "1"}
-            return f"anytls://{p.get('password')}@{addr}:{port}?{urlencode(params)}#{n}"
+            return f"anytls://{p.get('password')}@{addr}:{port}?{urlencode(params)}#{name}"
     except: return None
+    return None
 
 def main():
-    all_p = []
+    all_nodes = []
     if not os.path.exists('sources.txt'): return
     with open('sources.txt', 'r', encoding='utf-8') as f:
-        urls = [l.strip() for l in f if l.startswith('http')]
-    
+        urls = [line.strip() for line in f if line.startswith('http')]
+
     for url in urls:
         try:
-            r = requests.get(url, timeout=10)
-            if r.status_code == 200: all_p.extend(parse_content(r.text))
+            r = requests.get(url, timeout=15)
+            if r.status_code == 200:
+                all_nodes.extend(parse_content(r.text))
         except: continue
 
+    # 深度去重
     unique = []
     seen = set()
-    for p in all_p:
-        fp = f"{p.get('server')}:{p.get('port')}:{p.get('uuid') or p.get('password')}"
+    for p in all_nodes:
+        # 指纹：协议+IP+端口+核心凭据
+        fp = f"{p.get('type')}:{p.get('server')}:{p.get('port')}:{p.get('uuid') or p.get('password')}"
         if fp not in seen:
             seen.add(fp); unique.append(p)
+
+    # 排序：Anytls 优先，接着 VLESS，最后其他
+    unique.sort(key=lambda x: 0 if x.get('type')=='anytls' else 1)
 
     time_tag = get_beijing_time()
     for i, p in enumerate(unique):
         p['name'] = f"[{str(p.get('type','')).upper()}] {i+1:02d} ({time_tag})"
 
+    # Clash 配置 (修复循环引用)
     node_names = [x['name'] for x in unique]
-    
-    # 彻底解决 Clash 循环报错逻辑
-    clash_conf = {
+    conf = {
         "proxies": unique,
         "proxy-groups": [
             {"name": "🚀 节点选择", "type": "select", "proxies": ["♻️ 自动选择", "DIRECT"] + node_names},
@@ -107,13 +138,14 @@ def main():
         ],
         "rules": ["GEOIP,CN,🎯 全球直连", "MATCH,🚀 节点选择"]
     }
-
+    
     with open('config.yaml', 'w', encoding='utf-8') as f:
-        yaml.dump(clash_conf, f, allow_unicode=True, sort_keys=False)
+        yaml.dump(conf, f, allow_unicode=True, sort_keys=False)
     
     uris = [generate_uri(p) for p in unique if generate_uri(p)]
     with open('sub.txt', 'w', encoding='utf-8') as f: f.write("\n".join(uris))
     with open('sub_base64.txt', 'w', encoding='utf-8') as f:
         f.write(base64.b64encode("\n".join(uris).encode()).decode())
 
-if __name__ == "__main__": main()
+if __name__ == "__main__":
+    main()
