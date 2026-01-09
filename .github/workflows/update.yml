@@ -30,8 +30,8 @@ jobs:
         run: |
           git config --global user.name "GitHub Action"
           git config --global user.email "action@github.com"
-          # 关键点：这里要添加所有生成的文件
-          git add sub.txt sub_base64.txt config.yaml
+          # 使用 git add . 确保包括新生成的 config.yaml 在内的所有变动都被提交
+          git add .
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
