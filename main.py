@@ -10,8 +10,7 @@ def get_geo_tag(text, server):
     words = {
         "🇭🇰": ["hk", "香港", "hkg"], "🇺🇸": ["us", "美国", "america"],
         "🇯🇵": ["jp", "日本", "tokyo"], "🇸🇬": ["sg", "新加坡", "singapore"],
-        "🇹🇼": ["tw", "台湾", "taiwan"], "🇰🇷": ["kr", "韩国", "korea"],
-        "🇩🇪": ["de", "德国", "germany"], "🇫🇷": ["fr", "法国", "france"]
+        "🇹🇼": ["tw", "台湾", "taiwan"], "🇰🇷": ["kr", "韩国", "korea"]
     }
     content = str(text).lower() + str(server).lower()
     for tag, keys in words.items():
@@ -21,43 +20,37 @@ def get_geo_tag(text, server):
 def get_node_info(item):
     try:
         if not isinstance(item, dict): return None
-        # 兼容各种字典层级的 server 和 port
         srv = item.get('server') or item.get('add') or item.get('address')
         if not srv or str(srv).startswith('127.'): return None
         
-        # 端口清洗
         port = str(item.get('port') or item.get('server_port') or "")
-        if ':' in str(srv): # 处理 8.8.8.8:443 格式
+        if ':' in str(srv) and not srv.startswith('['):
             srv, port = str(srv).rsplit(':', 1)
         port = re.findall(r'\d+', port)[0] if re.findall(r'\d+', port) else ""
         if not port: return None
 
-        # 密码/UUID 提取
         pw = item.get('auth') or item.get('password') or item.get('uuid') or item.get('id')
         if not pw: return None
+        
+        # 深度提取 SNI 和 Reality 参数
+        tls = item.get('tls', {}) if isinstance(item.get('tls'), dict) else {}
+        sni = item.get('sni') or item.get('servername') or tls.get('server_name') or ""
+        pbk = item.get('public-key') or item.get('public_key') or tls.get('reality', {}).get('public_key') or item.get('reality-opts', {}).get('public-key') or ""
+        sid = item.get('short-id') or item.get('short_id') or tls.get('reality', {}).get('short_id') or item.get('reality-opts', {}).get('short-id') or ""
 
-        # 协议判定
-        p = str(item.get('type') or item.get('protocol') or "").lower()
-        if 'hy2' in p or 'hysteria2' in p or 'auth' in item: p = 'hysteria2'
-        elif 'tuic' in p: p = 'tuic'
-        elif 'anytls' in p: p = 'anytls'
-        else: p = 'vless'
-
-        # SNI 和 Reality 提取
-        sni = item.get('sni') or item.get('servername') or item.get('tls', {}).get('server_name') or ""
-        pbk = item.get('public-key') or item.get('public_key') or item.get('tls', {}).get('reality', {}).get('public_key') or ""
-        sid = item.get('short-id') or item.get('short_id') or item.get('tls', {}).get('reality', {}).get('short_id') or ""
-
-        # xhttp 核心提取 (适配深层嵌套)
+        # 核心：多层级捞取 path (xhttp 命脉)
         path = ""
-        # 尝试从所有可能的路径捞取 path
-        search_paths = [item, item.get('xhttp', {}), item.get('xhttp-opts', {}), 
-                        item.get('streamSettings', {}).get('xhttpSettings', {}),
-                        item.get('transport', {}).get('xhttpSettings', {})]
-        for sp in search_paths:
-            if isinstance(sp, dict) and sp.get('path'):
-                path = sp.get('path')
-                break
+        for k in ['path', 'xhttp-opts', 'xhttpSettings', 'transport']:
+            v = item.get(k)
+            if isinstance(v, str) and v.startswith('/'): path = v
+            elif isinstance(v, dict) and v.get('path'): path = v.get('path')
+
+        # 协议判定逻辑
+        p_raw = str(item.get('type') or item.get('protocol') or "").lower()
+        if 'hy2' in p_raw or 'hysteria2' in p_raw or 'auth' in item: p = 'hysteria2'
+        elif 'tuic' in p_raw: p = 'tuic'
+        elif 'anytls' in p_raw: p = 'anytls'
+        else: p = 'vless'
 
         return {
             "server": srv.strip('[]'), "port": port, "type": p, "pw": pw,
@@ -88,35 +81,37 @@ def main():
             walk(data)
         except: continue
 
-    # 去重
+    # 宽松去重：IP + 端口 + 协议 相同才算重复，保留不同密码或路径的节点
     unique = []
     seen = set()
     for n in nodes:
-        key = f"{n['server']}:{n['port']}:{n['pw']}"
+        key = f"{n['server']}:{n['port']}:{n['type']}"
         if key not in seen:
             unique.append(n); seen.add(key)
 
-    # 排序与构建 URI
+    # AnyTLS 依然排第一
     unique.sort(key=lambda x: 0 if x['type'] == 'anytls' else 1)
     uris = []
     time_tag = get_beijing_time()
     
     for i, n in enumerate(unique, 1):
-        geo = get_geo_tag(n['name'] + n['sni'], n['server'])
+        geo = get_geo_tag(n['name'] + n['sni'] + n['server'], n['server'])
         name = f"{geo}[{n['type'].upper()}] {i:02d} ({time_tag})"
         name_enc = urllib.parse.quote(name)
         srv = f"[{n['server']}]" if ':' in n['server'] else n['server']
         
         if n['type'] == 'vless':
-            params = {"security": "reality" if n['pbk'] else "none", "sni": n['sni'], "pbk": n['pbk'], "sid": n['sid']}
+            params = {"security": "reality" if n['pbk'] else "none", "sni": n['sni'] or "itunes.apple.com", "pbk": n['pbk'], "sid": n['sid']}
             if n['path']: params.update({"type": "xhttp", "path": n['path']})
             uris.append(f"vless://{n['pw']}@{srv}:{n['port']}?{urllib.parse.urlencode({k:v for k,v in params.items() if v})}#{name_enc}")
         elif n['type'] == 'hysteria2':
-            uris.append(f"hysteria2://{n['pw']}@{srv}:{n['port']}?insecure=1&sni={n['sni']}#{name_enc}")
+            # 补全默认 SNI 提升导入质量
+            sni_val = n['sni'] if n['sni'] else "apple.com"
+            uris.append(f"hysteria2://{n['pw']}@{srv}:{n['port']}?insecure=1&sni={sni_val}#{name_enc}")
         elif n['type'] == 'anytls':
             uris.append(f"anytls://{n['pw']}@{srv}:{n['port']}?alpn=h3&insecure=1#{name_enc}")
         elif n['type'] == 'tuic':
-            uris.append(f"tuic://{n['pw']}@{srv}:{n['port']}?sni={n['sni']}&alpn=h3#{name_enc}")
+            uris.append(f"tuic://{n['pw']}@{srv}:{n['port']}?sni={n['sni'] or 'apple.com'}&alpn=h3#{name_enc}")
 
     with open("sub.txt", "w", encoding="utf-8") as f: f.write("\n".join(uris))
     with open("sub_base64.txt", "w", encoding="utf-8") as f:
