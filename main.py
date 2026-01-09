@@ -18,48 +18,38 @@ def get_beijing_time():
 
 def parse_content(content):
     nodes = []
-    # --- 1. 尝试解析 JSON (Xray / Sing-box / Hy2) ---
+    # --- 策略 A: 尝试作为 JSON 解析 (Xray, Sing-box, Hy2) ---
     try:
         data = json.loads(content)
         if isinstance(data, dict):
-            # 针对 Xray/Sing-box 的 outbounds 结构
+            # 1. 提取 Xray/Sing-box 的 outbounds
             if 'outbounds' in data:
                 for out in data['outbounds']:
                     protocol = out.get('protocol') or out.get('type')
                     if protocol == 'vless':
-                        # A. 尝试 Xray 路径: settings -> vnext
                         settings = out.get('settings', {})
                         vnext = settings.get('vnext', [{}])[0]
                         user = vnext.get('users', [{}])[0]
-                        
-                        # B. 尝试 Sing-box 路径 (直接在根部)
-                        server = vnext.get('address') or out.get('server')
-                        port = vnext.get('port') or out.get('server_port')
-                        uuid = user.get('id') or out.get('uuid')
-
-                        if not server or not port: continue
-
                         stream = out.get('streamSettings', {})
                         reality_x = stream.get('realitySettings', {})
                         reality_s = out.get('tls', {}).get('reality', {})
                         
                         nodes.append({
-                            'name': out.get('tag', 'vless_node'),
+                            'name': out.get('tag', 'vless'),
                             'type': 'vless',
-                            'server': server,
-                            'port': port,
-                            'uuid': uuid,
+                            'server': vnext.get('address') or out.get('server'),
+                            'port': vnext.get('port') or out.get('server_port'),
+                            'uuid': user.get('id') or out.get('uuid'),
                             'network': stream.get('network') or out.get('transport', {}).get('type', 'tcp'),
-                            'tls': True,
                             'servername': reality_x.get('serverName') or out.get('tls', {}).get('server_name', ''),
                             'reality-opts': {
                                 'public-key': reality_x.get('publicKey') or reality_s.get('public_key', ''),
                                 'short-id': reality_x.get('shortId') or reality_s.get('short_id', '')
                             },
-                            'client-fingerprint': reality_x.get('fingerprint') or out.get('tls', {}).get('utls', {}).get('fingerprint', 'chrome')
+                            'ws-opts': {'path': stream.get('xhttpSettings', {}).get('path', '')} if stream.get('xhttpSettings') else None
                         })
-
-            # 针对 Hysteria 2 官方 JSON
+            
+            # 2. 提取 Hysteria 2 官方格式
             if 'server' in data and 'auth' in data:
                 s_raw = data['server'].split(',')[0]
                 nodes.append({
@@ -69,14 +59,16 @@ def parse_content(content):
                     'password': data['auth'],
                     'sni': data.get('tls', {}).get('sni', 'apple.com')
                 })
-    except: pass
+    except:
+        pass
 
-    # --- 2. 尝试解析 YAML (Clash) ---
+    # --- 策略 B: 尝试作为 YAML 解析 (Clash / AnyTLS) ---
     try:
-        data = yaml.safe_load(content)
-        if isinstance(data, dict) and 'proxies' in data:
-            nodes.extend(data['proxies'])
-    except: pass
+        yaml_data = yaml.safe_load(content)
+        if isinstance(yaml_data, dict) and 'proxies' in yaml_data:
+            nodes.extend(yaml_data['proxies'])
+    except:
+        pass
     
     return nodes
 
@@ -88,18 +80,16 @@ def generate_uri(p):
         port = p.get('port')
         if t == 'vless':
             ro = p.get('reality-opts', {})
-            params = {
-                "security": "reality",
-                "sni": p.get('servername') or p.get('sni', ''),
-                "pbk": ro.get('public-key', ''),
-                "sid": ro.get('short-id', ''),
-                "type": p.get('network', 'tcp'),
-                "fp": p.get('client-fingerprint', 'chrome')
-            }
+            params = {"security": "reality", "sni": p.get('servername') or p.get('sni', ''), "pbk": ro.get('public-key', ''), "sid": ro.get('short-id', ''), "type": p.get('network', 'tcp')}
             return f"vless://{p.get('uuid')}@{addr}:{port}?{urlencode({k: v for k, v in params.items() if v})}#{name}"
         elif t in ['hysteria2', 'hy2']:
             return f"hysteria2://{p.get('password', p.get('auth', ''))}@{addr}:{port}?sni={p.get('sni', '')}&insecure=1#{name}"
-    except: return None
+        elif t == 'anytls':
+            params = {"alpn": ",".join(p.get('alpn', [])), "insecure": "1"}
+            return f"anytls://{p.get('password')}@{addr}:{port}?{urlencode(params)}#{name}"
+    except:
+        return None
+    return None
 
 def main():
     all_p = []
@@ -112,33 +102,32 @@ def main():
             r = requests.get(url, timeout=15)
             if r.status_code == 200:
                 all_p.extend(parse_content(r.text))
-        except: continue
+        except:
+            continue
 
     # 深度去重
     unique = []
     seen = set()
     for p in all_p:
-        # 指纹：IP + 端口 + (UUID或密码)
-        fp = f"{p.get('server')}:{p.get('port')}:{p.get('uuid') or p.get('password')}"
+        # 指纹：协议+IP+端口+密码/ID
+        fp = f"{p.get('type')}:{p.get('server')}:{p.get('port')}:{p.get('uuid') or p.get('password')}"
         if fp not in seen:
             seen.add(fp)
             unique.append(p)
 
-    # 重命名
+    # 重命名与时间戳
     time_tag = get_beijing_time()
     for i, p in enumerate(unique):
         p_type = str(p.get('type', 'UNK')).upper()
         p['name'] = f"[{p_type}] {i+1:02d} ({time_tag})"
 
-    # 输出 Clash 配置
+    # 生成 Clash 配置 (修复循环引用版)
     conf = {
-        "port": 7890,
-        "allow-lan": True,
-        "mode": "rule",
+        "port": 7890, "allow-lan": True, "mode": "rule",
         "proxies": unique,
         "proxy-groups": [
-            {"name": "🚀 节点选择", "type": "select", "proxies": ["♻️ 自动选择"] + [p['name'] for p in unique] + ["DIRECT"]},
-            {"name": "♻️ 自动选择", "type": "url-test", "url": "http://www.gstatic.com/generate_204", "interval": 300, "proxies": [p['name'] for p in unique]},
+            {"name": "🚀 节点选择", "type": "select", "proxies": ["♻️ 自动选择"] + [x['name'] for x in unique] + ["DIRECT"]},
+            {"name": "♻️ 自动选择", "type": "url-test", "url": "http://www.gstatic.com/generate_204", "interval": 300, "proxies": [x['name'] for x in unique]},
             {"name": "🎯 全球直连", "type": "select", "proxies": ["DIRECT", "🚀 节点选择"]}
         ],
         "rules": ["GEOIP,CN,🎯 全球直连", "MATCH,🚀 节点选择"]
@@ -147,7 +136,7 @@ def main():
     with open('config.yaml', 'w', encoding='utf-8') as f:
         yaml.dump(conf, f, allow_unicode=True, sort_keys=False)
     
-    # 输出订阅文本
+    # 生成 sub.txt
     uris = [generate_uri(p) for p in unique if generate_uri(p)]
     with open('sub.txt', 'w', encoding='utf-8') as f:
         f.write("\n".join(uris))
