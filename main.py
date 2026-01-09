@@ -5,15 +5,16 @@ import os
 from urllib.parse import quote, urlencode
 
 def format_addr(addr):
-    """处理 IPv6 地址，确保带中括号"""
+    """处理 IPv6 地址"""
     addr_str = str(addr).strip()
     if ":" in addr_str and "[" not in addr_str:
         return f"[{addr_str}]"
     return addr_str
 
 def parse_clash_yaml(yaml_content):
-    """解析源 YAML 并提取代理对象"""
+    """解析源 YAML 并提取所有代理对象"""
     try:
+        # 使用 SafeLoader 加载，确保安全
         data = yaml.safe_load(yaml_content)
         if not data or 'proxies' not in data:
             return []
@@ -23,14 +24,14 @@ def parse_clash_yaml(yaml_content):
         return []
 
 def generate_uri(p):
-    """将对象转换为 v2rayN 完美支持的现代 URI 链接"""
+    """将对象转换为 URI 链接，增加对 anytls 的支持"""
     try:
         p_type = str(p.get('type', '')).lower()
         name = quote(str(p.get('name', 'node')))
         server = format_addr(p.get('server', ''))
         port = p.get('port')
         
-        # 1. VLESS Reality (当前最稳)
+        # 1. VLESS Reality
         if p_type == 'vless':
             uuid = p.get('uuid')
             reality = p.get('reality-opts', {})
@@ -41,26 +42,30 @@ def generate_uri(p):
                 "type": p.get('network', 'tcp'),
                 "pbk": reality.get('public-key', ''),
                 "sid": reality.get('short-id', ''),
-                "flow": p.get('flow', '')
             }
             param_str = urlencode({k: v for k, v in params.items() if v})
             return f"vless://{uuid}@{server}:{port}?{param_str}#{name}"
             
-        # 2. Hysteria 2 (性能王者)
+        # 2. Hysteria 2
         elif p_type == 'hysteria2' or p_type == 'hy2':
             passwd = p.get('password', p.get('auth', ''))
             sni = p.get('sni', '')
-            # Hy2 标准格式
             return f"hysteria2://{passwd}@{server}:{port}?sni={sni}&insecure=1#{name}"
 
-        # 3. TUIC (v5)
+        # 3. TUIC
         elif p_type == 'tuic':
             uuid = p.get('uuid', '')
             passwd = p.get('password', '')
-            sni = p.get('sni', '')
-            return f"tuic://{uuid}:{passwd}@{server}:{port}?sni={sni}&insecure=1&alpn=h3&congestion_control=bbr#{name}"
+            return f"tuic://{uuid}:{passwd}@{server}:{port}?sni={p.get('sni', '')}&insecure=1&alpn=h3#{name}"
 
-        # 4. Mieru 协议
+        # 4. AnyTLS (新增支持)
+        # 注意：anytls 并没有标准的 URI，这里生成一个伪 URI 供记录，主要依赖 config.yaml
+        elif p_type == 'anytls':
+            passwd = p.get('password', '')
+            sni = p.get('sni', '')
+            return f"anytls://{passwd}@{server}:{port}?sni={sni}#{name}"
+
+        # 5. Mieru
         elif p_type == 'mieru':
             user = p.get('username', '')
             pwd = p.get('password', '')
@@ -73,32 +78,46 @@ def generate_uri(p):
 def main():
     all_proxies = []
     if not os.path.exists('sources.txt'):
+        print("未找到 sources.txt")
         return
 
     with open('sources.txt', 'r', encoding='utf-8') as f:
-        lines = f.readlines()
+        sources = [line.strip() for line in f if line.strip() and not line.startswith("#")]
     
-    current_type = ""
+    # 重新读取以处理分类标注
+    with open('sources.txt', 'r', encoding='utf-8') as f:
+        lines = f.readlines()
+
+    current_type = "YAML" # 默认假设是 YAML
     for line in lines:
         line = line.strip()
-        if not line or line.startswith("#"):
+        if not line: continue
+        if line.startswith("#"):
             current_type = line.upper()
             continue
         
         try:
+            print(f"正在抓取源: {line}")
             resp = requests.get(line, timeout=15)
             if resp.status_code == 200:
+                # 只要当前分类标注含有 YAML，就执行 YAML 解析
                 if "YAML" in current_type:
                     proxies = parse_clash_yaml(resp.text)
+                    print(f"成功提取 {len(proxies)} 个节点")
                     all_proxies.extend(proxies)
-        except:
-            continue
+        except Exception as e:
+            print(f"请求失败 {line}: {e}")
 
-    # 去重
-    unique_proxies = {p.get('name'): p for p in all_proxies if p.get('name')}.values()
-    proxy_list = list(unique_proxies)
+    # 去重（基于节点名称和服务器地址）
+    unique_proxies = {}
+    for p in all_proxies:
+        key = f"{p.get('name')}-{p.get('server')}"
+        if key not in unique_proxies:
+            unique_proxies[key] = p
 
-    # 生成 config.yaml (Clash Meta/Mihomo 格式)
+    proxy_list = list(unique_proxies.values())
+
+    # --- 输出 1: config.yaml (Clash 专用，包含 AnyTLS) ---
     clash_config = {
         "port": 7890,
         "allow-lan": True,
@@ -110,15 +129,16 @@ def main():
     with open('config.yaml', 'w', encoding='utf-8') as f:
         yaml.dump(clash_config, f, allow_unicode=True, sort_keys=False)
 
-    # 生成 sub.txt
+    # --- 输出 2: sub.txt & sub_base64.txt ---
     uris = [generate_uri(p) for p in proxy_list if generate_uri(p)]
     with open('sub.txt', 'w', encoding='utf-8') as f:
         f.write("\n".join(uris))
     
-    # 生成 sub_base64.txt
     sub_base64 = base64.b64encode("\n".join(uris).encode('utf-8')).decode('utf-8')
     with open('sub_base64.txt', 'w', encoding='utf-8') as f:
         f.write(sub_base64)
+    
+    print(f"处理完成！总去重节点数: {len(proxy_list)}")
 
 if __name__ == "__main__":
     main()
