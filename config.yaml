@@ -2,7 +2,7 @@ port: 7890
 allow-lan: true
 mode: rule
 proxies:
-- name: '[HYSTERIA] 01 (01-09 20:36)'
+- name: '[HYSTERIA] 01 (01-09 20:41)'
   type: hysteria
   server: 89.144.35.30
   port: 23008
@@ -14,7 +14,7 @@ proxies:
   protocol: udp
   up: 11 Mbps
   down: 55 Mbps
-- name: '[HYSTERIA] 02 (01-09 20:36)'
+- name: '[HYSTERIA] 02 (01-09 20:41)'
   type: hysteria
   server: 5.178.101.33
   port: 23008
@@ -26,7 +26,7 @@ proxies:
   protocol: udp
   up: 11 Mbps
   down: 55 Mbps
-- name: '[VLESS] 01 (01-09 20:36)'
+- name: '[VLESS] 01 (01-09 20:41)'
   type: vless
   server: 195.154.200.13
   port: 17401
@@ -50,7 +50,7 @@ proxies:
       enabled: true
       up: 50
       down: 100
-- name: '[HYSTERIA] 03 (01-09 20:36)'
+- name: '[HYSTERIA] 03 (01-09 20:41)'
   type: hysteria
   server: 2001:bc8:32d7:402::3
   port: 20001
@@ -62,7 +62,7 @@ proxies:
   protocol: udp
   up: 11 Mbps
   down: 55 Mbps
-- name: '[HYSTERIA] 04 (01-09 20:36)'
+- name: '[HYSTERIA] 04 (01-09 20:41)'
   type: hysteria
   server: 2001:bc8:32d7:402::4
   port: 20001
@@ -74,7 +74,7 @@ proxies:
   protocol: udp
   up: 11 Mbps
   down: 55 Mbps
-- name: '[ANYTLS] 01 (01-09 20:36)'
+- name: '[ANYTLS] 01 (01-09 20:41)'
   type: anytls
   server: 45.221.98.14
   port: 59901
@@ -88,7 +88,7 @@ proxies:
   - h2
   - http/1.1
   skip-cert-verify: true
-- name: '[VLESS] 02 (01-09 20:36)'
+- name: '[VLESS] 02 (01-09 20:41)'
   type: vless
   server: 2001:bc8:32d7:181::2
   port: 17401
@@ -112,7 +112,7 @@ proxies:
       enabled: true
       up: 50
       down: 100
-- name: '[VLESS] 03 (01-09 20:36)'
+- name: '[VLESS] 03 (01-09 20:41)'
   type: vless
   server: 2001:bc8:32d7:181::3
   port: 17401
@@ -136,14 +136,14 @@ proxies:
       enabled: true
       up: 50
       down: 100
-- name: '[MIERU] 01 (01-09 20:36)'
+- name: '[MIERU] 01 (01-09 20:41)'
   type: mieru
   server: 157.254.223.48
   port: 33990
   transport: TCP
   username: dongtaiwang.com
   password: dongtaiwang.com
-- name: '[TUIC] 01 (01-09 20:36)'
+- name: '[TUIC] 01 (01-09 20:41)'
   server: 89.144.35.231
   port: 33457
   type: tuic
@@ -156,7 +156,7 @@ proxies:
   reduce-rtt: true
   udp-relay-mode: native
   congestion-controller: bbr
-- name: '[TUIC] 02 (01-09 20:36)'
+- name: '[TUIC] 02 (01-09 20:41)'
   server: 2a14:7583:299d::a
   port: 33457
   type: tuic
@@ -169,7 +169,7 @@ proxies:
   reduce-rtt: true
   udp-relay-mode: native
   congestion-controller: bbr
-- name: '[HYSTERIA] 05 (01-09 20:36)'
+- name: '[HYSTERIA] 05 (01-09 20:41)'
   type: hysteria
   server: 2a14:7584:d097::a
   port: 54177
@@ -181,21 +181,21 @@ proxies:
   protocol: udp
   up: 11 Mbps
   down: 55 Mbps
-- name: '[HYSTERIA2] 01 (01-09 20:36)'
+- name: '[HYSTERIA2] 01 (01-09 20:41)'
   type: hysteria2
   server: 157.254.223.43
   port: 27921
   password: dongtaiwang.com
   sni: apple.com
   skip-cert-verify: true
-- name: '[HYSTERIA2] 02 (01-09 20:36)'
+- name: '[HYSTERIA2] 02 (01-09 20:41)'
   type: hysteria2
   server: 62.210.124.146
   port: 22000
   password: dongtaiwang.com
   sni: www.microsoft.com
   skip-cert-verify: true
-- name: '[HYSTERIA2] 03 (01-09 20:36)'
+- name: '[HYSTERIA2] 03 (01-09 20:41)'
   type: hysteria2
   server: '[2a14:7584:d04a::a]'
   port: 50022
