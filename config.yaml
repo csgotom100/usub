@@ -1,19 +1,29 @@
 proxies:
-- name: '[ANYTLS] 01-01-09 23:18'
-  type: anytls
-  server: 45.221.98.14
-  port: 59901
-  password: dongtaiwang.com
-  client-fingerprint: chrome
-  udp: true
-  idle-session-check-interval: 30
-  idle-session-timeout: 30
-  min-idle-session: 0
-  alpn:
-  - h2
-  - http/1.1
+- name: NL [HYSTERIA] 01 (01-09 23:23)
+  type: hysteria
+  server: 89.144.35.30
+  port: 23008
+  auth-str: dongtaiwang.com
+  sni: apple.com
   skip-cert-verify: true
-- name: '[VLESS] 02-01-09 23:18'
+  alpn:
+  - h3
+  protocol: udp
+  up: 11 Mbps
+  down: 55 Mbps
+- name: DE [HYSTERIA] 02 (01-09 23:23)
+  type: hysteria
+  server: 5.178.101.33
+  port: 23008
+  auth-str: dongtaiwang.com
+  sni: apple.com
+  skip-cert-verify: true
+  alpn:
+  - h3
+  protocol: udp
+  up: 11 Mbps
+  down: 55 Mbps
+- name: FR [VLESS] 03 (01-09 23:23)
   type: vless
   server: 195.154.200.13
   port: 17401
@@ -37,7 +47,45 @@ proxies:
       enabled: true
       up: 50
       down: 100
-- name: '[VLESS] 03-01-09 23:18'
+- name: FR [HYSTERIA] 04 (01-09 23:23)
+  type: hysteria
+  server: 2001:bc8:32d7:402::3
+  port: 20001
+  auth-str: dongtaiwang.com
+  sni: apple.com
+  skip-cert-verify: true
+  alpn:
+  - h3
+  protocol: udp
+  up: 11 Mbps
+  down: 55 Mbps
+- name: FR [HYSTERIA] 05 (01-09 23:23)
+  type: hysteria
+  server: 2001:bc8:32d7:402::4
+  port: 20001
+  auth-str: dongtaiwang.com
+  sni: apple.com
+  skip-cert-verify: true
+  alpn:
+  - h3
+  protocol: udp
+  up: 11 Mbps
+  down: 55 Mbps
+- name: 🇹🇼 [ANYTLS] 06 (01-09 23:23)
+  type: anytls
+  server: 45.221.98.14
+  port: 59901
+  password: dongtaiwang.com
+  client-fingerprint: chrome
+  udp: true
+  idle-session-check-interval: 30
+  idle-session-timeout: 30
+  min-idle-session: 0
+  alpn:
+  - h2
+  - http/1.1
+  skip-cert-verify: true
+- name: FR [VLESS] 07 (01-09 23:23)
   type: vless
   server: 2001:bc8:32d7:181::2
   port: 17401
@@ -61,7 +109,7 @@ proxies:
       enabled: true
       up: 50
       down: 100
-- name: '[VLESS] 04-01-09 23:18'
+- name: FR [VLESS] 08 (01-09 23:23)
   type: vless
   server: 2001:bc8:32d7:181::3
   port: 17401
@@ -85,8 +133,52 @@ proxies:
       enabled: true
       up: 50
       down: 100
-- name: '[VLESS] 05-01-09 23:18'
-  type: vless
+- name: 🇺🇸 [MIERU] 09 (01-09 23:23)
+  type: mieru
+  server: 157.254.223.48
+  port: 33990
+  transport: TCP
+  username: dongtaiwang.com
+  password: dongtaiwang.com
+- name: NL [TUIC] 10 (01-09 23:23)
+  server: 89.144.35.231
+  port: 33457
+  type: tuic
+  uuid: 66d37a65-7f6f-4e7c-a0f6-163bd917756a
+  password: dongtaiwang.com
+  alpn:
+  - h3
+  sni: apple.com
+  skip-cert-verify: true
+  reduce-rtt: true
+  udp-relay-mode: native
+  congestion-controller: bbr
+- name: DE [TUIC] 11 (01-09 23:23)
+  server: 2a14:7583:299d::a
+  port: 33457
+  type: tuic
+  uuid: 66d37a65-7f6f-4e7c-a0f6-163bd917756a
+  password: dongtaiwang.com
+  alpn:
+  - h3
+  sni: apple.com
+  skip-cert-verify: true
+  reduce-rtt: true
+  udp-relay-mode: native
+  congestion-controller: bbr
+- name: DE [HYSTERIA] 12 (01-09 23:23)
+  type: hysteria
+  server: 2a14:7584:d097::a
+  port: 54177
+  auth-str: dongtaiwang.com
+  sni: apple.com
+  skip-cert-verify: true
+  alpn:
+  - h3
+  protocol: udp
+  up: 11 Mbps
+  down: 55 Mbps
+- type: vless
   server: 157.254.223.44
   port: 18959
   uuid: d0b3e27d-bbfc-4a3b-8e60-6973de8fcefa
@@ -100,8 +192,8 @@ proxies:
     path: ''
     mode: auto
   client-fingerprint: chrome
-- name: '[VLESS] 06-01-09 23:18'
-  type: vless
+  name: 🇺🇸 [VLESS] 13 (01-09 23:23)
+- type: vless
   server: 89.144.35.232
   port: 15531
   uuid: d3fd3b3c-f8d4-4894-b91e-5a6a53923a95
@@ -115,8 +207,8 @@ proxies:
     path: ''
     mode: auto
   client-fingerprint: chrome
-- name: '[VLESS] 07-01-09 23:18'
-  type: vless
+  name: NL [VLESS] 14 (01-09 23:23)
+- type: vless
   server: 62.210.127.177
   port: 60011
   uuid: a1f699e4-d7b7-4cdc-8414-1105e08fe4c5
@@ -130,8 +222,8 @@ proxies:
     path: /github.com/Alvin9999
     mode: auto
   client-fingerprint: chrome
-- name: '[VLESS] 08-01-09 23:18'
-  type: vless
+  name: FR [VLESS] 15 (01-09 23:23)
+- type: vless
   server: fan3.394615.xyz
   port: 34500
   uuid: 8b66e552-e89d-4c4f-bb5a-e3d37bf151b8
@@ -145,8 +237,8 @@ proxies:
     path: /ZTwhzkrWeLnk5ARp8SsoVlVMGn6cSDq8CElbAniRQ9dMR
     mode: auto
   client-fingerprint: chrome
-- name: '[VLESS] 09-01-09 23:18'
-  type: vless
+  name: 🇹🇼 [VLESS] 16 (01-09 23:23)
+- type: vless
   server: 89.144.35.230
   port: 54582
   uuid: 5cfc52bc-e701-4160-89df-930a0c040576
@@ -160,8 +252,8 @@ proxies:
     path: 5cfc52bc-e701-4160-89df-930a0c040576-xh
     mode: auto
   client-fingerprint: chrome
-- name: '[VLESS] 10-01-09 23:18'
-  type: vless
+  name: NL [VLESS] 17 (01-09 23:23)
+- type: vless
   server: 2a14:7584:d097::a
   port: 11330
   uuid: 53d74aab-6471-4c1b-ace7-fac837d1bfbd
@@ -175,146 +267,54 @@ proxies:
     path: /alvin9999.com
     mode: auto
   client-fingerprint: chrome
-- name: '[HYSTERIA] 11-01-09 23:18'
-  type: hysteria
-  server: 89.144.35.30
-  port: 23008
-  auth-str: dongtaiwang.com
-  sni: apple.com
-  skip-cert-verify: true
-  alpn:
-  - h3
-  protocol: udp
-  up: 11 Mbps
-  down: 55 Mbps
-- name: '[HYSTERIA] 12-01-09 23:18'
-  type: hysteria
-  server: 5.178.101.33
-  port: 23008
-  auth-str: dongtaiwang.com
-  sni: apple.com
-  skip-cert-verify: true
-  alpn:
-  - h3
-  protocol: udp
-  up: 11 Mbps
-  down: 55 Mbps
-- name: '[HYSTERIA] 13-01-09 23:18'
-  type: hysteria
-  server: 2001:bc8:32d7:402::3
-  port: 20001
-  auth-str: dongtaiwang.com
-  sni: apple.com
-  skip-cert-verify: true
-  alpn:
-  - h3
-  protocol: udp
-  up: 11 Mbps
-  down: 55 Mbps
-- name: '[HYSTERIA] 14-01-09 23:18'
-  type: hysteria
-  server: 2001:bc8:32d7:402::4
-  port: 20001
-  auth-str: dongtaiwang.com
-  sni: apple.com
-  skip-cert-verify: true
-  alpn:
-  - h3
-  protocol: udp
-  up: 11 Mbps
-  down: 55 Mbps
-- name: '[MIERU] 15-01-09 23:18'
-  type: mieru
-  server: 157.254.223.48
-  port: 33990
-  transport: TCP
-  username: dongtaiwang.com
-  password: dongtaiwang.com
-- name: '[TUIC] 16-01-09 23:18'
-  server: 89.144.35.231
-  port: 33457
-  type: tuic
-  uuid: 66d37a65-7f6f-4e7c-a0f6-163bd917756a
-  password: dongtaiwang.com
-  alpn:
-  - h3
-  sni: apple.com
-  skip-cert-verify: true
-  reduce-rtt: true
-  udp-relay-mode: native
-  congestion-controller: bbr
-- name: '[TUIC] 17-01-09 23:18'
-  server: 2a14:7583:299d::a
-  port: 33457
-  type: tuic
-  uuid: 66d37a65-7f6f-4e7c-a0f6-163bd917756a
-  password: dongtaiwang.com
-  alpn:
-  - h3
-  sni: apple.com
-  skip-cert-verify: true
-  reduce-rtt: true
-  udp-relay-mode: native
-  congestion-controller: bbr
-- name: '[HYSTERIA] 18-01-09 23:18'
-  type: hysteria
-  server: 2a14:7584:d097::a
-  port: 54177
-  auth-str: dongtaiwang.com
-  sni: apple.com
-  skip-cert-verify: true
-  alpn:
-  - h3
-  protocol: udp
-  up: 11 Mbps
-  down: 55 Mbps
+  name: DE [VLESS] 18 (01-09 23:23)
 proxy-groups:
 - name: 🚀 节点选择
   type: select
   proxies:
   - ♻️ 自动选择
   - DIRECT
-  - '[ANYTLS] 01-01-09 23:18'
-  - '[VLESS] 02-01-09 23:18'
-  - '[VLESS] 03-01-09 23:18'
-  - '[VLESS] 04-01-09 23:18'
-  - '[VLESS] 05-01-09 23:18'
-  - '[VLESS] 06-01-09 23:18'
-  - '[VLESS] 07-01-09 23:18'
-  - '[VLESS] 08-01-09 23:18'
-  - '[VLESS] 09-01-09 23:18'
-  - '[VLESS] 10-01-09 23:18'
-  - '[HYSTERIA] 11-01-09 23:18'
-  - '[HYSTERIA] 12-01-09 23:18'
-  - '[HYSTERIA] 13-01-09 23:18'
-  - '[HYSTERIA] 14-01-09 23:18'
-  - '[MIERU] 15-01-09 23:18'
-  - '[TUIC] 16-01-09 23:18'
-  - '[TUIC] 17-01-09 23:18'
-  - '[HYSTERIA] 18-01-09 23:18'
+  - NL [HYSTERIA] 01 (01-09 23:23)
+  - DE [HYSTERIA] 02 (01-09 23:23)
+  - FR [VLESS] 03 (01-09 23:23)
+  - FR [HYSTERIA] 04 (01-09 23:23)
+  - FR [HYSTERIA] 05 (01-09 23:23)
+  - 🇹🇼 [ANYTLS] 06 (01-09 23:23)
+  - FR [VLESS] 07 (01-09 23:23)
+  - FR [VLESS] 08 (01-09 23:23)
+  - 🇺🇸 [MIERU] 09 (01-09 23:23)
+  - NL [TUIC] 10 (01-09 23:23)
+  - DE [TUIC] 11 (01-09 23:23)
+  - DE [HYSTERIA] 12 (01-09 23:23)
+  - 🇺🇸 [VLESS] 13 (01-09 23:23)
+  - NL [VLESS] 14 (01-09 23:23)
+  - FR [VLESS] 15 (01-09 23:23)
+  - 🇹🇼 [VLESS] 16 (01-09 23:23)
+  - NL [VLESS] 17 (01-09 23:23)
+  - DE [VLESS] 18 (01-09 23:23)
 - name: ♻️ 自动选择
   type: url-test
   url: http://www.gstatic.com/generate_204
   interval: 300
   proxies:
-  - '[ANYTLS] 01-01-09 23:18'
-  - '[VLESS] 02-01-09 23:18'
-  - '[VLESS] 03-01-09 23:18'
-  - '[VLESS] 04-01-09 23:18'
-  - '[VLESS] 05-01-09 23:18'
-  - '[VLESS] 06-01-09 23:18'
-  - '[VLESS] 07-01-09 23:18'
-  - '[VLESS] 08-01-09 23:18'
-  - '[VLESS] 09-01-09 23:18'
-  - '[VLESS] 10-01-09 23:18'
-  - '[HYSTERIA] 11-01-09 23:18'
-  - '[HYSTERIA] 12-01-09 23:18'
-  - '[HYSTERIA] 13-01-09 23:18'
-  - '[HYSTERIA] 14-01-09 23:18'
-  - '[MIERU] 15-01-09 23:18'
-  - '[TUIC] 16-01-09 23:18'
-  - '[TUIC] 17-01-09 23:18'
-  - '[HYSTERIA] 18-01-09 23:18'
+  - NL [HYSTERIA] 01 (01-09 23:23)
+  - DE [HYSTERIA] 02 (01-09 23:23)
+  - FR [VLESS] 03 (01-09 23:23)
+  - FR [HYSTERIA] 04 (01-09 23:23)
+  - FR [HYSTERIA] 05 (01-09 23:23)
+  - 🇹🇼 [ANYTLS] 06 (01-09 23:23)
+  - FR [VLESS] 07 (01-09 23:23)
+  - FR [VLESS] 08 (01-09 23:23)
+  - 🇺🇸 [MIERU] 09 (01-09 23:23)
+  - NL [TUIC] 10 (01-09 23:23)
+  - DE [TUIC] 11 (01-09 23:23)
+  - DE [HYSTERIA] 12 (01-09 23:23)
+  - 🇺🇸 [VLESS] 13 (01-09 23:23)
+  - NL [VLESS] 14 (01-09 23:23)
+  - FR [VLESS] 15 (01-09 23:23)
+  - 🇹🇼 [VLESS] 16 (01-09 23:23)
+  - NL [VLESS] 17 (01-09 23:23)
+  - DE [VLESS] 18 (01-09 23:23)
 - name: 🎯 全球直连
   type: select
   proxies:
