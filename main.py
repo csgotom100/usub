@@ -1,57 +1,62 @@
 import requests
 import yaml
 import base64
-from urllib.parse import quote
 import os
+from urllib.parse import quote, urlencode
 
 def format_addr(addr):
-    """处理 IPv6 地址，如果包含冒号则加中括号"""
-    if ":" in addr and "[" not in addr:
-        return f"[{addr}]"
-    return addr
+    """处理 IPv6 地址"""
+    addr_str = str(addr).strip()
+    if ":" in addr_str and "[" not in addr_str:
+        return f"[{addr_str}]"
+    return addr_str
 
 def parse_clash_yaml(yaml_content):
-    """解析 YAML 并转换为正确的 URI 链接"""
-    nodes = []
+    """解析源 YAML 并提取原始代理对象"""
     try:
         data = yaml.safe_load(yaml_content)
         if not data or 'proxies' not in data:
-            return nodes
-            
-        proxies = data.get('proxies', [])
-        for p in proxies:
-            p_type = p.get('type')
-            name = quote(p.get('name', 'node'))
-            # 格式化服务器地址（处理 IPv6）
-            server = format_addr(str(p.get('server', '')))
-            port = p.get('port')
-            
-            # 1. VLESS (Reality) 提取
-            if p_type == 'vless':
-                uuid = p.get('uuid')
-                sni = p.get('servername', '')
-                reality = p.get('reality-opts', {})
-                pbk = reality.get('public-key', '')
-                sid = reality.get('short-id', '')
-                net = p.get('network', 'tcp')
-                uri = f"vless://{uuid}@{server}:{port}?security=tls&sni={sni}&fp=chrome&type={net}&pbk={pbk}&sid={sid}#{name}"
-                nodes.append(uri)
-                
-            # 2. Hysteria 提取
-            elif p_type == 'hysteria':
-                auth = p.get('auth-str', '')
-                sni = p.get('sni', '')
-                alpn = ",".join(p.get('alpn', ['h3']))
-                uri = f"hysteria://{server}:{port}?auth={auth}&sni={sni}&alpn={alpn}#{name}"
-                nodes.append(uri)
+            return []
+        return data.get('proxies', [])
     except Exception as e:
-        print(f"YAML 解析出错: {e}")
-    return nodes
+        print(f"YAML 解析源文件失败: {e}")
+        return []
+
+def generate_uri(p):
+    """将代理对象转换为 v2rayN 兼容的 URI"""
+    try:
+        p_type = str(p.get('type', '')).lower()
+        name = quote(str(p.get('name', 'node')))
+        server = format_addr(p.get('server', ''))
+        port = p.get('port')
+        
+        if p_type == 'vless':
+            uuid = p.get('uuid')
+            reality = p.get('reality-opts', {})
+            params = {
+                "security": "reality",
+                "sni": p.get('servername', ''),
+                "fp": "chrome",
+                "type": p.get('network', 'tcp'),
+                "pbk": reality.get('public-key', ''),
+                "sid": reality.get('short-id', ''),
+                "flow": p.get('flow', '')
+            }
+            param_str = urlencode({k: v for k, v in params.items() if v})
+            return f"vless://{uuid}@{server}:{port}?{param_str}#{name}"
+            
+        elif p_type == 'hysteria':
+            auth = p.get('auth-str', '')
+            sni = p.get('sni', '')
+            return f"hysteria://{server}:{port}?auth={auth}&peer={sni}&insecure=1&alpn=h3#{name}"
+    except:
+        return None
+    return None
 
 def main():
-    all_extracted_nodes = []
+    all_proxies = []
+    
     if not os.path.exists('sources.txt'):
-        print("Error: sources.txt not found!")
         return
 
     with open('sources.txt', 'r', encoding='utf-8') as f:
@@ -60,34 +65,50 @@ def main():
     current_type = ""
     for line in lines:
         line = line.strip()
-        if not line: continue
-        if line.startswith("#"):
+        if not line or line.startswith("#"):
             current_type = line.upper()
             continue
         
         try:
-            print(f"Fetching: {line}")
             resp = requests.get(line, timeout=15)
             if resp.status_code == 200:
                 if "YAML" in current_type:
-                    nodes = parse_clash_yaml(resp.text)
-                    all_extracted_nodes.extend(nodes)
-        except Exception as e:
-            print(f"Request failed for {line}: {e}")
+                    proxies = parse_clash_yaml(resp.text)
+                    all_proxies.extend(proxies)
+        except:
+            continue
 
-    # 汇总去重
-    final_nodes = list(dict.fromkeys(all_extracted_nodes))
-    
-    # 输出结果
+    # 去重处理 (按名字去重)
+    unique_proxies = {p.get('name'): p for p in all_proxies if p.get('name')}.values()
+    proxy_list = list(unique_proxies)
+
+    # --- 输出 1: 生成 Clash 配置文件 (config.yaml) ---
+    clash_config = {
+        "port": 7890,
+        "allow-lan": True,
+        "mode": "rule",
+        "log-level": "info",
+        "proxies": proxy_list,
+        "proxy-groups": [
+            {
+                "name": "Proxy",
+                "type": "select",
+                "proxies": [p.get('name') for p in proxy_list]
+            }
+        ],
+        "rules": ["MATCH,Proxy"]
+    }
+    with open('config.yaml', 'w', encoding='utf-8') as f:
+        yaml.dump(clash_config, f, allow_unicode=True, sort_keys=False)
+
+    # --- 输出 2: 生成 v2rayN 订阅 (sub.txt / sub_base64.txt) ---
+    uris = [generate_uri(p) for p in proxy_list if generate_uri(p)]
     with open('sub.txt', 'w', encoding='utf-8') as f:
-        f.write("\n".join(final_nodes))
+        f.write("\n".join(uris))
     
-    combined_text = "\n".join(final_nodes)
-    sub_base64 = base64.b64encode(combined_text.encode('utf-8')).decode('utf-8')
+    sub_base64 = base64.b64encode("\n".join(uris).encode('utf-8')).decode('utf-8')
     with open('sub_base64.txt', 'w', encoding='utf-8') as f:
         f.write(sub_base64)
-    
-    print(f"Done! Extracted {len(final_nodes)} nodes.")
 
 if __name__ == "__main__":
     main()
