@@ -19,9 +19,11 @@ jobs:
       - name: Run
         run: python main.py
       - name: Push
+- name: Commit and Push
         run: |
-          git config --global user.name "Bot"
-          git config --global user.email "bot@github.com"
-          git add subscribe.txt
-          git commit -m "Update nodes" || exit 0
+          git config --global user.name "GitHub Action"
+          git config --global user.email "action@github.com"
+          # 确保这里添加的是 sub.txt 和 sub_base64.txt
+          git add sub.txt sub_base64.txt
+          git commit -m "自动更新节点列表 $(date)" || exit 0
           git push
