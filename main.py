@@ -14,7 +14,7 @@ def format_addr(addr):
 
 def get_beijing_time():
     """获取北京时间戳字符串"""
-    # GitHub Actions 运行在 UTC 时间，需要 +8 小时
+    # GitHub Actions 运行在 UTC 时间，需要 +8 小时偏移
     beijing_now = datetime.utcnow() + timedelta(hours=8)
     return beijing_now.strftime("%m-%d %H:%M")
 
@@ -28,6 +28,7 @@ def parse_clash_yaml(yaml_content):
     return []
 
 def generate_uri(p):
+    """转换为 v2rayN 兼容 URI"""
     try:
         p_type = str(p.get('type', '')).lower()
         name = quote(str(p.get('name', 'node')))
@@ -71,57 +72,59 @@ def main():
 
     for url in urls:
         try:
+            print(f"正在抓取: {url}")
             resp = requests.get(url, timeout=15)
             if resp.status_code == 200:
+                # 这里默认所有 sources.txt 里的链接都尝试作为 YAML 解析
+                # 如果未来有 JSON 源，可以根据内容特征在这里分流处理
                 all_proxies.extend(parse_clash_yaml(resp.text))
-        except: continue
+        except: 
+            continue
 
-    # --- 深度去重逻辑 ---
+    # --- 深度去重逻辑 (全配置匹配) ---
     unique_nodes = []
     seen_configs = set()
-    time_tag = get_beijing_time()
     
     for p in all_proxies:
-        # 复制一份，排除掉 name 字段来对比配置
         temp_p = p.copy()
+        # 排除掉名称，仅对比核心连接配置
         temp_p.pop('name', None)
-        # 将字典转换为稳定的 JSON 字符串作为指纹
+        # 转换为 JSON 字符串作为指纹进行比对
         config_fingerprint = json.dumps(temp_p, sort_keys=True)
         
-        if config_fingerprint not in seen_names: # 这里笔误，应为 seen_configs
-            pass 
-        # 修正逻辑：
         if config_fingerprint not in seen_configs:
             seen_configs.add(config_fingerprint)
             unique_nodes.append(p)
 
-    # --- 重新命名逻辑 ---
+    # --- 重新命名并加上北京时间戳 ---
     final_proxies = []
     protocol_counts = {}
+    time_tag = get_beijing_time()
     
     for p in unique_nodes:
         p_type = str(p.get('type', 'unknown')).upper()
-        # 统计各协议数量
         count = protocol_counts.get(p_type, 0) + 1
         protocol_counts[p_type] = count
         
-        # 格式化名称: [协议] 编号-时间戳
+        # 格式: [协议名] 编号 (月-日 时:分)
         p['name'] = f"[{p_type}] {count:02d} ({time_tag})"
         final_proxies.append(p)
 
-    # 1. 保存 config.yaml
+    # 1. 保存 config.yaml (Clash 格式)
     with open('config.yaml', 'w', encoding='utf-8') as f:
-        yaml.dump({"port": 7890, "proxies": final_proxies}, f, allow_unicode=True, sort_keys=False)
+        yaml.dump({"port": 7890, "allow-lan": True, "mode": "rule", "proxies": final_proxies}, f, allow_unicode=True, sort_keys=False)
 
-    # 2. 生成 URI 并保存 sub.txt
+    # 2. 生成 URI 并保存 sub.txt (明文格式)
     uris = [generate_uri(p) for p in final_proxies if generate_uri(p)]
     with open('sub.txt', 'w', encoding='utf-8') as f:
         f.write("\n".join(uris))
 
-    # 3. 保存 sub_base64.txt
+    # 3. 保存 sub_base64.txt (标准订阅格式)
     sub_base64 = base64.b64encode("\n".join(uris).encode('utf-8')).decode('utf-8')
     with open('sub_base64.txt', 'w', encoding='utf-8') as f:
         f.write(sub_base64)
+    
+    print(f"完成！去重后共有 {len(final_proxies)} 个节点。")
 
 if __name__ == "__main__":
     main()
