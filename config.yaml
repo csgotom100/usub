@@ -1,5 +1,5 @@
 proxies:
-- name: 🇹🇼[ANYTLS] 01 (01-09 23:34)
+- name: 🌐[ANYTLS] 01 (01-09 23:53)
   type: anytls
   server: 45.221.98.14
   port: 59901
@@ -13,7 +13,7 @@ proxies:
   - h2
   - http/1.1
   skip-cert-verify: true
-- name: 🌐[HYSTERIA] 02 (01-09 23:34)
+- name: 🌐[HYSTERIA] 02 (01-09 23:53)
   type: hysteria
   server: 89.144.35.30
   port: 23008
@@ -25,7 +25,7 @@ proxies:
   protocol: udp
   up: 11 Mbps
   down: 55 Mbps
-- name: 🇹🇼[HYSTERIA] 03 (01-09 23:34)
+- name: 🌐[HYSTERIA] 03 (01-09 23:53)
   type: hysteria
   server: 5.178.101.33
   port: 23008
@@ -37,7 +37,7 @@ proxies:
   protocol: udp
   up: 11 Mbps
   down: 55 Mbps
-- name: 🇹🇼[VLESS] 04 (01-09 23:34)
+- name: 🌐[VLESS] 04 (01-09 23:53)
   type: vless
   server: 195.154.200.13
   port: 17401
@@ -61,7 +61,7 @@ proxies:
       enabled: true
       up: 50
       down: 100
-- name: 🇹🇼[HYSTERIA] 05 (01-09 23:34)
+- name: 🌐[HYSTERIA] 05 (01-09 23:53)
   type: hysteria
   server: 2001:bc8:32d7:402::3
   port: 20001
@@ -73,7 +73,7 @@ proxies:
   protocol: udp
   up: 11 Mbps
   down: 55 Mbps
-- name: 🇹🇼[HYSTERIA] 06 (01-09 23:34)
+- name: 🌐[HYSTERIA] 06 (01-09 23:53)
   type: hysteria
   server: 2001:bc8:32d7:402::4
   port: 20001
@@ -85,7 +85,7 @@ proxies:
   protocol: udp
   up: 11 Mbps
   down: 55 Mbps
-- name: 🇹🇼[VLESS] 07 (01-09 23:34)
+- name: 🌐[VLESS] 07 (01-09 23:53)
   type: vless
   server: 2001:bc8:32d7:181::2
   port: 17401
@@ -109,7 +109,7 @@ proxies:
       enabled: true
       up: 50
       down: 100
-- name: 🇹🇼[VLESS] 08 (01-09 23:34)
+- name: 🌐[VLESS] 08 (01-09 23:53)
   type: vless
   server: 2001:bc8:32d7:181::3
   port: 17401
@@ -133,14 +133,14 @@ proxies:
       enabled: true
       up: 50
       down: 100
-- name: 🇹🇼[MIERU] 09 (01-09 23:34)
+- name: 🌐[MIERU] 09 (01-09 23:53)
   type: mieru
   server: 157.254.223.48
   port: 33990
   transport: TCP
   username: dongtaiwang.com
   password: dongtaiwang.com
-- name: 🌐[TUIC] 10 (01-09 23:34)
+- name: 🌐[TUIC] 10 (01-09 23:53)
   server: 89.144.35.231
   port: 33457
   type: tuic
@@ -153,7 +153,7 @@ proxies:
   reduce-rtt: true
   udp-relay-mode: native
   congestion-controller: bbr
-- name: 🇹🇼[TUIC] 11 (01-09 23:34)
+- name: 🌐[TUIC] 11 (01-09 23:53)
   server: 2a14:7583:299d::a
   port: 33457
   type: tuic
@@ -166,7 +166,7 @@ proxies:
   reduce-rtt: true
   udp-relay-mode: native
   congestion-controller: bbr
-- name: 🌐[HYSTERIA] 12 (01-09 23:34)
+- name: 🌐[HYSTERIA] 12 (01-09 23:53)
   type: hysteria
   server: 2a14:7584:d097::a
   port: 54177
@@ -197,7 +197,7 @@ proxies:
     udp:
       hopInterval: 30s
   type: hysteria2
-  name: 🌐[HYSTERIA2] 13 (01-09 23:34)
+  name: 🌐[HYSTERIA2] 13 (01-09 23:53)
 - server: 62.210.124.146:22000
   auth: dongtaiwang.com
   bandwidth:
@@ -217,7 +217,7 @@ proxies:
     udp:
       hopInterval: 30s
   type: hysteria2
-  name: 🌐[HYSTERIA2] 14 (01-09 23:34)
+  name: 🌐[HYSTERIA2] 14 (01-09 23:53)
 - server: '[2a14:7584:d04a::a]:50022'
   auth: dongtaiwang.com
   bandwidth:
@@ -237,7 +237,7 @@ proxies:
     udp:
       hopInterval: 30s
   type: hysteria2
-  name: 🌐[HYSTERIA2] 15 (01-09 23:34)
+  name: 🌐[HYSTERIA2] 15 (01-09 23:53)
 - type: vless
   tag: https://github.com/Alvin9999-newpac/fanqiang/wiki
   uuid: d0b3e27d-bbfc-4a3b-8e60-6973de8fcefa
@@ -265,7 +265,7 @@ proxies:
       enabled: true
       up_mbps: 50
       down_mbps: 100
-  name: 🌐[VLESS] 16 (01-09 23:34)
+  name: 🌐[VLESS] 16 (01-09 23:53)
 - type: vless
   tag: https://github.com/Alvin9999-newpac/fanqiang/wiki
   uuid: d3fd3b3c-f8d4-4894-b91e-5a6a53923a95
@@ -293,52 +293,52 @@ proxies:
       enabled: true
       up_mbps: 50
       down_mbps: 100
-  name: 🌐[VLESS] 17 (01-09 23:34)
+  name: 🌐[VLESS] 17 (01-09 23:53)
 proxy-groups:
 - name: 🚀 节点选择
   type: select
   proxies:
   - ♻️ 自动选择
   - DIRECT
-  - 🇹🇼[ANYTLS] 01 (01-09 23:34)
-  - 🌐[HYSTERIA] 02 (01-09 23:34)
-  - 🇹🇼[HYSTERIA] 03 (01-09 23:34)
-  - 🇹🇼[VLESS] 04 (01-09 23:34)
-  - 🇹🇼[HYSTERIA] 05 (01-09 23:34)
-  - 🇹🇼[HYSTERIA] 06 (01-09 23:34)
-  - 🇹🇼[VLESS] 07 (01-09 23:34)
-  - 🇹🇼[VLESS] 08 (01-09 23:34)
-  - 🇹🇼[MIERU] 09 (01-09 23:34)
-  - 🌐[TUIC] 10 (01-09 23:34)
-  - 🇹🇼[TUIC] 11 (01-09 23:34)
-  - 🌐[HYSTERIA] 12 (01-09 23:34)
-  - 🌐[HYSTERIA2] 13 (01-09 23:34)
-  - 🌐[HYSTERIA2] 14 (01-09 23:34)
-  - 🌐[HYSTERIA2] 15 (01-09 23:34)
-  - 🌐[VLESS] 16 (01-09 23:34)
-  - 🌐[VLESS] 17 (01-09 23:34)
+  - 🌐[ANYTLS] 01 (01-09 23:53)
+  - 🌐[HYSTERIA] 02 (01-09 23:53)
+  - 🌐[HYSTERIA] 03 (01-09 23:53)
+  - 🌐[VLESS] 04 (01-09 23:53)
+  - 🌐[HYSTERIA] 05 (01-09 23:53)
+  - 🌐[HYSTERIA] 06 (01-09 23:53)
+  - 🌐[VLESS] 07 (01-09 23:53)
+  - 🌐[VLESS] 08 (01-09 23:53)
+  - 🌐[MIERU] 09 (01-09 23:53)
+  - 🌐[TUIC] 10 (01-09 23:53)
+  - 🌐[TUIC] 11 (01-09 23:53)
+  - 🌐[HYSTERIA] 12 (01-09 23:53)
+  - 🌐[HYSTERIA2] 13 (01-09 23:53)
+  - 🌐[HYSTERIA2] 14 (01-09 23:53)
+  - 🌐[HYSTERIA2] 15 (01-09 23:53)
+  - 🌐[VLESS] 16 (01-09 23:53)
+  - 🌐[VLESS] 17 (01-09 23:53)
 - name: ♻️ 自动选择
   type: url-test
   url: http://www.gstatic.com/generate_204
   interval: 300
   proxies:
-  - 🇹🇼[ANYTLS] 01 (01-09 23:34)
-  - 🌐[HYSTERIA] 02 (01-09 23:34)
-  - 🇹🇼[HYSTERIA] 03 (01-09 23:34)
-  - 🇹🇼[VLESS] 04 (01-09 23:34)
-  - 🇹🇼[HYSTERIA] 05 (01-09 23:34)
-  - 🇹🇼[HYSTERIA] 06 (01-09 23:34)
-  - 🇹🇼[VLESS] 07 (01-09 23:34)
-  - 🇹🇼[VLESS] 08 (01-09 23:34)
-  - 🇹🇼[MIERU] 09 (01-09 23:34)
-  - 🌐[TUIC] 10 (01-09 23:34)
-  - 🇹🇼[TUIC] 11 (01-09 23:34)
-  - 🌐[HYSTERIA] 12 (01-09 23:34)
-  - 🌐[HYSTERIA2] 13 (01-09 23:34)
-  - 🌐[HYSTERIA2] 14 (01-09 23:34)
-  - 🌐[HYSTERIA2] 15 (01-09 23:34)
-  - 🌐[VLESS] 16 (01-09 23:34)
-  - 🌐[VLESS] 17 (01-09 23:34)
+  - 🌐[ANYTLS] 01 (01-09 23:53)
+  - 🌐[HYSTERIA] 02 (01-09 23:53)
+  - 🌐[HYSTERIA] 03 (01-09 23:53)
+  - 🌐[VLESS] 04 (01-09 23:53)
+  - 🌐[HYSTERIA] 05 (01-09 23:53)
+  - 🌐[HYSTERIA] 06 (01-09 23:53)
+  - 🌐[VLESS] 07 (01-09 23:53)
+  - 🌐[VLESS] 08 (01-09 23:53)
+  - 🌐[MIERU] 09 (01-09 23:53)
+  - 🌐[TUIC] 10 (01-09 23:53)
+  - 🌐[TUIC] 11 (01-09 23:53)
+  - 🌐[HYSTERIA] 12 (01-09 23:53)
+  - 🌐[HYSTERIA2] 13 (01-09 23:53)
+  - 🌐[HYSTERIA2] 14 (01-09 23:53)
+  - 🌐[HYSTERIA2] 15 (01-09 23:53)
+  - 🌐[VLESS] 16 (01-09 23:53)
+  - 🌐[VLESS] 17 (01-09 23:53)
 - name: 🎯 全球直连
   type: select
   proxies:
