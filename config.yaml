@@ -1,5 +1,5 @@
 proxies:
-- name: NL [HYSTERIA] 01 (01-09 23:23)
+- name: 🌐[HYSTERIA] 01 (01-09 23:26)
   type: hysteria
   server: 89.144.35.30
   port: 23008
@@ -11,7 +11,8 @@ proxies:
   protocol: udp
   up: 11 Mbps
   down: 55 Mbps
-- name: DE [HYSTERIA] 02 (01-09 23:23)
+  geo: 🌐
+- name: 🇹🇼[HYSTERIA] 02 (01-09 23:26)
   type: hysteria
   server: 5.178.101.33
   port: 23008
@@ -23,7 +24,8 @@ proxies:
   protocol: udp
   up: 11 Mbps
   down: 55 Mbps
-- name: FR [VLESS] 03 (01-09 23:23)
+  geo: 🇹🇼
+- name: 🇹🇼[VLESS] 03 (01-09 23:26)
   type: vless
   server: 195.154.200.13
   port: 17401
@@ -47,7 +49,8 @@ proxies:
       enabled: true
       up: 50
       down: 100
-- name: FR [HYSTERIA] 04 (01-09 23:23)
+  geo: 🇹🇼
+- name: 🇹🇼[HYSTERIA] 04 (01-09 23:26)
   type: hysteria
   server: 2001:bc8:32d7:402::3
   port: 20001
@@ -59,7 +62,8 @@ proxies:
   protocol: udp
   up: 11 Mbps
   down: 55 Mbps
-- name: FR [HYSTERIA] 05 (01-09 23:23)
+  geo: 🇹🇼
+- name: 🇹🇼[HYSTERIA] 05 (01-09 23:26)
   type: hysteria
   server: 2001:bc8:32d7:402::4
   port: 20001
@@ -71,7 +75,8 @@ proxies:
   protocol: udp
   up: 11 Mbps
   down: 55 Mbps
-- name: 🇹🇼 [ANYTLS] 06 (01-09 23:23)
+  geo: 🇹🇼
+- name: 🇹🇼[ANYTLS] 06 (01-09 23:26)
   type: anytls
   server: 45.221.98.14
   port: 59901
@@ -85,7 +90,8 @@ proxies:
   - h2
   - http/1.1
   skip-cert-verify: true
-- name: FR [VLESS] 07 (01-09 23:23)
+  geo: 🇹🇼
+- name: 🇹🇼[VLESS] 07 (01-09 23:26)
   type: vless
   server: 2001:bc8:32d7:181::2
   port: 17401
@@ -109,7 +115,8 @@ proxies:
       enabled: true
       up: 50
       down: 100
-- name: FR [VLESS] 08 (01-09 23:23)
+  geo: 🇹🇼
+- name: 🇹🇼[VLESS] 08 (01-09 23:26)
   type: vless
   server: 2001:bc8:32d7:181::3
   port: 17401
@@ -133,14 +140,16 @@ proxies:
       enabled: true
       up: 50
       down: 100
-- name: 🇺🇸 [MIERU] 09 (01-09 23:23)
+  geo: 🇹🇼
+- name: 🇹🇼[MIERU] 09 (01-09 23:26)
   type: mieru
   server: 157.254.223.48
   port: 33990
   transport: TCP
   username: dongtaiwang.com
   password: dongtaiwang.com
-- name: NL [TUIC] 10 (01-09 23:23)
+  geo: 🇹🇼
+- name: 🌐[TUIC] 10 (01-09 23:26)
   server: 89.144.35.231
   port: 33457
   type: tuic
@@ -153,7 +162,8 @@ proxies:
   reduce-rtt: true
   udp-relay-mode: native
   congestion-controller: bbr
-- name: DE [TUIC] 11 (01-09 23:23)
+  geo: 🌐
+- name: 🇹🇼[TUIC] 11 (01-09 23:26)
   server: 2a14:7583:299d::a
   port: 33457
   type: tuic
@@ -166,7 +176,8 @@ proxies:
   reduce-rtt: true
   udp-relay-mode: native
   congestion-controller: bbr
-- name: DE [HYSTERIA] 12 (01-09 23:23)
+  geo: 🇹🇼
+- name: 🌐[HYSTERIA] 12 (01-09 23:26)
   type: hysteria
   server: 2a14:7584:d097::a
   port: 54177
@@ -178,7 +189,31 @@ proxies:
   protocol: udp
   up: 11 Mbps
   down: 55 Mbps
-- type: vless
+  geo: 🌐
+- name: 🇹🇼[HYSTERIA2] 13 (01-09 23:26)
+  geo: 🇹🇼
+  type: hysteria2
+  server: 157.254.223.43
+  port: 27921
+  password: dongtaiwang.com
+  sni: apple.com
+- name: 🇹🇼[HYSTERIA2] 14 (01-09 23:26)
+  geo: 🇹🇼
+  type: hysteria2
+  server: 62.210.124.146
+  port: 22000
+  password: dongtaiwang.com
+  sni: apple.com
+- name: 🇹🇼[HYSTERIA2] 15 (01-09 23:26)
+  geo: 🇹🇼
+  type: hysteria2
+  server: '[2a14:7584:d04a::a]'
+  port: 50022
+  password: dongtaiwang.com
+  sni: apple.com
+- name: 🇩🇪[VLESS] 16 (01-09 23:26)
+  geo: 🇩🇪
+  type: vless
   server: 157.254.223.44
   port: 18959
   uuid: d0b3e27d-bbfc-4a3b-8e60-6973de8fcefa
@@ -192,8 +227,9 @@ proxies:
     path: ''
     mode: auto
   client-fingerprint: chrome
-  name: 🇺🇸 [VLESS] 13 (01-09 23:23)
-- type: vless
+- name: 🌐[VLESS] 17 (01-09 23:26)
+  geo: 🌐
+  type: vless
   server: 89.144.35.232
   port: 15531
   uuid: d3fd3b3c-f8d4-4894-b91e-5a6a53923a95
@@ -207,8 +243,9 @@ proxies:
     path: ''
     mode: auto
   client-fingerprint: chrome
-  name: NL [VLESS] 14 (01-09 23:23)
-- type: vless
+- name: 🌐[VLESS] 18 (01-09 23:26)
+  geo: 🌐
+  type: vless
   server: 62.210.127.177
   port: 60011
   uuid: a1f699e4-d7b7-4cdc-8414-1105e08fe4c5
@@ -222,8 +259,9 @@ proxies:
     path: /github.com/Alvin9999
     mode: auto
   client-fingerprint: chrome
-  name: FR [VLESS] 15 (01-09 23:23)
-- type: vless
+- name: 🌐[VLESS] 19 (01-09 23:26)
+  geo: 🌐
+  type: vless
   server: fan3.394615.xyz
   port: 34500
   uuid: 8b66e552-e89d-4c4f-bb5a-e3d37bf151b8
@@ -237,8 +275,9 @@ proxies:
     path: /ZTwhzkrWeLnk5ARp8SsoVlVMGn6cSDq8CElbAniRQ9dMR
     mode: auto
   client-fingerprint: chrome
-  name: 🇹🇼 [VLESS] 16 (01-09 23:23)
-- type: vless
+- name: 🌐[VLESS] 20 (01-09 23:26)
+  geo: 🌐
+  type: vless
   server: 89.144.35.230
   port: 54582
   uuid: 5cfc52bc-e701-4160-89df-930a0c040576
@@ -252,8 +291,9 @@ proxies:
     path: 5cfc52bc-e701-4160-89df-930a0c040576-xh
     mode: auto
   client-fingerprint: chrome
-  name: NL [VLESS] 17 (01-09 23:23)
-- type: vless
+- name: 🌐[VLESS] 21 (01-09 23:26)
+  geo: 🌐
+  type: vless
   server: 2a14:7584:d097::a
   port: 11330
   uuid: 53d74aab-6471-4c1b-ace7-fac837d1bfbd
@@ -267,54 +307,59 @@ proxies:
     path: /alvin9999.com
     mode: auto
   client-fingerprint: chrome
-  name: DE [VLESS] 18 (01-09 23:23)
 proxy-groups:
 - name: 🚀 节点选择
   type: select
   proxies:
   - ♻️ 自动选择
   - DIRECT
-  - NL [HYSTERIA] 01 (01-09 23:23)
-  - DE [HYSTERIA] 02 (01-09 23:23)
-  - FR [VLESS] 03 (01-09 23:23)
-  - FR [HYSTERIA] 04 (01-09 23:23)
-  - FR [HYSTERIA] 05 (01-09 23:23)
-  - 🇹🇼 [ANYTLS] 06 (01-09 23:23)
-  - FR [VLESS] 07 (01-09 23:23)
-  - FR [VLESS] 08 (01-09 23:23)
-  - 🇺🇸 [MIERU] 09 (01-09 23:23)
-  - NL [TUIC] 10 (01-09 23:23)
-  - DE [TUIC] 11 (01-09 23:23)
-  - DE [HYSTERIA] 12 (01-09 23:23)
-  - 🇺🇸 [VLESS] 13 (01-09 23:23)
-  - NL [VLESS] 14 (01-09 23:23)
-  - FR [VLESS] 15 (01-09 23:23)
-  - 🇹🇼 [VLESS] 16 (01-09 23:23)
-  - NL [VLESS] 17 (01-09 23:23)
-  - DE [VLESS] 18 (01-09 23:23)
+  - 🌐[HYSTERIA] 01 (01-09 23:26)
+  - 🇹🇼[HYSTERIA] 02 (01-09 23:26)
+  - 🇹🇼[VLESS] 03 (01-09 23:26)
+  - 🇹🇼[HYSTERIA] 04 (01-09 23:26)
+  - 🇹🇼[HYSTERIA] 05 (01-09 23:26)
+  - 🇹🇼[ANYTLS] 06 (01-09 23:26)
+  - 🇹🇼[VLESS] 07 (01-09 23:26)
+  - 🇹🇼[VLESS] 08 (01-09 23:26)
+  - 🇹🇼[MIERU] 09 (01-09 23:26)
+  - 🌐[TUIC] 10 (01-09 23:26)
+  - 🇹🇼[TUIC] 11 (01-09 23:26)
+  - 🌐[HYSTERIA] 12 (01-09 23:26)
+  - 🇹🇼[HYSTERIA2] 13 (01-09 23:26)
+  - 🇹🇼[HYSTERIA2] 14 (01-09 23:26)
+  - 🇹🇼[HYSTERIA2] 15 (01-09 23:26)
+  - 🇩🇪[VLESS] 16 (01-09 23:26)
+  - 🌐[VLESS] 17 (01-09 23:26)
+  - 🌐[VLESS] 18 (01-09 23:26)
+  - 🌐[VLESS] 19 (01-09 23:26)
+  - 🌐[VLESS] 20 (01-09 23:26)
+  - 🌐[VLESS] 21 (01-09 23:26)
 - name: ♻️ 自动选择
   type: url-test
   url: http://www.gstatic.com/generate_204
   interval: 300
   proxies:
-  - NL [HYSTERIA] 01 (01-09 23:23)
-  - DE [HYSTERIA] 02 (01-09 23:23)
-  - FR [VLESS] 03 (01-09 23:23)
-  - FR [HYSTERIA] 04 (01-09 23:23)
-  - FR [HYSTERIA] 05 (01-09 23:23)
-  - 🇹🇼 [ANYTLS] 06 (01-09 23:23)
-  - FR [VLESS] 07 (01-09 23:23)
-  - FR [VLESS] 08 (01-09 23:23)
-  - 🇺🇸 [MIERU] 09 (01-09 23:23)
-  - NL [TUIC] 10 (01-09 23:23)
-  - DE [TUIC] 11 (01-09 23:23)
-  - DE [HYSTERIA] 12 (01-09 23:23)
-  - 🇺🇸 [VLESS] 13 (01-09 23:23)
-  - NL [VLESS] 14 (01-09 23:23)
-  - FR [VLESS] 15 (01-09 23:23)
-  - 🇹🇼 [VLESS] 16 (01-09 23:23)
-  - NL [VLESS] 17 (01-09 23:23)
-  - DE [VLESS] 18 (01-09 23:23)
+  - 🌐[HYSTERIA] 01 (01-09 23:26)
+  - 🇹🇼[HYSTERIA] 02 (01-09 23:26)
+  - 🇹🇼[VLESS] 03 (01-09 23:26)
+  - 🇹🇼[HYSTERIA] 04 (01-09 23:26)
+  - 🇹🇼[HYSTERIA] 05 (01-09 23:26)
+  - 🇹🇼[ANYTLS] 06 (01-09 23:26)
+  - 🇹🇼[VLESS] 07 (01-09 23:26)
+  - 🇹🇼[VLESS] 08 (01-09 23:26)
+  - 🇹🇼[MIERU] 09 (01-09 23:26)
+  - 🌐[TUIC] 10 (01-09 23:26)
+  - 🇹🇼[TUIC] 11 (01-09 23:26)
+  - 🌐[HYSTERIA] 12 (01-09 23:26)
+  - 🇹🇼[HYSTERIA2] 13 (01-09 23:26)
+  - 🇹🇼[HYSTERIA2] 14 (01-09 23:26)
+  - 🇹🇼[HYSTERIA2] 15 (01-09 23:26)
+  - 🇩🇪[VLESS] 16 (01-09 23:26)
+  - 🌐[VLESS] 17 (01-09 23:26)
+  - 🌐[VLESS] 18 (01-09 23:26)
+  - 🌐[VLESS] 19 (01-09 23:26)
+  - 🌐[VLESS] 20 (01-09 23:26)
+  - 🌐[VLESS] 21 (01-09 23:26)
 - name: 🎯 全球直连
   type: select
   proxies:
