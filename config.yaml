@@ -1,6 +1,4 @@
 port: 7890
-allow-lan: true
-mode: rule
 proxies:
 - name: https://github.com/Alvin9999-newpac/fanqiang/wiki
   type: hysteria
@@ -394,34 +392,3 @@ proxies:
   protocol: udp
   up: 11 Mbps
   down: 55 Mbps
-proxy-groups:
-- name: Proxy
-  type: select
-  proxies:
-  - https://github.com/Alvin9999-newpac/fanqiang/wiki
-  - dongtaiwang.com_1
-  - dongtaiwang.com_2
-  - dongtaiwang.com_3
-  - dongtaiwang.com_4
-  - https://github.com/Alvin9999-newpac/fanqiang/wiki_1
-  - dongtaiwang.com_1_1
-  - dongtaiwang.com_2_1
-  - dongtaiwang.com_3_1
-  - dongtaiwang.com_4_1
-  - dongtaiwang.com_0
-  - https://github.com/Alvin9999-newpac/fanqiang/wiki_2
-  - dongtaiwang.com_1_2
-  - dongtaiwang.com_2_2
-  - https://github.com/Alvin9999-newpac/fanqiang/wiki_3
-  - dongtaiwang.com_1_3
-  - dongtaiwang.com_2_3
-  - dongtaiwang.com_0_1
-  - dongtaiwang.com_0_2
-  - https://github.com/Alvin9999-newpac/fanqiang/wiki_4
-  - dongtaiwang.com_1_4
-  - https://github.com/Alvin9999-newpac/fanqiang/wiki_5
-  - dongtaiwang.com_1_5
-  - https://github.com/Alvin9999-newpac/fanqiang/wiki_6
-  - https://github.com/Alvin9999-newpac/fanqiang/wiki_7
-rules:
-- MATCH,Proxy
