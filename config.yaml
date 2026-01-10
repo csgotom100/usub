@@ -1,6 +1,6 @@
 ipv6: true
 proxies:
-- name: 🌐[VLESS] 02 (01-10 17:33)
+- name: 🌐[VLESS] 02 (01-10 17:36)
   server: 195.154.200.13
   port: 17401
   type: vless
@@ -12,7 +12,7 @@ proxies:
   reality-opts:
     public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
     short-id: 8ef4455ba637425b
-- name: 🌐[VLESS] 03 (01-10 17:33)
+- name: 🌐[VLESS] 03 (01-10 17:36)
   server: 2001:bc8:32d7:181::2
   port: 17401
   type: vless
@@ -24,7 +24,7 @@ proxies:
   reality-opts:
     public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
     short-id: 8ef4455ba637425b
-- name: 🌐[VLESS] 04 (01-10 17:33)
+- name: 🌐[VLESS] 04 (01-10 17:36)
   server: 2001:bc8:32d7:181::3
   port: 17401
   type: vless
@@ -36,16 +36,7 @@ proxies:
   reality-opts:
     public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
     short-id: 8ef4455ba637425b
-- name: 🌐[VLESS] 05 (01-10 17:33)
-  server: 157.254.223.48
-  port: 33990
-  type: vless
-  uuid: dongtaiwang.com
-  tls: true
-  servername: apple.com
-  network: tcp
-  udp: true
-- name: 🌐[TUIC] 06 (01-10 17:33)
+- name: 🌐[TUIC] 05 (01-10 17:36)
   server: 89.144.35.231
   port: 33457
   type: tuic
@@ -53,7 +44,7 @@ proxies:
   sni: apple.com
   alpn:
   - h3
-- name: 🌐[TUIC] 07 (01-10 17:33)
+- name: 🌐[TUIC] 06 (01-10 17:36)
   server: 2a14:7583:299d::a
   port: 33457
   type: tuic
@@ -61,7 +52,7 @@ proxies:
   sni: apple.com
   alpn:
   - h3
-- name: 🌐[VLESS] 08 (01-10 17:33)
+- name: 🌐[VLESS] 07 (01-10 17:36)
   server: 157.254.223.44
   port: 18959
   type: vless
@@ -73,7 +64,7 @@ proxies:
   reality-opts:
     public-key: -hwVEdgFkvjku8ESuDoAA7id5yGGv_zXBvBW_RdhmHA
     short-id: d557c6895d014075
-- name: 🌐[VLESS] 09 (01-10 17:33)
+- name: 🌐[VLESS] 08 (01-10 17:36)
   server: 89.144.35.232
   port: 15531
   type: vless
@@ -91,26 +82,24 @@ proxy-groups:
   proxies:
   - ♻️ 自动选择
   - DIRECT
-  - 🌐[VLESS] 02 (01-10 17:33)
-  - 🌐[VLESS] 03 (01-10 17:33)
-  - 🌐[VLESS] 04 (01-10 17:33)
-  - 🌐[VLESS] 05 (01-10 17:33)
-  - 🌐[TUIC] 06 (01-10 17:33)
-  - 🌐[TUIC] 07 (01-10 17:33)
-  - 🌐[VLESS] 08 (01-10 17:33)
-  - 🌐[VLESS] 09 (01-10 17:33)
+  - 🌐[VLESS] 02 (01-10 17:36)
+  - 🌐[VLESS] 03 (01-10 17:36)
+  - 🌐[VLESS] 04 (01-10 17:36)
+  - 🌐[TUIC] 05 (01-10 17:36)
+  - 🌐[TUIC] 06 (01-10 17:36)
+  - 🌐[VLESS] 07 (01-10 17:36)
+  - 🌐[VLESS] 08 (01-10 17:36)
 - name: ♻️ 自动选择
   type: url-test
   url: http://www.gstatic.com/generate_204
   interval: 300
   proxies:
-  - 🌐[VLESS] 02 (01-10 17:33)
-  - 🌐[VLESS] 03 (01-10 17:33)
-  - 🌐[VLESS] 04 (01-10 17:33)
-  - 🌐[VLESS] 05 (01-10 17:33)
-  - 🌐[TUIC] 06 (01-10 17:33)
-  - 🌐[TUIC] 07 (01-10 17:33)
-  - 🌐[VLESS] 08 (01-10 17:33)
-  - 🌐[VLESS] 09 (01-10 17:33)
+  - 🌐[VLESS] 02 (01-10 17:36)
+  - 🌐[VLESS] 03 (01-10 17:36)
+  - 🌐[VLESS] 04 (01-10 17:36)
+  - 🌐[TUIC] 05 (01-10 17:36)
+  - 🌐[TUIC] 06 (01-10 17:36)
+  - 🌐[VLESS] 07 (01-10 17:36)
+  - 🌐[VLESS] 08 (01-10 17:36)
 rules:
 - MATCH,🚀 节点选择
