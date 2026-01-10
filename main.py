@@ -13,8 +13,8 @@ def get_geo_tag(text, server):
         if any(k in content for k in keys): return tag
     return "🌐"
 
-# --- 保持上一版最优的 sub.txt 解析逻辑 ---
 def get_node_info_for_sub(item):
+    """保持最优的 sub.txt 解析逻辑，包含 HY2 识别"""
     try:
         if not isinstance(item, dict): return None
         raw_server = item.get('server') or item.get('add') or item.get('address')
@@ -23,6 +23,7 @@ def get_node_info_for_sub(item):
         srv = str(raw_server).strip()
         port_field = str(item.get('port') or item.get('server_port') or "")
         
+        # 1. 强化 IPv6 提取
         if srv.startswith('['): 
             match = re.match(r'\[(.+)\]:(\d+)', srv)
             if match: srv, port = match.group(1), match.group(2)
@@ -38,11 +39,14 @@ def get_node_info_for_sub(item):
         port = "".join(re.findall(r'\d+', str(port)))
         if not port: return None 
 
+        # 2. 协议判定 (重点确保 HY2)
         item_raw = str(item).lower()
         p_type = str(item.get('type') or "").lower()
-        if p_type == 'mieru' or 'mieru' in item_raw: return None # sub.txt 不支持 mieru
+        if p_type == 'mieru' or 'mieru' in item_raw: return None
         
+        # 提取密码/UUID
         pw = item.get('auth') or item.get('password') or item.get('uuid') or item.get('id')
+        
         if 'hysteria2' in p_type or ('auth' in item and 'bandwidth' in item) or 'hy2' in item_raw:
             p = 'hysteria2'
         elif 'tuic' in p_type or 'tuic' in item_raw:
@@ -54,6 +58,7 @@ def get_node_info_for_sub(item):
         
         if not pw and p != 'anytls': return None
 
+        # 3. 提取证书参数
         tls = item.get('tls', {}) if isinstance(item.get('tls'), dict) else {}
         sni = item.get('servername') or item.get('sni') or tls.get('sni') or item.get('peer') or ""
         ro = item.get('reality-opts') or tls.get('reality') or item.get('reality_settings') or {}
@@ -68,7 +73,7 @@ def get_node_info_for_sub(item):
 
 def main():
     uris = []
-    clash_proxies = [] # 用于存储原始搬运的配置
+    clash_proxies = [] 
     seen_clash = set()
     seen_sub = set()
     time_tag = get_beijing_time()
@@ -85,18 +90,17 @@ def main():
             
             def walk(obj):
                 if isinstance(obj, dict):
-                    # --- 1. Clash 照搬逻辑 ---
+                    # --- Clash 照搬逻辑 ---
                     if 'server' in obj and 'type' in obj:
-                        # 唯一键识别，去重
                         ckey = f"{obj['server']}:{obj.get('port')}:{obj['type']}"
                         if ckey not in seen_clash:
                             raw_node = obj.copy()
-                            # 仅更新名称
+                            # 保留原始名称特征，仅追加时间
                             raw_node['name'] = f"{raw_node.get('name', 'node')}_{time_tag}"
                             clash_proxies.append(raw_node)
                             seen_clash.add(ckey)
                         
-                        # --- 2. sub.txt 转换逻辑 (调用上一版最优函数) ---
+                        # --- sub.txt 输出逻辑 ---
                         res = get_node_info_for_sub(obj)
                         if res:
                             skey = f"{res['server']}:{res['port']}:{res['type']}"
@@ -106,14 +110,20 @@ def main():
                                 name_enc = urllib.parse.quote(name)
                                 srv_uri = f"[{res['server']}]" if ':' in res['server'] else res['server']
                                 
+                                # 生成各个协议的 URI
                                 if res['type'] == 'vless':
                                     params = {"encryption": "none", "security": "reality" if res['pbk'] else "none", "sni": res['sni'] or "itunes.apple.com", "fp": "chrome", "type": "tcp"}
                                     if res['pbk']: params.update({"pbk": res['pbk'], "sid": res['sid']})
                                     uris.append(f"vless://{res['pw']}@{srv_uri}:{res['port']}?{urllib.parse.urlencode(params)}#{name_enc}")
                                 elif res['type'] == 'hysteria2':
-                                    uris.append(f"hysteria2://{res['pw']}@{srv_uri}:{res['port']}?insecure=1&sni={res['sni'] or 'www.microsoft.com'}#{name_enc}")
+                                    # 重点修复 HY2 URI 参数
+                                    h_params = {"insecure": "1", "sni": res['sni'] or "www.microsoft.com"}
+                                    uris.append(f"hysteria2://{res['pw']}@{srv_uri}:{res['port']}?{urllib.parse.urlencode(h_params)}#{name_enc}")
                                 elif res['type'] == 'anytls':
                                     uris.append(f"anytls://{res['pw']}@{srv_uri}:{res['port']}?alpn=h3&insecure=1#{name_enc}")
+                                elif res['type'] == 'tuic':
+                                    uris.append(f"tuic://{res['pw']}@{srv_uri}:{res['port']}?sni={res['sni'] or 'apple.com'}&alpn=h3#{name_enc}")
+                                
                                 seen_sub.add(skey)
                     else:
                         for v in obj.values(): walk(v)
@@ -122,16 +132,13 @@ def main():
             walk(data)
         except: continue
 
-    # 保存 sub 文件
+    # 保存文件
     with open("sub.txt", "w", encoding="utf-8") as f: f.write("\n".join(uris))
     with open("sub_base64.txt", "w", encoding="utf-8") as f:
         f.write(base64.b64encode("\n".join(uris).encode()).decode())
     
-    # 保存 Clash 配置文件 (完全照搬原始 proxies 列表)
     clash_config = {
-        "ipv6": True,
-        "allow-lan": True,
-        "mode": "rule",
+        "ipv6": True, "allow-lan": True, "mode": "rule",
         "proxies": clash_proxies,
         "proxy-groups": [
             {"name": "🚀 节点选择", "type": "select", "proxies": ["♻️ 自动选择", "DIRECT"] + [p['name'] for p in clash_proxies]},
