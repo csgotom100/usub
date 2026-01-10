@@ -1,0 +1,8 @@
+"tag": "https://github.com/Alvin9999-newpac/fanqiang/wiki",
+{ "address": "https://dns.alidns.com/dns-query", "domains": ["geosite:private"], "skipFallback": true },
+- name: https://github.com/Alvin9999-newpac/fanqiang/wiki
+"https://cloudflare-dns.com/dns-query"
+- https://github.com/Alvin9999-newpac/fanqiang/wiki
+"1.1.1.1", "8.8.8.8", "https://dns.google/dns-query"
+url: https://www.gstatic.com/generate_204
+url: "https://www.gstatic.com/generate_204"
