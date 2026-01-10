@@ -2,138 +2,279 @@ ipv6: true
 allow-lan: true
 mode: rule
 proxies:
-- name: 🌐[HYSTERIA2] 02 (01-10 19:13)
-  server: 157.254.223.43
-  port: 279212800029000
-  type: hysteria2
-  password: dongtaiwang.com
+- name: '[HYSTERIA] https://github.com/Alvin9999-newpac/fanqiang/wiki (01-10 19:22)'
+  type: hysteria
+  server: 89.144.35.30
+  port: 23008
+  auth-str: dongtaiwang.com
   sni: apple.com
   skip-cert-verify: true
-- name: 🌐[HYSTERIA2] 03 (01-10 19:13)
-  server: 62.210.124.146
-  port: 22000
-  type: hysteria2
-  password: dongtaiwang.com
-  sni: www.microsoft.com
-  skip-cert-verify: true
-- name: 🌐[HYSTERIA2] 04 (01-10 19:13)
-  server: 2a14:7584:d04a::a
-  port: 50022
-  type: hysteria2
-  password: dongtaiwang.com
+  alpn:
+  - h3
+  protocol: udp
+  up: 11 Mbps
+  down: 55 Mbps
+- name: '[HYSTERIA] dongtaiwang.com_1 (01-10 19:22)'
+  type: hysteria
+  server: 5.178.101.33
+  port: 23008
+  auth-str: dongtaiwang.com
   sni: apple.com
   skip-cert-verify: true
-- name: 🌐[VLESS] 05 (01-10 19:13)
+  alpn:
+  - h3
+  protocol: udp
+  up: 11 Mbps
+  down: 55 Mbps
+- name: '[VLESS] dongtaiwang.com_2 (01-10 19:22)'
+  type: vless
   server: 195.154.200.13
   port: 17401
-  type: vless
   uuid: add14a5b-f648-4423-8a1f-8b8f54c0daef
-  tls: true
-  servername: itunes.apple.com
   network: tcp
   udp: true
+  tls: true
+  flow: null
+  servername: itunes.apple.com
+  client-fingerprint: chrome
   reality-opts:
     public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
     short-id: 8ef4455ba637425b
+  smux:
+    enabled: true
+    protocol: h2mux
+    max-connections: 1
+    min-streams: 4
+    padding: true
+    brutal-opts:
+      enabled: true
+      up: 50
+      down: 100
+- name: '[HYSTERIA] dongtaiwang.com_3 (01-10 19:22)'
+  type: hysteria
+  server: 2001:bc8:32d7:402::3
+  port: 20001
+  auth-str: dongtaiwang.com
+  sni: apple.com
+  skip-cert-verify: true
+  alpn:
+  - h3
+  protocol: udp
+  up: 11 Mbps
+  down: 55 Mbps
+- name: '[HYSTERIA] dongtaiwang.com_4 (01-10 19:22)'
+  type: hysteria
+  server: 2001:bc8:32d7:402::4
+  port: 20001
+  auth-str: dongtaiwang.com
+  sni: apple.com
+  skip-cert-verify: true
+  alpn:
+  - h3
+  protocol: udp
+  up: 11 Mbps
+  down: 55 Mbps
+- name: '[ANYTLS] dongtaiwang.com_0 (01-10 19:22)'
+  type: anytls
+  server: 45.221.98.14
+  port: 59901
+  password: dongtaiwang.com
   client-fingerprint: chrome
-- name: 🌐[VLESS] 06 (01-10 19:13)
+  udp: true
+  idle-session-check-interval: 30
+  idle-session-timeout: 30
+  min-idle-session: 0
+  alpn:
+  - h2
+  - http/1.1
+  skip-cert-verify: true
+- name: '[VLESS] dongtaiwang.com_1 (01-10 19:22)'
+  type: vless
   server: 2001:bc8:32d7:181::2
   port: 17401
-  type: vless
   uuid: add14a5b-f648-4423-8a1f-8b8f54c0daef
-  tls: true
-  servername: itunes.apple.com
   network: tcp
   udp: true
+  tls: true
+  flow: null
+  servername: itunes.apple.com
+  client-fingerprint: chrome
   reality-opts:
     public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
     short-id: 8ef4455ba637425b
-  client-fingerprint: chrome
-- name: 🌐[VLESS] 07 (01-10 19:13)
+  smux:
+    enabled: true
+    protocol: h2mux
+    max-connections: 1
+    min-streams: 4
+    padding: true
+    brutal-opts:
+      enabled: true
+      up: 50
+      down: 100
+- name: '[VLESS] dongtaiwang.com_2 (01-10 19:22)'
+  type: vless
   server: 2001:bc8:32d7:181::3
   port: 17401
-  type: vless
   uuid: add14a5b-f648-4423-8a1f-8b8f54c0daef
-  tls: true
-  servername: itunes.apple.com
   network: tcp
   udp: true
+  tls: true
+  flow: null
+  servername: itunes.apple.com
+  client-fingerprint: chrome
   reality-opts:
     public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
     short-id: 8ef4455ba637425b
-  client-fingerprint: chrome
-- name: 🌐[TUIC] 08 (01-10 19:13)
+  smux:
+    enabled: true
+    protocol: h2mux
+    max-connections: 1
+    min-streams: 4
+    padding: true
+    brutal-opts:
+      enabled: true
+      up: 50
+      down: 100
+- name: '[MIERU] dongtaiwang.com_0 (01-10 19:22)'
+  type: mieru
+  server: 157.254.223.48
+  port: 33990
+  transport: TCP
+  username: dongtaiwang.com
+  password: dongtaiwang.com
+- name: '[TUIC] https://github.com/Alvin9999-newpac/fanqiang/wiki (01-10 19:22)'
   server: 89.144.35.231
   port: 33457
   type: tuic
-  uuid: dongtaiwang.com
-  sni: apple.com
+  uuid: 66d37a65-7f6f-4e7c-a0f6-163bd917756a
+  password: dongtaiwang.com
   alpn:
   - h3
-- name: 🌐[TUIC] 09 (01-10 19:13)
+  sni: apple.com
+  skip-cert-verify: true
+  reduce-rtt: true
+  udp-relay-mode: native
+  congestion-controller: bbr
+- name: '[TUIC] dongtaiwang.com_1 (01-10 19:22)'
   server: 2a14:7583:299d::a
   port: 33457
   type: tuic
-  uuid: dongtaiwang.com
-  sni: apple.com
+  uuid: 66d37a65-7f6f-4e7c-a0f6-163bd917756a
+  password: dongtaiwang.com
   alpn:
   - h3
-- name: 🌐[VLESS] 10 (01-10 19:13)
-  server: 157.254.223.44
-  port: 18959
-  type: vless
+  sni: apple.com
+  skip-cert-verify: true
+  reduce-rtt: true
+  udp-relay-mode: native
+  congestion-controller: bbr
+- name: '[HYSTERIA] https://github.com/Alvin9999-newpac/fanqiang/wiki (01-10 19:22)'
+  type: hysteria
+  server: 2a14:7584:d097::a
+  port: 54177
+  auth-str: dongtaiwang.com
+  sni: apple.com
+  skip-cert-verify: true
+  alpn:
+  - h3
+  protocol: udp
+  up: 11 Mbps
+  down: 55 Mbps
+- type: vless
+  tag: https://github.com/Alvin9999-newpac/fanqiang/wiki
   uuid: d0b3e27d-bbfc-4a3b-8e60-6973de8fcefa
-  tls: true
-  servername: itunes.apple.com
-  network: tcp
-  udp: true
-  reality-opts:
-    public-key: -hwVEdgFkvjku8ESuDoAA7id5yGGv_zXBvBW_RdhmHA
-    short-id: d557c6895d014075
-  client-fingerprint: chrome
-- name: 🌐[VLESS] 11 (01-10 19:13)
-  server: 89.144.35.232
-  port: 15531
-  type: vless
+  packet_encoding: xudp
+  server: 157.254.223.44
+  server_port: 18959
+  flow: ''
+  tls:
+    enabled: true
+    server_name: itunes.apple.com
+    utls:
+      enabled: true
+      fingerprint: chrome
+    reality:
+      enabled: true
+      public_key: -hwVEdgFkvjku8ESuDoAA7id5yGGv_zXBvBW_RdhmHA
+      short_id: d557c6895d014075
+  multiplex:
+    enabled: true
+    protocol: h2mux
+    max_connections: 1
+    min_streams: 4
+    padding: true
+    brutal:
+      enabled: true
+      up_mbps: 50
+      down_mbps: 100
+  name: '[VLESS] node (01-10 19:22)'
+- type: vless
+  tag: https://github.com/Alvin9999-newpac/fanqiang/wiki
   uuid: d3fd3b3c-f8d4-4894-b91e-5a6a53923a95
-  tls: true
-  servername: itunes.apple.com
-  network: tcp
-  udp: true
-  reality-opts:
-    public-key: o4gXQf1n5YOoLo6OnyHykodK1ZShHvDqu1FgxNHe6n8
-    short-id: 8346964417a2552b
-  client-fingerprint: chrome
+  packet_encoding: xudp
+  server: 89.144.35.232
+  server_port: 15531
+  flow: ''
+  tls:
+    enabled: true
+    server_name: itunes.apple.com
+    utls:
+      enabled: true
+      fingerprint: chrome
+    reality:
+      enabled: true
+      public_key: o4gXQf1n5YOoLo6OnyHykodK1ZShHvDqu1FgxNHe6n8
+      short_id: 8346964417a2552b
+  multiplex:
+    enabled: true
+    protocol: h2mux
+    max_connections: 1
+    min_streams: 4
+    padding: true
+    brutal:
+      enabled: true
+      up_mbps: 50
+      down_mbps: 100
+  name: '[VLESS] node (01-10 19:22)'
 proxy-groups:
 - name: 🚀 节点选择
   type: select
   proxies:
   - ♻️ 自动选择
   - DIRECT
-  - 🌐[HYSTERIA2] 02 (01-10 19:13)
-  - 🌐[HYSTERIA2] 03 (01-10 19:13)
-  - 🌐[HYSTERIA2] 04 (01-10 19:13)
-  - 🌐[VLESS] 05 (01-10 19:13)
-  - 🌐[VLESS] 06 (01-10 19:13)
-  - 🌐[VLESS] 07 (01-10 19:13)
-  - 🌐[TUIC] 08 (01-10 19:13)
-  - 🌐[TUIC] 09 (01-10 19:13)
-  - 🌐[VLESS] 10 (01-10 19:13)
-  - 🌐[VLESS] 11 (01-10 19:13)
+  - '[HYSTERIA] https://github.com/Alvin9999-newpac/fanqiang/wiki (01-10 19:22)'
+  - '[HYSTERIA] dongtaiwang.com_1 (01-10 19:22)'
+  - '[VLESS] dongtaiwang.com_2 (01-10 19:22)'
+  - '[HYSTERIA] dongtaiwang.com_3 (01-10 19:22)'
+  - '[HYSTERIA] dongtaiwang.com_4 (01-10 19:22)'
+  - '[ANYTLS] dongtaiwang.com_0 (01-10 19:22)'
+  - '[VLESS] dongtaiwang.com_1 (01-10 19:22)'
+  - '[VLESS] dongtaiwang.com_2 (01-10 19:22)'
+  - '[MIERU] dongtaiwang.com_0 (01-10 19:22)'
+  - '[TUIC] https://github.com/Alvin9999-newpac/fanqiang/wiki (01-10 19:22)'
+  - '[TUIC] dongtaiwang.com_1 (01-10 19:22)'
+  - '[HYSTERIA] https://github.com/Alvin9999-newpac/fanqiang/wiki (01-10 19:22)'
+  - '[VLESS] node (01-10 19:22)'
+  - '[VLESS] node (01-10 19:22)'
 - name: ♻️ 自动选择
   type: url-test
   url: http://www.gstatic.com/generate_204
   interval: 300
   proxies:
-  - 🌐[HYSTERIA2] 02 (01-10 19:13)
-  - 🌐[HYSTERIA2] 03 (01-10 19:13)
-  - 🌐[HYSTERIA2] 04 (01-10 19:13)
-  - 🌐[VLESS] 05 (01-10 19:13)
-  - 🌐[VLESS] 06 (01-10 19:13)
-  - 🌐[VLESS] 07 (01-10 19:13)
-  - 🌐[TUIC] 08 (01-10 19:13)
-  - 🌐[TUIC] 09 (01-10 19:13)
-  - 🌐[VLESS] 10 (01-10 19:13)
-  - 🌐[VLESS] 11 (01-10 19:13)
+  - '[HYSTERIA] https://github.com/Alvin9999-newpac/fanqiang/wiki (01-10 19:22)'
+  - '[HYSTERIA] dongtaiwang.com_1 (01-10 19:22)'
+  - '[VLESS] dongtaiwang.com_2 (01-10 19:22)'
+  - '[HYSTERIA] dongtaiwang.com_3 (01-10 19:22)'
+  - '[HYSTERIA] dongtaiwang.com_4 (01-10 19:22)'
+  - '[ANYTLS] dongtaiwang.com_0 (01-10 19:22)'
+  - '[VLESS] dongtaiwang.com_1 (01-10 19:22)'
+  - '[VLESS] dongtaiwang.com_2 (01-10 19:22)'
+  - '[MIERU] dongtaiwang.com_0 (01-10 19:22)'
+  - '[TUIC] https://github.com/Alvin9999-newpac/fanqiang/wiki (01-10 19:22)'
+  - '[TUIC] dongtaiwang.com_1 (01-10 19:22)'
+  - '[HYSTERIA] https://github.com/Alvin9999-newpac/fanqiang/wiki (01-10 19:22)'
+  - '[VLESS] node (01-10 19:22)'
+  - '[VLESS] node (01-10 19:22)'
 rules:
 - MATCH,🚀 节点选择
