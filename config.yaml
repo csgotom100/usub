@@ -101,6 +101,7 @@ proxies:
     sni: apple.com
     skip-cert-verify: true
     alpn: [h3]
+    username: 66d37a65-7f6f-4e7c-a0f6-163bd917756a
     congestion-controller: bbr
     reduce-rtt: true
   - name: "Node_11"
@@ -112,6 +113,7 @@ proxies:
     sni: apple.com
     skip-cert-verify: true
     alpn: [h3]
+    username: 66d37a65-7f6f-4e7c-a0f6-163bd917756a
     congestion-controller: bbr
     reduce-rtt: true
   - name: "Node_12"
@@ -144,14 +146,14 @@ proxy-groups:
       - DIRECT
 
 rules:
-  # 核心海外服务
+  # 核心服务分流
   - DOMAIN-SUFFIX,google.com,🚀 节点选择
   - DOMAIN-KEYWORD,github,🚀 节点选择
   - DOMAIN-KEYWORD,youtube,🚀 节点选择
   - DOMAIN-KEYWORD,google,🚀 节点选择
   - DOMAIN-SUFFIX,telegram.org,🚀 节点选择
   
-  # 国内服务直连
+  # 国内常用服务直连 (神机规则精简版)
   - DOMAIN-SUFFIX,cn,DIRECT
   - DOMAIN-KEYWORD,baidu,DIRECT
   - DOMAIN-KEYWORD,taobao,DIRECT
