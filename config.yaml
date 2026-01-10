@@ -13,6 +13,7 @@ proxies:
     protocol: udp
     up: "11 Mbps"
     down: "55 Mbps"
+    alpn: [h3]
   - name: "Node_02"
     type: hysteria
     server: 5.178.101.33
@@ -23,22 +24,19 @@ proxies:
     protocol: udp
     up: "11 Mbps"
     down: "55 Mbps"
+    alpn: [h3]
   - name: "Node_03"
     type: vless
     server: 195.154.200.13
     port: 17401
     uuid: add14a5b-f648-4423-8a1f-8b8f54c0daef
-    network: tcp
     udp: true
+    network: tcp
+    tls: true
+    reality-opts:
+      public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
+      short-id: 8ef4455ba637425b
     client-fingerprint: chrome
-    public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
-    short-id: 8ef4455ba637425b
-    enabled: true
-    protocol: h2mux
-    max-connections: 1
-    enabled: true
-    up: 50
-    down: 100
   - name: "Node_04"
     type: hysteria
     server: 2001:bc8:32d7:402::3
@@ -49,6 +47,7 @@ proxies:
     protocol: udp
     up: "11 Mbps"
     down: "55 Mbps"
+    alpn: [h3]
   - name: "Node_05"
     type: hysteria
     server: 2001:bc8:32d7:402::4
@@ -59,74 +58,65 @@ proxies:
     protocol: udp
     up: "11 Mbps"
     down: "55 Mbps"
+    alpn: [h3]
   - name: "Node_06"
     type: anytls
     server: 45.221.98.14
     port: 59901
     password: dongtaiwang.com
-    client-fingerprint: chrome
-    udp: true
     skip-cert-verify: true
+    udp: true
   - name: "Node_07"
     type: vless
     server: 2001:bc8:32d7:181::2
     port: 17401
     uuid: add14a5b-f648-4423-8a1f-8b8f54c0daef
-    network: tcp
     udp: true
+    network: tcp
+    tls: true
+    reality-opts:
+      public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
+      short-id: 8ef4455ba637425b
     client-fingerprint: chrome
-    public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
-    short-id: 8ef4455ba637425b
-    enabled: true
-    protocol: h2mux
-    max-connections: 1
-    enabled: true
-    up: 50
-    down: 100
   - name: "Node_08"
     type: vless
     server: 2001:bc8:32d7:181::3
     port: 17401
     uuid: add14a5b-f648-4423-8a1f-8b8f54c0daef
-    network: tcp
     udp: true
+    network: tcp
+    tls: true
+    reality-opts:
+      public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
+      short-id: 8ef4455ba637425b
     client-fingerprint: chrome
-    public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
-    short-id: 8ef4455ba637425b
-    enabled: true
-    protocol: h2mux
-    max-connections: 1
-    enabled: true
-    up: 50
-    down: 100
   - name: "Node_09"
     type: mieru
     server: 157.254.223.48
     port: 33990
-    transport: TCP
     password: dongtaiwang.com
   - name: "Node_10"
+    type: tuic
     server: 89.144.35.231
     port: 33457
-    type: tuic
     uuid: 66d37a65-7f6f-4e7c-a0f6-163bd917756a
     password: dongtaiwang.com
-    alpn: [h3]
     sni: apple.com
     skip-cert-verify: true
-    reduce-rtt: true
+    alpn: [h3]
     congestion-controller: bbr
+    reduce-rtt: true
   - name: "Node_11"
+    type: tuic
     server: 2a14:7583:299d::a
     port: 33457
-    type: tuic
     uuid: 66d37a65-7f6f-4e7c-a0f6-163bd917756a
     password: dongtaiwang.com
-    alpn: [h3]
     sni: apple.com
     skip-cert-verify: true
-    reduce-rtt: true
+    alpn: [h3]
     congestion-controller: bbr
+    reduce-rtt: true
   - name: "Node_12"
     type: hysteria
     server: 2a14:7584:d097::a
@@ -137,6 +127,7 @@ proxies:
     protocol: udp
     up: "11 Mbps"
     down: "55 Mbps"
+    alpn: [h3]
 
 proxy-groups:
   - name: 🚀 节点选择
