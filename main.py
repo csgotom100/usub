@@ -4,12 +4,13 @@ import re
 
 def is_valid_clash_proxy(block):
     """校验节点是否包含必要字段，防止 Clash 报错"""
-    # 必须包含 type, server, port
+    # 基础检查：必须包含 type, server, port
     if not all(k in block for k in ["type:", "server:", "port:"]):
         return False
-    # 如果是 tuic 协议，必须有 uuid 或 username (此处统称为 uuid 检查)
-    if "type: tuic" in block and "uuid:" not in block:
-        return False
+    # 针对 TUIC 协议的特殊检查
+    if "type: tuic" in block:
+        if "uuid:" not in block and "username:" not in block:
+            return False
     return True
 
 def extract_nodes_brute_force(text):
@@ -20,11 +21,12 @@ def extract_nodes_brute_force(text):
         if "name:" in line and current_node:
             nodes.append("\n".join(current_node))
             current_node = []
+        # 过滤掉干扰行
         if any(x in line for x in ["🚀", "🍎", "🎯", "♻️", "🛑"]): continue
         current_node.append(line)
     if current_node: nodes.append("\n".join(current_node))
     
-    # 过滤并校验
+    # 关键：只保留通过校验的节点
     return [n for n in nodes if is_valid_clash_proxy(n)]
 
 def main():
@@ -43,13 +45,12 @@ def main():
                 all_raw_chunks.extend(chunks)
         except: continue
 
+    # 按 server 地址去重
     unique_nodes = list({re.search(r'server:\s*([^\s]+)', n).group(1): n for n in all_raw_chunks if "server:" in n}.values())
 
     if not unique_nodes: return
 
-    clash_config = [
-        "port: 7890", "mode: rule", "proxies:"
-    ]
+    clash_config = ["port: 7890", "mode: rule", "proxies:"]
     node_names = []
     for i, chunk in enumerate(unique_nodes):
         name = f"Node_{i+1:02d}"
