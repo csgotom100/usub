@@ -75,7 +75,7 @@ def main():
 
         p_type = str(obj.get('type') or ('hysteria2' if 'bandwidth' in obj else 'vless')).lower()
         
-        # --- 安全提取传输层协议 (解决 AttributeError) ---
+        # --- 安全提取传输层协议 ---
         stream_settings = obj.get('stream-settings') or obj.get('streamSettings') or {}
         transport_obj = obj.get('transport')
         
@@ -123,4 +123,27 @@ def main():
         
         elif 'vless' in p_type:
             v_p = {"encryption": "none", "security": "reality" if pbk else ("tls" if sni else "none"), "sni": sni or "itunes.apple.com", "fp": "chrome", "type": net}
-            if pbk
+            if pbk: v_p.update({"pbk": pbk, "sid": sid})
+            
+            # --- 处理 xhttp 参数提取 ---
+            xh_opts = None
+            if isinstance(transport_obj, dict) and transport_obj.get('xhttp'):
+                xh_opts = transport_obj.get('xhttp')
+            else:
+                xh_opts = obj.get('xhttp-opts') or stream_settings.get('xhttpSettings')
+
+            if net == 'xhttp' and isinstance(xh_opts, dict):
+                for key in ['path', 'mode', 'host']:
+                    if xh_opts.get(key): v_p[key] = xh_opts.get(key)
+
+            uri = f"vless://{pw}@{srv_uri}:{main_port}?{urllib.parse.urlencode(v_p)}#{name_enc}"
+            final_v2ray_uris.append(uri); final_rocket_uris.append(uri)
+
+        node_count += 1
+
+    with open("sub_v2ray.txt", "w", encoding="utf-8") as f: f.write("\n".join(final_v2ray_uris))
+    with open("sub_rocket.txt", "w", encoding="utf-8") as f: f.write("\n".join(final_rocket_uris))
+    with open("config.yaml", "w", encoding="utf-8") as f:
+        yaml.dump({"ipv6": True, "allow-lan": True, "proxies": final_clash_proxies, "proxy-groups": [{"name": "🚀 节点选择", "type": "select", "proxies": ["DIRECT"] + [p['name'] for p in final_clash_proxies]}], "rules": ["MATCH,🚀 节点选择"]}, f, allow_unicode=True, sort_keys=False)
+
+if __name__ == "__main__": main()
