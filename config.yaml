@@ -30,13 +30,10 @@ proxies:
     server: 195.154.200.13
     port: 17401
     uuid: add14a5b-f648-4423-8a1f-8b8f54c0daef
-    udp: true
-    network: tcp
     tls: true
     reality-opts:
       public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
       short-id: 8ef4455ba637425b
-    client-fingerprint: chrome
   - name: "Node_04"
     type: hysteria
     server: 2001:bc8:32d7:402::3
@@ -60,67 +57,176 @@ proxies:
     up: "11 Mbps"
     down: "55 Mbps"
   - name: "Node_06"
+    type: hysteria
+    server: 89.144.35.30
+    port: 23008
+    auth-str: dongtaiwang.com
+    sni: apple.com
+    skip-cert-verify: true
+    alpn: [h3]
+    protocol: udp
+    up: "11 Mbps"
+    down: "55 Mbps"
+  - name: "Node_07"
+    type: hysteria
+    server: 5.178.101.33
+    port: 23008
+    auth-str: dongtaiwang.com
+    sni: apple.com
+    skip-cert-verify: true
+    alpn: [h3]
+    protocol: udp
+    up: "11 Mbps"
+    down: "55 Mbps"
+  - name: "Node_08"
+    type: vless
+    server: 195.154.200.13
+    port: 17401
+    uuid: add14a5b-f648-4423-8a1f-8b8f54c0daef
+    tls: true
+    reality-opts:
+      public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
+      short-id: 8ef4455ba637425b
+  - name: "Node_09"
+    type: hysteria
+    server: 2001:bc8:32d7:402::3
+    port: 20001
+    auth-str: dongtaiwang.com
+    sni: apple.com
+    skip-cert-verify: true
+    alpn: [h3]
+    protocol: udp
+    up: "11 Mbps"
+    down: "55 Mbps"
+  - name: "Node_10"
+    type: hysteria
+    server: 2001:bc8:32d7:402::4
+    port: 20001
+    auth-str: dongtaiwang.com
+    sni: apple.com
+    skip-cert-verify: true
+    alpn: [h3]
+    protocol: udp
+    up: "11 Mbps"
+    down: "55 Mbps"
+  - name: "Node_11"
     type: anytls
     server: 45.221.98.14
     port: 59901
-    password: dongtaiwang.com
-    udp: true
-    skip-cert-verify: true
-  - name: "Node_07"
+  - name: "Node_12"
+    type: vless
+    server: 195.154.200.13
+    port: 17401
+    uuid: add14a5b-f648-4423-8a1f-8b8f54c0daef
+    tls: true
+    reality-opts:
+      public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
+      short-id: 8ef4455ba637425b
+  - name: "Node_13"
     type: vless
     server: 2001:bc8:32d7:181::2
     port: 17401
     uuid: add14a5b-f648-4423-8a1f-8b8f54c0daef
-    udp: true
-    network: tcp
     tls: true
     reality-opts:
       public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
       short-id: 8ef4455ba637425b
-    client-fingerprint: chrome
-  - name: "Node_08"
+  - name: "Node_14"
     type: vless
     server: 2001:bc8:32d7:181::3
     port: 17401
     uuid: add14a5b-f648-4423-8a1f-8b8f54c0daef
-    udp: true
-    network: tcp
     tls: true
     reality-opts:
       public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
       short-id: 8ef4455ba637425b
-    client-fingerprint: chrome
-  - name: "Node_09"
+  - name: "Node_15"
+    type: vless
+    server: 195.154.200.13
+    port: 17401
+    uuid: add14a5b-f648-4423-8a1f-8b8f54c0daef
+    tls: true
+    reality-opts:
+      public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
+      short-id: 8ef4455ba637425b
+  - name: "Node_16"
+    type: vless
+    server: 2001:bc8:32d7:181::2
+    port: 17401
+    uuid: add14a5b-f648-4423-8a1f-8b8f54c0daef
+    tls: true
+    reality-opts:
+      public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
+      short-id: 8ef4455ba637425b
+  - name: "Node_17"
+    type: vless
+    server: 2001:bc8:32d7:181::3
+    port: 17401
+    uuid: add14a5b-f648-4423-8a1f-8b8f54c0daef
+    tls: true
+    reality-opts:
+      public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
+      short-id: 8ef4455ba637425b
+  - name: "Node_18"
     type: mieru
     server: 157.254.223.48
     port: 33990
     password: dongtaiwang.com
-    transport: TCP
-  - name: "Node_10"
+    transport: tcp
+  - name: "Node_19"
+    type: mieru
+    server: 157.254.223.48
+    port: 33990
+    password: dongtaiwang.com
+    transport: tcp
+  - name: "Node_20"
     type: tuic
     server: 89.144.35.231
     port: 33457
     uuid: 66d37a65-7f6f-4e7c-a0f6-163bd917756a
     password: dongtaiwang.com
-    sni: apple.com
-    skip-cert-verify: true
-    alpn: [h3]
     username: 66d37a65-7f6f-4e7c-a0f6-163bd917756a
-    congestion-controller: bbr
+    alpn: [h3]
     reduce-rtt: true
-  - name: "Node_11"
+  - name: "Node_21"
     type: tuic
     server: 2a14:7583:299d::a
     port: 33457
     uuid: 66d37a65-7f6f-4e7c-a0f6-163bd917756a
     password: dongtaiwang.com
+    username: 66d37a65-7f6f-4e7c-a0f6-163bd917756a
+    alpn: [h3]
+    reduce-rtt: true
+  - name: "Node_22"
+    type: tuic
+    server: 89.144.35.231
+    port: 33457
+    uuid: 66d37a65-7f6f-4e7c-a0f6-163bd917756a
+    password: dongtaiwang.com
+    username: 66d37a65-7f6f-4e7c-a0f6-163bd917756a
+    alpn: [h3]
+    reduce-rtt: true
+  - name: "Node_23"
+    type: tuic
+    server: 2a14:7583:299d::a
+    port: 33457
+    uuid: 66d37a65-7f6f-4e7c-a0f6-163bd917756a
+    password: dongtaiwang.com
+    username: 66d37a65-7f6f-4e7c-a0f6-163bd917756a
+    alpn: [h3]
+    reduce-rtt: true
+  - name: "Node_24"
+    type: hysteria
+    server: 2a14:7584:d097::a
+    port: 54177
+    auth-str: dongtaiwang.com
     sni: apple.com
     skip-cert-verify: true
     alpn: [h3]
-    username: 66d37a65-7f6f-4e7c-a0f6-163bd917756a
-    congestion-controller: bbr
-    reduce-rtt: true
-  - name: "Node_12"
+    protocol: udp
+    up: "11 Mbps"
+    down: "55 Mbps"
+  - name: "Node_25"
     type: hysteria
     server: 2a14:7584:d097::a
     port: 54177
@@ -148,13 +254,21 @@ proxy-groups:
       - "Node_10"
       - "Node_11"
       - "Node_12"
+      - "Node_13"
+      - "Node_14"
+      - "Node_15"
+      - "Node_16"
+      - "Node_17"
+      - "Node_18"
+      - "Node_19"
+      - "Node_20"
+      - "Node_21"
+      - "Node_22"
+      - "Node_23"
+      - "Node_24"
+      - "Node_25"
       - DIRECT
 
 rules:
   - DOMAIN-SUFFIX,google.com,🚀 节点选择
-  - DOMAIN-KEYWORD,github,🚀 节点选择
-  - DOMAIN-KEYWORD,youtube,🚀 节点选择
-  - DOMAIN-SUFFIX,cn,DIRECT
-  - GEOIP,LAN,DIRECT
-  - GEOIP,CN,DIRECT
   - MATCH,🚀 节点选择
