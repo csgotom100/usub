@@ -13,8 +13,44 @@ def get_geo_tag(text, server):
         if any(k in content for k in keys): return tag
     return "🌐"
 
+def parse_server_field(srv_str):
+    """
+    精准解析各种复杂的 server 字段:
+    1. [2001:db8::1]:27921,28000-29000
+    2. 1.1.1.1:443
+    3. example.com:80
+    """
+    host, main_port, hop_ports = "", "", ""
+    try:
+        srv_str = str(srv_str).strip()
+        # 识别 IPv6
+        if srv_str.startswith('['):
+            host = re.search(r'\[(.+?)\]', srv_str).group(1)
+            port_part = srv_str.split(']')[-1].lstrip(':')
+        else:
+            # 找到最后一个冒号分界线
+            if ':' in srv_str:
+                host, port_part = srv_str.rsplit(':', 1)
+            else:
+                host = srv_str
+                port_part = ""
+
+        # 分离主端口和跳跃端口
+        if ',' in port_part:
+            main_port = port_part.split(',')[0]
+            hop_ports = port_part.split(',', 1)[1]
+        else:
+            main_port = port_part
+            hop_ports = ""
+            
+        # 纯净数字处理 (防止提取失败)
+        main_port = "".join(re.findall(r'\d+', main_port))
+    except:
+        pass
+    return host, main_port, hop_ports
+
 def main():
-    raw_nodes = [] # 暂存所有初步识别到的节点
+    raw_nodes = []
     time_tag = get_beijing_time()
 
     if not os.path.exists('sources.txt'): return
@@ -31,7 +67,6 @@ def main():
             def walk(obj, source_is_json):
                 if isinstance(obj, dict):
                     if 'server' in obj:
-                        # 存储原始对象和来源属性
                         raw_nodes.append({"data": obj.copy(), "is_json": source_is_json})
                     else:
                         for v in obj.values(): walk(v, source_is_json)
@@ -40,7 +75,6 @@ def main():
             walk(data, is_json)
         except: continue
 
-    # --- 统一去重处理 ---
     final_clash_proxies = []
     final_v2ray_uris = []
     final_rocket_uris = []
@@ -51,55 +85,48 @@ def main():
         obj = item["data"]
         is_json_source = item["is_json"]
         
-        # 提取核心去重指纹：服务器:主端口 (忽略跳跃端口的差异)
-        srv_raw = str(obj.get('server') or obj.get('add') or "")
-        main_srv = srv_raw.split(',')[0].strip('[]')
+        # 使用精准解析器获取端口
+        srv_raw = obj.get('server') or obj.get('add') or ""
+        host, main_port, hop_ports = parse_server_field(srv_raw)
+        
+        # 如果 server 没带端口，尝试从 port 字段拿
+        if not main_port:
+            main_port = str(obj.get('port') or obj.get('server_port') or "")
+
         pw = str(obj.get('auth') or obj.get('password') or obj.get('uuid') or obj.get('id') or "")
         
-        unique_key = f"{main_srv}_{pw}".lower()
-        if unique_key in seen_keys or not pw:
+        # 去重指纹
+        unique_key = f"{host}_{main_port}_{pw}".lower()
+        if unique_key in seen_keys or not pw or not host:
             continue
         seen_keys.add(unique_key)
 
-        # --- A. 准备 Clash 节点 (照搬) ---
+        # --- Clash 照搬 ---
         clash_node = obj.copy()
         p_type = str(clash_node.get('type') or ('hysteria2' if 'bandwidth' in obj else 'vless')).lower()
         clash_node['type'] = p_type
         
-        geo = get_geo_tag(main_srv + str(obj.get('name','')), main_srv)
+        geo = get_geo_tag(host + str(obj.get('name','')), host)
         node_name = f"{geo}_{node_count:02d}_{time_tag}"
         clash_node['name'] = node_name
         final_clash_proxies.append(clash_node)
 
-        # --- B. 准备 订阅 URI ---
+        # --- 订阅生成 ---
         if 'mieru' in p_type: 
             node_count += 1
             continue
 
-        # 解析端口
-        if ':' in main_srv and not main_srv.startswith('['): # 处理 IPV4 连带端口的情况
-            host, main_port = main_srv.rsplit(':', 1)
-        else:
-            host = main_srv
-            main_port = re.search(r'\d+', srv_raw.split(':')[-1]).group() if ':' in srv_raw else "443"
-        
-        hop_ports = srv_raw.split(',', 1)[1] if ',' in srv_raw else ""
         srv_uri = f"[{host}]" if ':' in host else host
         name_enc = urllib.parse.quote(node_name)
 
-        # HY2 订阅逻辑
         if p_type == 'hysteria2':
-            if is_json_source: # 仅当源是 JSON 时才进订阅
+            if is_json_source:
                 sni = obj.get('sni') or (obj.get('tls',{}) if isinstance(obj.get('tls'),dict) else {}).get('sni') or "apple.com"
-                # v2rayN
-                v2_params = {"insecure": "1", "sni": sni}
-                if hop_ports: v2_params["mport"] = hop_ports
-                final_v2ray_uris.append(f"hysteria2://{pw}@{srv_uri}:{main_port}?{urllib.parse.urlencode(v2_params)}#{name_enc}")
-                # Rocket
+                v2_p = {"insecure": "1", "sni": sni}
+                if hop_ports: v2_p["mport"] = hop_ports
+                final_v2ray_uris.append(f"hysteria2://{pw}@{srv_uri}:{main_port}?{urllib.parse.urlencode(v2_p)}#{name_enc}")
                 r_port = f"{main_port},{hop_ports}" if hop_ports else main_port
                 final_rocket_uris.append(f"hysteria2://{pw}@{srv_uri}:{r_port}?sni={sni}&insecure=1#{name_enc}")
-        
-        # VLESS 订阅逻辑
         else:
             tls_obj = obj.get('tls', {}) if isinstance(obj.get('tls'), dict) else {}
             sni = obj.get('servername') or obj.get('sni') or tls_obj.get('sni') or "itunes.apple.com"
@@ -107,24 +134,19 @@ def main():
             pbk = ro.get('public-key') or ro.get('public_key') or ""
             sid = ro.get('short-id') or ro.get('short_id') or ""
             
-            v_params = {"encryption": "none", "security": "reality" if pbk else "none", "sni": sni, "fp": "chrome", "type": "tcp"}
-            if pbk: v_params.update({"pbk": pbk, "sid": sid})
-            uri = f"vless://{pw}@{srv_uri}:{main_port}?{urllib.parse.urlencode(v_params)}#{name_enc}"
+            v_p = {"encryption": "none", "security": "reality" if pbk else "none", "sni": sni, "fp": "chrome", "type": "tcp"}
+            if pbk: v_p.update({"pbk": pbk, "sid": sid})
+            uri = f"vless://{pw}@{srv_uri}:{main_port}?{urllib.parse.urlencode(v_p)}#{name_enc}"
             final_v2ray_uris.append(uri)
             final_rocket_uris.append(uri)
 
         node_count += 1
 
-    # 保存文件
+    # 输出文件
     with open("sub_v2ray.txt", "w", encoding="utf-8") as f: f.write("\n".join(final_v2ray_uris))
     with open("sub_rocket.txt", "w", encoding="utf-8") as f: f.write("\n".join(final_rocket_uris))
     with open("config.yaml", "w", encoding="utf-8") as f:
-        yaml.dump({
-            "ipv6": True, "allow-lan": True, "mode": "rule",
-            "proxies": final_clash_proxies,
-            "proxy-groups": [{"name": "🚀 节点选择", "type": "select", "proxies": ["DIRECT"] + [p['name'] for p in final_clash_proxies]}],
-            "rules": ["MATCH,🚀 节点选择"]
-        }, f, allow_unicode=True, sort_keys=False)
+        yaml.dump({"ipv6": True, "allow-lan": True, "mode": "rule", "proxies": final_clash_proxies, "proxy-groups": [{"name": "🚀 节点选择", "type": "select", "proxies": ["DIRECT"] + [p['name'] for p in final_clash_proxies]}], "rules": ["MATCH,🚀 节点选择"]}, f, allow_unicode=True, sort_keys=False)
 
 if __name__ == "__main__":
     main()
