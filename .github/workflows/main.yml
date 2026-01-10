@@ -3,7 +3,7 @@ name: Auto Update Sub
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 */6 * * *' # 每 6 小时自动跑一次
+    - cron: '0 */6 * * *'
 
 jobs:
   convert:
@@ -22,14 +22,14 @@ jobs:
 
       - name: Setup SubConverter
         run: |
-          # 下载官方最新的二进制文件
-          wget https://github.com/tindy2013/subconverter/releases/latest/download/subconverter_linux64.tar.gz
-          tar -zxf subconverter_linux64.tar.gz
-          cd subconverter
-          chmod +x subconverter
-          # 在后台启动 SubConverter 进程
-          ./subconverter & 
-          echo "Waiting for SubConverter to initialize..."
+          # 将下载的文件放到临时目录，防止被 git add 进去
+          mkdir -p /tmp/subc
+          wget https://github.com/tindy2013/subconverter/releases/latest/download/subconverter_linux64.tar.gz -O /tmp/subc/subconverter.tar.gz
+          tar -zxf /tmp/subc/subconverter.tar.gz -C /tmp/subc
+          chmod +x /tmp/subc/subconverter/subconverter
+          # 后台启动
+          cd /tmp/subc/subconverter
+          ./subconverter &
           sleep 5
 
       - name: Run Main Script
@@ -39,6 +39,9 @@ jobs:
         run: |
           git config --local user.email "actions@github.com"
           git config --local user.name "GitHub Action"
-          git add .
-          git commit -m "Update sub via SubConverter" || exit 0
+          # 关键点：只添加我们需要的文件
+          git add config.yaml sub_v2ray.txt || true
+          # 顺便删掉仓库里以前那些多余的压缩包
+          git rm subconverter_linux64.tar.gz* || true
+          git commit -m "Update nodes $(date)" || exit 0
           git push
