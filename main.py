@@ -3,49 +3,57 @@ import urllib.parse
 import os
 
 def main():
-    # 1. 检查 sources.txt
-    if not os.path.exists('sources.txt'):
-        print("Error: sources.txt not found")
+    # 获取当前脚本所在目录，确保路径绝对正确
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    source_path = os.path.join(current_dir, 'sources.txt')
+    
+    print(f"--- 诊断模式 ---")
+    print(f"当前运行目录: {current_dir}")
+    print(f"尝试读取文件: {source_path}")
+
+    # 1. 检查并读取 sources.txt
+    if not os.path.exists(source_path):
+        print("❌ 错误: 没找到 sources.txt 文件！请确认它在仓库根目录。")
+        # 列出当前目录所有文件，帮你排查
+        print(f"当前目录下的文件列表: {os.listdir(current_dir)}")
         return
     
-    with open('sources.txt', 'r', encoding='utf-8') as f:
+    with open(source_path, 'r', encoding='utf-8') as f:
         urls = [l.strip() for l in f if l.startswith('http')]
     
     if not urls:
-        print("No URLs found in sources.txt")
+        print("⚠️ 警告: sources.txt 是空的，或者里面没有以 http 开头的链接。")
         return
 
-    # 2. 准备链接：SubConverter 用 "|" 符号连接多个订阅源
+    print(f"✅ 成功读取到 {len(urls)} 个链接。")
+    for idx, url in enumerate(urls):
+        print(f"   链接 {idx+1}: {url[:30]}...")
+
+    # 2. 准备转换
     combined_urls = "|".join(urls)
     encoded_urls = urllib.parse.quote(combined_urls)
-    
-    # 指向 Actions 临时运行的本地后端
     api_base = "http://127.0.0.1:25500/sub?"
 
-    # 3. 定义转换任务
-    # (生成文件名, 转换目标类型, 额外参数)
     tasks = [
         ("config.yaml", "clash", "&emoji=true&udp=true"),
-        ("sub_v2ray.txt", "v2ray", "&emoji=true&list=true") # list=true 获取明文链接列表
+        ("sub_v2ray.txt", "v2ray", "&emoji=true&list=true")
     ]
 
     for filename, target, extra in tasks:
         try:
-            print(f"--- Converting to {target} ---")
-            # 构造完整的 API 请求
+            print(f"--- 正在转换至 {target} ---")
             api_url = f"{api_base}target={target}&url={encoded_urls}{extra}"
             
-            # 发起请求
+            # SubConverter 可能会处理较慢，设置 60 秒超时
             r = requests.get(api_url, timeout=60)
             r.raise_for_status()
             
-            # 保存结果
             with open(filename, "w", encoding="utf-8") as f:
                 f.write(r.text)
-            print(f"Done! Saved to {filename}")
+            print(f"🎉 成功保存到 {filename} (文件大小: {len(r.text)} 字节)")
             
         except Exception as e:
-            print(f"Error during {target} conversion: {e}")
+            print(f"❌ 转换 {target} 时出错: {e}")
 
 if __name__ == "__main__":
     main()
