@@ -1,38 +1,29 @@
 import requests
 import os
 import re
-
-def fix_url(url):
-    """自动将 GitLab 的浏览链接转换为 Raw 原始链接"""
-    if "gitlab.com" in url and "/refs/heads/master/" in url:
-        return url.replace("/refs/heads/master/", "/- /raw/master/")
-    return url
+import base64
 
 def get_raw_content(text):
-    # 1. 尝试寻找 Base64 特征
+    # 尝试寻找 Base64 特征
     b64_match = re.search(r'[A-Za-z0-9+/]{100,}', text)
     if b64_match: 
         return b64_match.group(0)
     
-    # 2. 尝试寻找 Clash 特征 (修复了切片语法错误)
+    # 尝试寻找 Clash 特征
     if "proxies:" in text:
         start_idx = text.find("proxies:")
         return text[start_idx:]
     return ""
 
 def main():
-    if not os.path.exists('sources.txt'): 
-        print("❌ 没找到 sources.txt")
-        return
-        
+    if not os.path.exists('sources.txt'): return
     with open('sources.txt', 'r', encoding='utf-8') as f:
-        urls = [fix_url(l.strip()) for l in f if l.startswith('http')]
+        urls = [l.strip() for l in f if l.startswith('http')]
 
     all_raw_data = []
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
 
-    print(f"🚀 正在处理 {len(urls)} 个源...")
-
+    print(f"🚀 正在提取节点...")
     for idx, url in enumerate(urls):
         try:
             r = requests.get(url, headers=headers, timeout=10)
@@ -40,38 +31,53 @@ def main():
                 clean_data = get_raw_content(r.text)
                 if clean_data:
                     all_raw_data.append(clean_data)
-                    print(f"[{idx+1}] ✅ 提取成功")
-                else:
-                    print(f"[{idx+1}] ⚠️ 未找到有效节点数据")
-            else:
-                print(f"[{idx+1}] ❌ HTTP {r.status_code}")
-        except Exception as e:
-            print(f"[{idx+1}] ⚠️ 连接超时")
-            continue
+                    print(f"   [{idx+1}] ✅ 提取成功")
+        except: continue
 
     if not all_raw_data:
-        print("❌ 提取失败，所有源均无效")
+        print("❌ 没有任何原始数据被提取到！")
         return
 
-    # 合并所有提取到的原始数据
-    payload = "\n".join(all_raw_data)
+    # --- 诊断：查看合并后的内容 ---
+    # 我们把所有提取出的块再次用换行连接
+    combined_payload = "\n".join(all_raw_data)
+    print(f"📊 合并完成，预览数据前100位: {combined_payload[:100]}...")
 
     try:
-        # 生成 Clash (请求本地 SubConverter)
-        r_clash = requests.post("http://127.0.0.1:25500/sub", data={"target": "clash", "data": payload}, timeout=60)
+        # 使用 POST 转换，显式告诉 SubConverter 我们传的是本地数据
+        # 加上 target=clash 以及关键参数
+        print("📦 正在请求后端渲染 config.yaml...")
+        
+        # 构造 POST 参数
+        # url 指定为一个占位符，data 字段传实际内容
+        params = {
+            "target": "clash",
+            "data": combined_payload,
+            "emoji": "true",
+            "list": "false"
+        }
+        
+        r_clash = requests.post("http://127.0.0.1:25500/sub", data=params, timeout=60)
+        
         if "proxies:" in r_clash.text:
             with open("config.yaml", "w", encoding="utf-8") as f:
                 f.write(r_clash.text)
-            print("🎉 config.yaml 生成成功")
+            print(f"🎉 config.yaml 生成成功！内容长度: {len(r_clash.text)}")
+        else:
+            print("❌ 后端返回的内容中没有 proxies 关键字，转换可能失败了。")
+            print(f"后端返回预览: {r_clash.text[:200]}")
 
         # 生成 V2Ray
-        r_v2ray = requests.post("http://127.0.0.1:25500/sub", data={"target": "v2ray", "data": payload, "list": "true"}, timeout=60)
+        params["target"] = "v2ray"
+        params["list"] = "true"
+        r_v2ray = requests.post("http://127.0.0.1:25500/sub", data=params, timeout=60)
         if r_v2ray.status_code == 200:
             with open("sub_v2ray.txt", "w", encoding="utf-8") as f:
                 f.write(r_v2ray.text)
             print("🎉 sub_v2ray.txt 生成成功")
+            
     except Exception as e:
-        print(f"❌ 转换过程出错: {e}")
+        print(f"❌ 转换过程崩溃: {e}")
 
 if __name__ == "__main__":
     main()
