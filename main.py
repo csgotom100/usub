@@ -3,25 +3,30 @@ import os
 import re
 
 def clean_node_block(block):
-    """清洗节点块：只保留 key: value 格式的有效行"""
+    """清洗节点属性，只保留合法的 Proxy 配置项，并过滤空值"""
     cleaned_lines = []
-    # 定义需要剔除的干扰特征
-    garbage_patterns = [
-        r'^http',          # 纯网址行
-        r'dongtaiwang',    # 来源标记行
-        r'proxy-groups',   # 残留的分组头
-        r'name:',          # 旧的名字行
+    # 允许保留的 Clash 代理协议关键字
+    allow_list = [
+        "type", "server", "port", "uuid", "password", "sni", "alpn", 
+        "skip-cert-verify", "protocol", "up", "down", "network", 
+        "flow", "client-fingerprint", "reality-opts", "public-key", 
+        "short-id", "smux", "enabled", "max-connections", "auth-str",
+        "udp", "congestion-controller", "reduce-rtt", "transport"
     ]
     
     for line in block.splitlines():
-        line_stripped = line.strip()
-        # 1. 必须包含冒号 (key: value 结构)
-        if ':' not in line_stripped:
-            continue
-        # 2. 不能匹配垃圾模式
-        if any(re.search(p, line_stripped, re.I) for p in garbage_patterns):
-            continue
-        cleaned_lines.append(line_stripped)
+        line = line.strip()
+        if ':' not in line: continue
+        
+        # 拆分 key 和 value
+        key = line.split(':')[0].strip().lower()
+        value = line.split(':', 1)[1].strip()
+        
+        # 1. 检查 Key 是否在白名单内
+        # 2. 确保 Value 不为空（或者是个列表 [h3]）
+        if key in allow_list and value != "":
+            cleaned_lines.append(line)
+            
     return cleaned_lines
 
 def main():
@@ -36,10 +41,11 @@ def main():
         try:
             r = requests.get(url, headers=headers, timeout=10)
             if r.status_code == 200:
-                # 暴力切割：按 - name: 切分
+                # 按 - name: 切割
                 chunks = re.split(r'-\s*name:', r.text)
                 for c in chunks:
-                    if "server:" in c and "port:" in c:
+                    # 必须同时包含 server 和 type 才是真正的节点块
+                    if "server:" in c and "type:" in c:
                         all_raw_chunks.append(c)
         except: continue
 
@@ -51,21 +57,29 @@ def main():
     
     unique_nodes = list(unique_dict.values())
     
-    # 构建最终 YAML
+    # 构造 YAML
     clash_config = [
         "port: 7890",
         "allow-lan: true",
         "mode: rule",
+        "log-level: info",
         "proxies:"
     ]
     
     node_names = []
     for i, chunk in enumerate(unique_nodes):
-        name = f"Node_{i+1:02d}"
+        cleaned_attributes = clean_node_block(chunk)
+        
+        # 如果清洗后连 type 或 server 都不见了，说明是脏数据，跳过
+        attr_str = "".join(cleaned_attributes)
+        if "type" not in attr_str or "server" not in attr_str:
+            continue
+
+        name = f"Node_{len(node_names) + 1:02d}"
         node_names.append(name)
+        
         clash_config.append(f"  - name: \"{name}\"")
-        # 核心：只压入清洗后的干净行
-        for attr in clean_node_block(chunk):
+        for attr in cleaned_attributes:
             clash_config.append(f"    {attr}")
 
     # 策略组
@@ -75,7 +89,7 @@ def main():
 
     with open("config.yaml", "w", encoding="utf-8") as f:
         f.write("\n".join(clash_config))
-    print(f"🎉 成功！已清理并提取 {len(node_names)} 个纯净节点。")
+    print(f"🎉 成功！已生成 {len(node_names)} 个纯净节点。")
 
 if __name__ == "__main__":
     main()
