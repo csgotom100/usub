@@ -19,9 +19,18 @@ def get_node_info(item):
         srv = item.get('server') or item.get('add') or item.get('address')
         if not srv or str(srv).startswith('127.'): return None
         
+        # --- 核心修复：更健壮的 IPv6 分离逻辑 ---
+        srv = str(srv).strip()
         port = str(item.get('port') or item.get('server_port') or "")
-        if ':' in str(srv) and not srv.startswith('['):
-            srv, port = str(srv).rsplit(':', 1)
+        
+        # 如果 server 包含多个冒号且没有带中括号，或者是你遇到的残缺格式
+        if srv.count(':') > 1 and not srv.startswith('['):
+            if srv.endswith(':'): # 修复 2001:xxx: 这种残缺格式
+                srv = srv + "1"
+            # 如果端口不在 port 字段而在 server 字段里
+            if not port and not any(c.isalpha() for c in srv.split(':')[-1]):
+                srv, port = srv.rsplit(':', 1)
+
         port = re.findall(r'\d+', port)[0] if re.findall(r'\d+', port) else ""
         if not port: return None
 
@@ -33,7 +42,6 @@ def get_node_info(item):
         pbk = item.get('public-key') or item.get('public_key') or tls.get('reality', {}).get('public_key') or item.get('reality-opts', {}).get('public-key') or ""
         sid = item.get('short-id') or item.get('short_id') or tls.get('reality', {}).get('short_id') or item.get('reality-opts', {}).get('short-id') or ""
 
-        # 捕获 xhttp 路径和 flow
         path = ""
         for k in ['path', 'xhttp-opts', 'xhttpSettings', 'transport']:
             v = item.get(k)
@@ -76,7 +84,6 @@ def main():
             walk(data)
         except: continue
 
-    # 宽松去重
     unique = []
     seen = set()
     for n in nodes:
@@ -95,7 +102,6 @@ def main():
         name_enc = urllib.parse.quote(name)
         srv_uri = f"[{n['server']}]" if ':' in n['server'] else n['server']
         
-        # --- 生成通用 URI (用于 sub.txt) ---
         if n['type'] == 'vless':
             params = {"security": "reality" if n['pbk'] else "none", "sni": n['sni'] or "apple.com", "pbk": n['pbk'], "sid": n['sid'], "flow": n['flow']}
             if n['path']: params.update({"type": "xhttp", "path": n['path']})
@@ -107,7 +113,6 @@ def main():
         elif n['type'] == 'tuic':
             uris.append(f"tuic://{n['pw']}@{srv_uri}:{n['port']}?sni={n['sni'] or 'apple.com'}&alpn=h3#{name_enc}")
 
-        # --- 生成 Clash 配置 (过滤掉不支持的 type) ---
         if n['type'] in ['vless', 'hysteria2', 'tuic']:
             p = {"name": name, "server": n['server'], "port": int(n['port'])}
             if n['type'] == 'vless':
@@ -120,16 +125,18 @@ def main():
                 p.update({"type": "tuic", "uuid": n['pw'], "sni": n['sni'] or "apple.com", "alpn": ["h3"]})
             clash_proxies.append(p)
 
-    # 写入文件
     with open("sub.txt", "w", encoding="utf-8") as f: f.write("\n".join(uris))
     with open("sub_base64.txt", "w", encoding="utf-8") as f:
         f.write(base64.b64encode("\n".join(uris).encode()).decode())
     
-    # 生成完整 Clash 配置，防止报错
+    # --- 核心修复：Clash 配置增加 ipv6 开关 ---
     clash_config = {
+        "ipv6": True, # 强制开启 IPv6 支持
         "proxies": clash_proxies,
-        "proxy-groups": [{"name": "🚀 节点选择", "type": "select", "proxies": ["♻️ 自动选择", "DIRECT"] + [p['name'] for p in clash_proxies]},
-                         {"name": "♻️ 自动选择", "type": "url-test", "url": "http://www.gstatic.com/generate_204", "interval": 300, "proxies": [p['name'] for p in clash_proxies]}],
+        "proxy-groups": [
+            {"name": "🚀 节点选择", "type": "select", "proxies": ["♻️ 自动选择", "DIRECT"] + [p['name'] for p in clash_proxies]},
+            {"name": "♻️ 自动选择", "type": "url-test", "url": "http://www.gstatic.com/generate_204", "interval": 300, "proxies": [p['name'] for p in clash_proxies]}
+        ],
         "rules": ["MATCH,🚀 节点选择"]
     }
     with open("config.yaml", "w", encoding="utf-8") as f:
