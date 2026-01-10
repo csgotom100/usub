@@ -2,31 +2,7 @@ ipv6: true
 allow-lan: true
 mode: rule
 proxies:
-- name: 🌐_01_01-10 21:12
-  type: hysteria
-  server: 89.144.35.30
-  port: 23008
-  auth-str: dongtaiwang.com
-  sni: apple.com
-  skip-cert-verify: true
-  alpn:
-  - h3
-  protocol: udp
-  up: 11 Mbps
-  down: 55 Mbps
-- name: 🌐_02_01-10 21:12
-  type: hysteria
-  server: 5.178.101.33
-  port: 23008
-  auth-str: dongtaiwang.com
-  sni: apple.com
-  skip-cert-verify: true
-  alpn:
-  - h3
-  protocol: udp
-  up: 11 Mbps
-  down: 55 Mbps
-- name: 🌐_03_01-10 21:12
+- name: 🌐_01_01-10 21:17
   type: vless
   server: 195.154.200.13
   port: 17401
@@ -50,31 +26,7 @@ proxies:
       enabled: true
       up: 50
       down: 100
-- name: 🌐_04_01-10 21:12
-  type: hysteria
-  server: 2001:bc8:32d7:402::3
-  port: 20001
-  auth-str: dongtaiwang.com
-  sni: apple.com
-  skip-cert-verify: true
-  alpn:
-  - h3
-  protocol: udp
-  up: 11 Mbps
-  down: 55 Mbps
-- name: 🌐_05_01-10 21:12
-  type: hysteria
-  server: 2001:bc8:32d7:402::4
-  port: 20001
-  auth-str: dongtaiwang.com
-  sni: apple.com
-  skip-cert-verify: true
-  alpn:
-  - h3
-  protocol: udp
-  up: 11 Mbps
-  down: 55 Mbps
-- name: 🌐_06_01-10 21:12
+- name: 🌐_02_01-10 21:17
   type: anytls
   server: 45.221.98.14
   port: 59901
@@ -88,10 +40,10 @@ proxies:
   - h2
   - http/1.1
   skip-cert-verify: true
-- name: 🌐_07_01-10 21:12
+- name: 🌐_03_01-10 21:17
   type: vless
   server: 2001:bc8:32d7:181::2
-  port: 17401
+  port: 2
   uuid: add14a5b-f648-4423-8a1f-8b8f54c0daef
   network: tcp
   udp: true
@@ -112,10 +64,10 @@ proxies:
       enabled: true
       up: 50
       down: 100
-- name: 🌐_08_01-10 21:12
+- name: 🌐_04_01-10 21:17
   type: vless
   server: 2001:bc8:32d7:181::3
-  port: 17401
+  port: 3
   uuid: add14a5b-f648-4423-8a1f-8b8f54c0daef
   network: tcp
   udp: true
@@ -136,14 +88,14 @@ proxies:
       enabled: true
       up: 50
       down: 100
-- name: 🌐_09_01-10 21:12
+- name: 🌐_05_01-10 21:17
   type: mieru
   server: 157.254.223.48
   port: 33990
   transport: TCP
   username: dongtaiwang.com
   password: dongtaiwang.com
-- name: 🌐_10_01-10 21:12
+- name: 🌐_06_01-10 21:17
   server: 89.144.35.231
   port: 33457
   type: tuic
@@ -156,7 +108,7 @@ proxies:
   reduce-rtt: true
   udp-relay-mode: native
   congestion-controller: bbr
-- name: 🌐_11_01-10 21:12
+- name: 🌐_07_01-10 21:17
   server: 2a14:7583:299d::a
   port: 33457
   type: tuic
@@ -169,18 +121,6 @@ proxies:
   reduce-rtt: true
   udp-relay-mode: native
   congestion-controller: bbr
-- name: 🌐_12_01-10 21:12
-  type: hysteria
-  server: 2a14:7584:d097::a
-  port: 54177
-  auth-str: dongtaiwang.com
-  sni: apple.com
-  skip-cert-verify: true
-  alpn:
-  - h3
-  protocol: udp
-  up: 11 Mbps
-  down: 55 Mbps
 - server: 157.254.223.43:27921,28000-29000
   auth: dongtaiwang.com
   bandwidth:
@@ -200,7 +140,8 @@ proxies:
     udp:
       hopInterval: 30s
   type: hysteria2
-  name: 🌐_13_01-10 21:12
+  port: 27921
+  name: 🌐_08_01-10 21:17
 - server: 62.210.124.146:22000
   auth: dongtaiwang.com
   bandwidth:
@@ -220,7 +161,8 @@ proxies:
     udp:
       hopInterval: 30s
   type: hysteria2
-  name: 🌐_14_01-10 21:12
+  port: 22000
+  name: 🌐_09_01-10 21:17
 - server: '[2a14:7584:d04a::a]:50022'
   auth: dongtaiwang.com
   bandwidth:
@@ -240,7 +182,8 @@ proxies:
     udp:
       hopInterval: 30s
   type: hysteria2
-  name: 🌐_15_01-10 21:12
+  port: 50022
+  name: 🌐_10_01-10 21:17
 - type: vless
   tag: https://github.com/Alvin9999-newpac/fanqiang/wiki
   uuid: d0b3e27d-bbfc-4a3b-8e60-6973de8fcefa
@@ -268,7 +211,8 @@ proxies:
       enabled: true
       up_mbps: 50
       down_mbps: 100
-  name: 🌐_16_01-10 21:12
+  port: 18959
+  name: 🌐_11_01-10 21:17
 - type: vless
   tag: https://github.com/Alvin9999-newpac/fanqiang/wiki
   uuid: d3fd3b3c-f8d4-4894-b91e-5a6a53923a95
@@ -296,51 +240,42 @@ proxies:
       enabled: true
       up_mbps: 50
       down_mbps: 100
-  name: 🌐_17_01-10 21:12
+  port: 15531
+  name: 🌐_12_01-10 21:17
 proxy-groups:
 - name: 🚀 节点选择
   type: select
   proxies:
   - ♻️ 自动选择
   - DIRECT
-  - 🌐_01_01-10 21:12
-  - 🌐_02_01-10 21:12
-  - 🌐_03_01-10 21:12
-  - 🌐_04_01-10 21:12
-  - 🌐_05_01-10 21:12
-  - 🌐_06_01-10 21:12
-  - 🌐_07_01-10 21:12
-  - 🌐_08_01-10 21:12
-  - 🌐_09_01-10 21:12
-  - 🌐_10_01-10 21:12
-  - 🌐_11_01-10 21:12
-  - 🌐_12_01-10 21:12
-  - 🌐_13_01-10 21:12
-  - 🌐_14_01-10 21:12
-  - 🌐_15_01-10 21:12
-  - 🌐_16_01-10 21:12
-  - 🌐_17_01-10 21:12
+  - 🌐_01_01-10 21:17
+  - 🌐_02_01-10 21:17
+  - 🌐_03_01-10 21:17
+  - 🌐_04_01-10 21:17
+  - 🌐_05_01-10 21:17
+  - 🌐_06_01-10 21:17
+  - 🌐_07_01-10 21:17
+  - 🌐_08_01-10 21:17
+  - 🌐_09_01-10 21:17
+  - 🌐_10_01-10 21:17
+  - 🌐_11_01-10 21:17
+  - 🌐_12_01-10 21:17
 - name: ♻️ 自动选择
   type: url-test
   url: http://www.gstatic.com/generate_204
   interval: 300
   proxies:
-  - 🌐_01_01-10 21:12
-  - 🌐_02_01-10 21:12
-  - 🌐_03_01-10 21:12
-  - 🌐_04_01-10 21:12
-  - 🌐_05_01-10 21:12
-  - 🌐_06_01-10 21:12
-  - 🌐_07_01-10 21:12
-  - 🌐_08_01-10 21:12
-  - 🌐_09_01-10 21:12
-  - 🌐_10_01-10 21:12
-  - 🌐_11_01-10 21:12
-  - 🌐_12_01-10 21:12
-  - 🌐_13_01-10 21:12
-  - 🌐_14_01-10 21:12
-  - 🌐_15_01-10 21:12
-  - 🌐_16_01-10 21:12
-  - 🌐_17_01-10 21:12
+  - 🌐_01_01-10 21:17
+  - 🌐_02_01-10 21:17
+  - 🌐_03_01-10 21:17
+  - 🌐_04_01-10 21:17
+  - 🌐_05_01-10 21:17
+  - 🌐_06_01-10 21:17
+  - 🌐_07_01-10 21:17
+  - 🌐_08_01-10 21:17
+  - 🌐_09_01-10 21:17
+  - 🌐_10_01-10 21:17
+  - 🌐_11_01-10 21:17
+  - 🌐_12_01-10 21:17
 rules:
 - MATCH,🚀 节点选择
