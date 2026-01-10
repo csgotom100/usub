@@ -22,15 +22,13 @@ jobs:
 
       - name: Setup SubConverter
         run: |
-          # 将下载的文件放到临时目录，防止被 git add 进去
-          mkdir -p /tmp/subc
-          wget https://github.com/tindy2013/subconverter/releases/latest/download/subconverter_linux64.tar.gz -O /tmp/subc/subconverter.tar.gz
-          tar -zxf /tmp/subc/subconverter.tar.gz -C /tmp/subc
-          chmod +x /tmp/subc/subconverter/subconverter
-          # 后台启动
-          cd /tmp/subc/subconverter
-          ./subconverter &
-          sleep 5
+          # ... 下载解压步骤 ...
+          cd subconverter
+          # 加上 -d 参数启动后台调试模式，或者确保没有防火墙拦截
+          chmod +x subconverter
+          nohup ./subconverter > /dev/null 2>&1 &
+          # 给它充足的启动时间
+          sleep 10
 
       - name: Run Main Script
         run: python main.py
