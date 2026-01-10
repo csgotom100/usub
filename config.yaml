@@ -1,38 +1,50 @@
 proxies:
-- name: 🇹🇼[ANYTLS] 01
-  server: 45.221.98.14
-  port: 59901
-- name: 🇹🇼[VLESS] 02
+- name: 🌐[VLESS] 02 (01-10 17:17)
   server: 195.154.200.13
   port: 17401
   type: vless
   uuid: add14a5b-f648-4423-8a1f-8b8f54c0daef
   tls: true
   servername: itunes.apple.com
+  network: tcp
+  udp: true
   reality-opts:
     public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
     short-id: 8ef4455ba637425b
-- name: 🇹🇼[VLESS] 03
-  server: 2001:bc8:32d7:181::2
-  port: 17401
+- name: 🌐[VLESS] 03 (01-10 17:17)
+  server: '2001:bc8:32d7:181:'
+  port: 2
   type: vless
   uuid: add14a5b-f648-4423-8a1f-8b8f54c0daef
   tls: true
   servername: itunes.apple.com
+  network: tcp
+  udp: true
   reality-opts:
     public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
     short-id: 8ef4455ba637425b
-- name: 🇹🇼[VLESS] 04
-  server: 2001:bc8:32d7:181::3
-  port: 17401
+- name: 🌐[VLESS] 04 (01-10 17:17)
+  server: '2001:bc8:32d7:181:'
+  port: 3
   type: vless
   uuid: add14a5b-f648-4423-8a1f-8b8f54c0daef
   tls: true
   servername: itunes.apple.com
+  network: tcp
+  udp: true
   reality-opts:
     public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
     short-id: 8ef4455ba637425b
-- name: 🌐[TUIC] 05
+- name: 🌐[VLESS] 05 (01-10 17:17)
+  server: 157.254.223.48
+  port: 33990
+  type: vless
+  uuid: dongtaiwang.com
+  tls: true
+  servername: apple.com
+  network: tcp
+  udp: true
+- name: 🌐[TUIC] 06 (01-10 17:17)
   server: 89.144.35.231
   port: 33457
   type: tuic
@@ -40,52 +52,72 @@ proxies:
   sni: apple.com
   alpn:
   - h3
-- name: 🇹🇼[TUIC] 06
-  server: 2a14:7583:299d::a
-  port: 33457
-  type: tuic
-  uuid: dongtaiwang.com
-  sni: apple.com
-  alpn:
-  - h3
-- name: 🌐[HYSTERIA2] 07
+- name: 🌐[HYSTERIA2] 07 (01-10 17:17)
   server: 157.254.223.43
   port: 27921
   type: hysteria2
   password: dongtaiwang.com
-  sni: ''
+  sni: apple.com
   skip-cert-verify: true
-- name: 🌐[HYSTERIA2] 08
+- name: 🌐[HYSTERIA2] 08 (01-10 17:17)
   server: 62.210.124.146
   port: 22000
   type: hysteria2
   password: dongtaiwang.com
-  sni: ''
+  sni: apple.com
   skip-cert-verify: true
-- name: 🌐[HYSTERIA2] 09
-  server: 2a14:7584:d04a::a
-  port: 50022
-  type: hysteria2
-  password: dongtaiwang.com
-  sni: ''
-  skip-cert-verify: true
-- name: 🌐[VLESS] 10
+- name: 🌐[VLESS] 09 (01-10 17:17)
   server: 157.254.223.44
   port: 18959
   type: vless
   uuid: d0b3e27d-bbfc-4a3b-8e60-6973de8fcefa
   tls: true
   servername: itunes.apple.com
+  network: tcp
+  udp: true
   reality-opts:
     public-key: -hwVEdgFkvjku8ESuDoAA7id5yGGv_zXBvBW_RdhmHA
     short-id: d557c6895d014075
-- name: 🌐[VLESS] 11
+- name: 🌐[VLESS] 10 (01-10 17:17)
   server: 89.144.35.232
   port: 15531
   type: vless
   uuid: d3fd3b3c-f8d4-4894-b91e-5a6a53923a95
   tls: true
   servername: itunes.apple.com
+  network: tcp
+  udp: true
   reality-opts:
     public-key: o4gXQf1n5YOoLo6OnyHykodK1ZShHvDqu1FgxNHe6n8
     short-id: 8346964417a2552b
+proxy-groups:
+- name: 🚀 节点选择
+  type: select
+  proxies:
+  - ♻️ 自动选择
+  - DIRECT
+  - 🌐[VLESS] 02 (01-10 17:17)
+  - 🌐[VLESS] 03 (01-10 17:17)
+  - 🌐[VLESS] 04 (01-10 17:17)
+  - 🌐[VLESS] 05 (01-10 17:17)
+  - 🌐[TUIC] 06 (01-10 17:17)
+  - 🌐[HYSTERIA2] 07 (01-10 17:17)
+  - 🌐[HYSTERIA2] 08 (01-10 17:17)
+  - 🌐[VLESS] 09 (01-10 17:17)
+  - 🌐[VLESS] 10 (01-10 17:17)
+- name: ♻️ 自动选择
+  type: url-test
+  url: http://www.gstatic.com/generate_204
+  interval: 300
+  proxies:
+  - 🌐[VLESS] 02 (01-10 17:17)
+  - 🌐[VLESS] 03 (01-10 17:17)
+  - 🌐[VLESS] 04 (01-10 17:17)
+  - 🌐[VLESS] 05 (01-10 17:17)
+  - 🌐[TUIC] 06 (01-10 17:17)
+  - 🌐[HYSTERIA2] 07 (01-10 17:17)
+  - 🌐[HYSTERIA2] 08 (01-10 17:17)
+  - 🌐[VLESS] 09 (01-10 17:17)
+  - 🌐[VLESS] 10 (01-10 17:17)
+rules:
+- MATCH,🚀 节点选择
