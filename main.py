@@ -13,30 +13,25 @@ def get_geo_tag(text, server):
         if any(k in content for k in keys): return tag
     return "🌐"
 
-def parse_server_field(srv_str):
-    """精准解析复杂 server 字段，确保 IPv6 和多端口不丢端口"""
-    host, main_port, hop_ports = "", "", ""
+def safe_parse_port(srv_str, fallback_port):
+    """
+    强力解析端口逻辑：
+    处理 [2a14::a]:50022, 1.1.1.1:443, 以及 -1 等异常情况
+    """
+    port_str = ""
     try:
-        srv_str = str(srv_str).strip()
-        if srv_str.startswith('['):
-            host = re.search(r'\[(.+?)\]', srv_str).group(1)
-            port_part = srv_str.split(']')[-1].lstrip(':')
-        else:
-            if ':' in srv_str:
-                host, port_part = srv_str.rsplit(':', 1)
-            else:
-                host = srv_str
-                port_part = ""
-        if ',' in port_part:
-            main_port = port_part.split(',')[0]
-            hop_ports = port_part.split(',', 1)[1]
-        else:
-            main_port = port_part
-            hop_ports = ""
-        main_port = "".join(re.findall(r'\d+', main_port))
+        # 1. 优先从字符串末尾提取数字
+        if ':' in str(srv_str):
+            potential_port = str(srv_str).rsplit(':', 1)[-1]
+            port_str = "".join(re.findall(r'\d+', potential_port.split(',')[0]))
+        
+        # 2. 如果提取失败或为 -1，使用 fallback
+        if not port_str or int(port_str) <= 0:
+            port_str = "".join(re.findall(r'\d+', str(fallback_port)))
+            
+        return int(port_str) if port_str else 443
     except:
-        pass
-    return host, main_port, hop_ports
+        return 443
 
 def main():
     raw_nodes = []
@@ -55,7 +50,6 @@ def main():
             
             def walk(obj, source_is_json):
                 if isinstance(obj, dict):
-                    # 只要有 server 字段就视为节点
                     if 'server' in obj:
                         raw_nodes.append({"data": obj.copy(), "is_json": source_is_json})
                     else:
@@ -75,60 +69,65 @@ def main():
         obj = item["data"]
         is_json_source = item["is_json"]
         
-        # 提取关键信息
-        srv_raw = obj.get('server') or obj.get('add') or ""
-        host, main_port, hop_ports = parse_server_field(srv_raw)
-        if not main_port: main_port = str(obj.get('port') or "")
+        # 提取基础信息
+        srv_raw = str(obj.get('server') or obj.get('add') or "")
+        # 识别 Host
+        if srv_raw.startswith('['):
+            host = re.search(r'\[(.+?)\]', srv_raw).group(1)
+        else:
+            host = srv_raw.split(':')[0] if ':' in srv_raw else srv_raw
         
-        # 兼容 mieru 的密码字段
-        pw = str(obj.get('password') or obj.get('auth') or obj.get('uuid') or obj.get('id') or "")
+        # 精准解析端口
+        main_port = safe_parse_port(srv_raw, obj.get('port') or obj.get('server_port') or 443)
+        pw = str(obj.get('auth') or obj.get('password') or obj.get('uuid') or obj.get('id') or "")
         
+        # 全局去重
         unique_key = f"{host}_{main_port}_{pw}".lower()
-        if unique_key in seen_keys or not host: continue
+        if unique_key in seen_keys or not host or not pw: continue
         seen_keys.add(unique_key)
 
-        # --- Clash 配置：全协议照搬 (包含 Mieru) ---
+        # --- Clash 配置处理 (照搬所有协议，包括 Mieru) ---
         clash_node = obj.copy()
-        # 自动识别并补全 type
         p_type = str(clash_node.get('type') or ('hysteria2' if 'bandwidth' in obj else 'vless')).lower()
         clash_node['type'] = p_type
+        clash_node['port'] = main_port # 纠正 -1 错误
         
-        geo = get_geo_tag(host + str(obj.get('name','')), host)
+        geo = get_geo_tag(host, host)
         node_name = f"{geo}_{node_count:02d}_{time_tag}"
         clash_node['name'] = node_name
         final_clash_proxies.append(clash_node)
 
-        # --- 订阅生成：过滤 Mieru ---
+        # --- 订阅 URI 生成 (跳过 Mieru) ---
         if 'mieru' in p_type:
             node_count += 1
             continue
 
-        # URI 生成逻辑保持不变...
         srv_uri = f"[{host}]" if ':' in host else host
         name_enc = urllib.parse.quote(node_name)
+        hop_ports = srv_raw.split(',', 1)[1] if ',' in srv_raw else ""
 
-        if p_type == 'hysteria2':
-            if is_json_source:
-                sni = obj.get('sni') or (obj.get('tls',{}) if isinstance(obj.get('tls'),dict) else {}).get('sni') or "apple.com"
-                v2_p = {"insecure": "1", "sni": sni}
-                if hop_ports: v2_p["mport"] = hop_ports
-                final_v2ray_uris.append(f"hysteria2://{pw}@{srv_uri}:{main_port}?{urllib.parse.urlencode(v2_p)}#{name_enc}")
-                r_port = f"{main_port},{hop_ports}" if hop_ports else main_port
-                final_rocket_uris.append(f"hysteria2://{pw}@{srv_uri}:{r_port}?sni={sni}&insecure=1#{name_enc}")
-        else:
+        if p_type == 'hysteria2' and is_json_source:
+            sni = obj.get('sni') or (obj.get('tls',{}) if isinstance(obj.get('tls'),dict) else {}).get('sni') or "apple.com"
+            # v2rayN
+            v2_p = {"insecure": "1", "sni": sni}
+            if hop_ports: v2_p["mport"] = hop_ports
+            final_v2ray_uris.append(f"hysteria2://{pw}@{srv_uri}:{main_port}?{urllib.parse.urlencode(v2_p)}#{name_enc}")
+            # Rocket
+            r_port = f"{main_port},{hop_ports}" if hop_ports else main_port
+            final_rocket_uris.append(f"hysteria2://{pw}@{srv_uri}:{r_port}?sni={sni}&insecure=1#{name_enc}")
+        
+        elif 'vless' in p_type:
             tls_obj = obj.get('tls', {}) if isinstance(obj.get('tls'), dict) else {}
             sni = obj.get('servername') or obj.get('sni') or tls_obj.get('sni') or "itunes.apple.com"
             ro = obj.get('reality-opts') or tls_obj.get('reality') or {}
-            pbk = ro.get('public-key') or ro.get('public_key') or ""
-            sid = ro.get('short-id') or ro.get('short_id') or ""
-            v_p = {"encryption": "none", "security": "reality" if pbk else "none", "sni": sni, "fp": "chrome", "type": "tcp"}
-            if pbk: v_p.update({"pbk": pbk, "sid": sid})
+            v_p = {"encryption": "none", "security": "reality" if ro.get('public-key') else "none", "sni": sni, "fp": "chrome", "type": "tcp"}
+            if ro.get('public-key'): v_p.update({"pbk": ro.get('public-key'), "sid": ro.get('short-id')})
             uri = f"vless://{pw}@{srv_uri}:{main_port}?{urllib.parse.urlencode(v_p)}#{name_enc}"
             final_v2ray_uris.append(uri); final_rocket_uris.append(uri)
 
         node_count += 1
 
-    # 文件输出
+    # --- 输出文件 ---
     with open("sub_v2ray.txt", "w", encoding="utf-8") as f: f.write("\n".join(final_v2ray_uris))
     with open("sub_rocket.txt", "w", encoding="utf-8") as f: f.write("\n".join(final_rocket_uris))
     with open("config.yaml", "w", encoding="utf-8") as f:
