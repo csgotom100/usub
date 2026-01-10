@@ -10,6 +10,8 @@ proxies:
     auth-str: dongtaiwang.com
     sni: apple.com
     skip-cert-verify: true
+    protocol: udp
+    alpn: [h3]
     up: "11 Mbps"
     down: "55 Mbps"
   - name: "Node_02"
@@ -19,6 +21,8 @@ proxies:
     auth-str: dongtaiwang.com
     sni: apple.com
     skip-cert-verify: true
+    protocol: udp
+    alpn: [h3]
     up: "11 Mbps"
     down: "55 Mbps"
   - name: "Node_03"
@@ -28,8 +32,6 @@ proxies:
     uuid: add14a5b-f648-4423-8a1f-8b8f54c0daef
     udp: true
     network: tcp
-    up: 50
-    down: 100
     tls: true
     reality-opts:
       public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
@@ -42,6 +44,8 @@ proxies:
     auth-str: dongtaiwang.com
     sni: apple.com
     skip-cert-verify: true
+    protocol: udp
+    alpn: [h3]
     up: "11 Mbps"
     down: "55 Mbps"
   - name: "Node_05"
@@ -51,6 +55,8 @@ proxies:
     auth-str: dongtaiwang.com
     sni: apple.com
     skip-cert-verify: true
+    protocol: udp
+    alpn: [h3]
     up: "11 Mbps"
     down: "55 Mbps"
   - name: "Node_06"
@@ -67,8 +73,6 @@ proxies:
     uuid: add14a5b-f648-4423-8a1f-8b8f54c0daef
     udp: true
     network: tcp
-    up: 50
-    down: 100
     tls: true
     reality-opts:
       public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
@@ -81,8 +85,6 @@ proxies:
     uuid: add14a5b-f648-4423-8a1f-8b8f54c0daef
     udp: true
     network: tcp
-    up: 50
-    down: 100
     tls: true
     reality-opts:
       public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
@@ -122,6 +124,8 @@ proxies:
     auth-str: dongtaiwang.com
     sni: apple.com
     skip-cert-verify: true
+    protocol: udp
+    alpn: [h3]
     up: "11 Mbps"
     down: "55 Mbps"
 
@@ -144,24 +148,13 @@ proxy-groups:
       - DIRECT
 
 rules:
-  # 核心服务分流
   - DOMAIN-SUFFIX,google.com,🚀 节点选择
   - DOMAIN-KEYWORD,github,🚀 节点选择
   - DOMAIN-KEYWORD,youtube,🚀 节点选择
   - DOMAIN-KEYWORD,google,🚀 节点选择
   - DOMAIN-SUFFIX,telegram.org,🚀 节点选择
-
-  # 国内常用服务直连
   - DOMAIN-SUFFIX,cn,DIRECT
   - DOMAIN-KEYWORD,baidu,DIRECT
-  - DOMAIN-KEYWORD,taobao,DIRECT
-  - DOMAIN-KEYWORD,jd,DIRECT
-  - DOMAIN-KEYWORD,aliyun,DIRECT
-  - DOMAIN-KEYWORD,tencent,DIRECT
-
-  # 局域网与地理位置
   - GEOIP,LAN,DIRECT
   - GEOIP,CN,DIRECT
-
-  # 兜底规则
   - MATCH,🚀 节点选择
