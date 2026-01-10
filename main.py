@@ -19,23 +19,20 @@ def get_node_info(item):
         srv = item.get('server') or item.get('add') or item.get('address')
         if not srv or str(srv).startswith('127.'): return None
         
-        # --- 核心修复：更健壮的 IPv6 分离逻辑 ---
         srv = str(srv).strip()
         port = str(item.get('port') or item.get('server_port') or "")
         
-        # 如果 server 包含多个冒号且没有带中括号，或者是你遇到的残缺格式
+        # IPv6 修复逻辑
         if srv.count(':') > 1 and not srv.startswith('['):
-            if srv.endswith(':'): # 修复 2001:xxx: 这种残缺格式
-                srv = srv + "1"
-            # 如果端口不在 port 字段而在 server 字段里
+            if srv.endswith(':'): srv = srv + "1"
             if not port and not any(c.isalpha() for c in srv.split(':')[-1]):
                 srv, port = srv.rsplit(':', 1)
 
         port = re.findall(r'\d+', port)[0] if re.findall(r'\d+', port) else ""
         if not port: return None
 
+        # 密码/UUID 获取
         pw = item.get('auth') or item.get('password') or item.get('uuid') or item.get('id')
-        if not pw: return None
         
         tls = item.get('tls', {}) if isinstance(item.get('tls'), dict) else {}
         sni = item.get('servername') or item.get('sni') or tls.get('server_name') or ""
@@ -50,11 +47,22 @@ def get_node_info(item):
         
         flow = item.get('flow') or ""
 
+        # --- 增强协议判断逻辑 ---
         p_raw = str(item.get('type') or item.get('protocol') or "").lower()
-        if 'hy2' in p_raw or 'hysteria2' in p_raw or 'auth' in item: p = 'hysteria2'
-        elif 'tuic' in p_raw: p = 'tuic'
-        elif 'anytls' in p_raw: p = 'anytls'
-        else: p = 'vless'
+        if 'hy2' in p_raw or 'hysteria2' in p_raw: 
+            p = 'hysteria2'
+        elif 'tuic' in p_raw: 
+            p = 'tuic'
+        elif 'anytls' in p_raw: 
+            p = 'anytls'
+        elif 'vless' in p_raw or 'uuid' in item or 'id' in item:
+            p = 'vless'
+        elif 'auth' in item: # 补充兜底判断 Hysteria2
+            p = 'hysteria2'
+        else:
+            return None
+
+        if not pw and p != 'anytls': return None
 
         return {
             "server": srv.strip('[]'), "port": port, "type": p, "pw": pw,
@@ -73,6 +81,7 @@ def main():
         try:
             r = requests.get(url, timeout=15, verify=False)
             content = r.text.strip()
+            # 兼容 JSON 和 YAML
             data = json.loads(content) if content.startswith(('{', '[')) else yaml.safe_load(content)
             def walk(obj):
                 if isinstance(obj, dict):
@@ -84,24 +93,29 @@ def main():
             walk(data)
         except: continue
 
+    # 严格去重：防止 server+port+type 重复
     unique = []
     seen = set()
     for n in nodes:
-        key = f"{n['server']}:{n['port']}:{n['type']}:{n['path']}"
+        key = f"{n['server']}:{n['port']}:{n['type']}"
         if key not in seen:
             unique.append(n); seen.add(key)
 
+    # 排序：AnyTLS 优先
     unique.sort(key=lambda x: 0 if x['type'] == 'anytls' else 1)
+    
     uris = []
     clash_proxies = []
     time_tag = get_beijing_time()
     
     for i, n in enumerate(unique, 1):
         geo = get_geo_tag(n['name'] + n['sni'] + n['server'], n['server'])
+        # 统一名称格式
         name = f"{geo}[{n['type'].upper()}] {i:02d} ({time_tag})"
         name_enc = urllib.parse.quote(name)
         srv_uri = f"[{n['server']}]" if ':' in n['server'] else n['server']
         
+        # 1. 生成 URI (用于 sub.txt)
         if n['type'] == 'vless':
             params = {"security": "reality" if n['pbk'] else "none", "sni": n['sni'] or "apple.com", "pbk": n['pbk'], "sid": n['sid'], "flow": n['flow']}
             if n['path']: params.update({"type": "xhttp", "path": n['path']})
@@ -113,6 +127,7 @@ def main():
         elif n['type'] == 'tuic':
             uris.append(f"tuic://{n['pw']}@{srv_uri}:{n['port']}?sni={n['sni'] or 'apple.com'}&alpn=h3#{name_enc}")
 
+        # 2. 生成 Clash 节点
         if n['type'] in ['vless', 'hysteria2', 'tuic']:
             p = {"name": name, "server": n['server'], "port": int(n['port'])}
             if n['type'] == 'vless':
@@ -125,13 +140,14 @@ def main():
                 p.update({"type": "tuic", "uuid": n['pw'], "sni": n['sni'] or "apple.com", "alpn": ["h3"]})
             clash_proxies.append(p)
 
+    # 写入文件
     with open("sub.txt", "w", encoding="utf-8") as f: f.write("\n".join(uris))
     with open("sub_base64.txt", "w", encoding="utf-8") as f:
         f.write(base64.b64encode("\n".join(uris).encode()).decode())
     
-    # --- 核心修复：Clash 配置增加 ipv6 开关 ---
+    # 生成完整 Clash 配置
     clash_config = {
-        "ipv6": True, # 强制开启 IPv6 支持
+        "ipv6": True,
         "proxies": clash_proxies,
         "proxy-groups": [
             {"name": "🚀 节点选择", "type": "select", "proxies": ["♻️ 自动选择", "DIRECT"] + [p['name'] for p in clash_proxies]},
