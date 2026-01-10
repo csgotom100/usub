@@ -1,130 +1,145 @@
 proxies:
-- name: 🌐_01_01-10 21:51
-  type: vless
-  server: 195.154.200.13
+- cipher: auto
+  name: 🌐_01_01-10 21:54
+  network: tcp
   port: 17401
-  uuid: add14a5b-f648-4423-8a1f-8b8f54c0daef
-  cipher: auto
-  tls: true
-  sni: itunes.apple.com
   reality-opts:
     public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
     short-id: 8ef4455ba637425b
-  network: tcp
-- name: 🌐_02_01-10 21:51
+  server: 195.154.200.13
+  skip-cert-verify: true
+  sni: itunes.apple.com
+  tls: true
   type: vless
-  server: 45.221.98.14
+  uuid: add14a5b-f648-4423-8a1f-8b8f54c0daef
+- cipher: auto
+  name: 🌐_02_01-10 21:54
+  network: tcp
   port: 59901
-  uuid: dongtaiwang.com
-  cipher: auto
-  tls: false
-- name: 🌐_03_01-10 21:51
+  server: 45.221.98.14
+  skip-cert-verify: true
+  tls: true
   type: vless
-  server: '2001:bc8:32d7:181:'
+  uuid: dongtaiwang.com
+- cipher: auto
+  name: 🌐_03_01-10 21:54
+  network: tcp
   port: 2
-  uuid: add14a5b-f648-4423-8a1f-8b8f54c0daef
-  cipher: auto
-  tls: true
-  sni: itunes.apple.com
   reality-opts:
     public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
     short-id: 8ef4455ba637425b
-  network: tcp
-- name: 🌐_04_01-10 21:51
-  type: vless
   server: '2001:bc8:32d7:181:'
-  port: 3
-  uuid: add14a5b-f648-4423-8a1f-8b8f54c0daef
-  cipher: auto
-  tls: true
+  skip-cert-verify: true
   sni: itunes.apple.com
+  tls: true
+  type: vless
+  uuid: add14a5b-f648-4423-8a1f-8b8f54c0daef
+- cipher: auto
+  name: 🌐_04_01-10 21:54
+  network: tcp
+  port: 3
   reality-opts:
     public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
     short-id: 8ef4455ba637425b
+  server: '2001:bc8:32d7:181:'
+  skip-cert-verify: true
+  sni: itunes.apple.com
+  tls: true
+  type: vless
+  uuid: add14a5b-f648-4423-8a1f-8b8f54c0daef
+- cipher: auto
+  name: 🌐_05_01-10 21:54
   network: tcp
-- name: 🌐_05_01-10 21:51
-  type: mieru
-  server: 157.254.223.48
   port: 33990
-  uuid: dongtaiwang.com
-  cipher: auto
+  server: 157.254.223.48
+  skip-cert-verify: true
   tls: false
-- name: 🌐_05_01-10 21:51
-  type: tuic
+  type: vless
+  uuid: dongtaiwang.com
+- cipher: auto
+  name: 🌐_06_01-10 21:54
+  network: tcp
+  port: 33457
   server: 89.144.35.231
-  port: 33457
-  uuid: dongtaiwang.com
-  cipher: auto
-  tls: true
+  skip-cert-verify: true
   sni: apple.com
-- name: 🌐_06_01-10 21:51
-  type: tuic
-  server: '2a14:7583:299d:'
-  port: 33457
-  uuid: dongtaiwang.com
-  cipher: auto
   tls: true
-  sni: apple.com
-- name: 🌐_07_01-10 21:51
   type: vless
+  uuid: 66d37a65-7f6f-4e7c-a0f6-163bd917756a
+- cipher: auto
+  name: 🌐_07_01-10 21:54
+  network: tcp
+  port: 443
+  server: 2a14
+  skip-cert-verify: true
+  sni: apple.com
+  tls: true
+  type: vless
+  uuid: 66d37a65-7f6f-4e7c-a0f6-163bd917756a
+- cipher: auto
+  name: 🌐_08_01-10 21:54
+  network: tcp
+  port: 443
   server: 157.254.223.43
-  port: 27921
-  uuid: dongtaiwang.com
-  cipher: auto
-  tls: true
+  skip-cert-verify: true
   sni: apple.com
-- name: 🌐_08_01-10 21:51
+  tls: true
   type: vless
-  server: 62.210.124.146
+  uuid: dongtaiwang.com
+- cipher: auto
+  name: 🌐_09_01-10 21:54
+  network: tcp
   port: 22000
-  uuid: dongtaiwang.com
-  cipher: auto
-  tls: true
+  server: 62.210.124.146
+  skip-cert-verify: true
   sni: www.microsoft.com
-- name: 🌐_09_01-10 21:51
+  tls: true
   type: vless
-  server: 2a14:7584:d04a::a
-  port: 50022
   uuid: dongtaiwang.com
-  cipher: auto
-  tls: true
+- cipher: auto
+  name: 🌐_10_01-10 21:54
+  network: tcp
+  port: 50022
+  server: 2a14:7584:d04a::a
+  skip-cert-verify: true
   sni: apple.com
-- name: 🌐_10_01-10 21:51
+  tls: true
   type: vless
-  server: 157.254.223.44
+  uuid: dongtaiwang.com
+- cipher: auto
+  name: 🌐_11_01-10 21:54
+  network: tcp
   port: 18959
-  uuid: d0b3e27d-bbfc-4a3b-8e60-6973de8fcefa
-  cipher: auto
-  tls: true
-  reality-opts:
-    public-key: -hwVEdgFkvjku8ESuDoAA7id5yGGv_zXBvBW_RdhmHA
-    short-id: d557c6895d014075
-- name: 🌐_11_01-10 21:51
+  server: 157.254.223.44
+  skip-cert-verify: true
+  tls: false
   type: vless
-  server: 89.144.35.232
+  uuid: d0b3e27d-bbfc-4a3b-8e60-6973de8fcefa
+- cipher: auto
+  name: 🌐_12_01-10 21:54
+  network: tcp
   port: 15531
+  server: 89.144.35.232
+  skip-cert-verify: true
+  tls: false
+  type: vless
   uuid: d3fd3b3c-f8d4-4894-b91e-5a6a53923a95
-  cipher: auto
-  tls: true
-  reality-opts:
-    public-key: o4gXQf1n5YOoLo6OnyHykodK1ZShHvDqu1FgxNHe6n8
-    short-id: 8346964417a2552b
 proxy-groups:
-- name: 🚀 节点选择
-  type: select
+- name: 节点选择
   proxies:
   - DIRECT
-  - 🌐_01_01-10 21:51
-  - 🌐_02_01-10 21:51
-  - 🌐_03_01-10 21:51
-  - 🌐_04_01-10 21:51
-  - 🌐_05_01-10 21:51
-  - 🌐_05_01-10 21:51
-  - 🌐_06_01-10 21:51
-  - 🌐_07_01-10 21:51
-  - 🌐_08_01-10 21:51
-  - 🌐_09_01-10 21:51
-  - 🌐_10_01-10 21:51
-  - 🌐_11_01-10 21:51
+  - 🌐_01_01-10 21:54
+  - 🌐_02_01-10 21:54
+  - 🌐_03_01-10 21:54
+  - 🌐_04_01-10 21:54
+  - 🌐_05_01-10 21:54
+  - 🌐_06_01-10 21:54
+  - 🌐_07_01-10 21:54
+  - 🌐_08_01-10 21:54
+  - 🌐_09_01-10 21:54
+  - 🌐_10_01-10 21:54
+  - 🌐_11_01-10 21:54
+  - 🌐_12_01-10 21:54
+  type: select
 rules:
-- MATCH,🚀 节点选择
+- MATCH,节点选择
