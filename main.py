@@ -27,8 +27,7 @@ def parse_node_address(srv_str, fallback_port):
             host = parts[0]
             port_str = "".join(re.findall(r'\d+', parts[1].split(',')[0]))
             port = int(port_str) if port_str else 0
-        else:
-            host = srv_str
+        else: host = srv_str
         if port <= 0:
             port_str = "".join(re.findall(r'\d+', str(fallback_port)))
             port = int(port_str) if port_str else 443
@@ -74,29 +73,32 @@ def main():
         if unique_key in seen_keys or not host or not pw: continue
         seen_keys.add(unique_key)
 
+        # --- 协议识别 & 传输层识别 (xhttp) ---
         p_type = str(obj.get('type') or ('hysteria2' if 'bandwidth' in obj else 'vless')).lower()
-        tls_data = obj.get('tls', {}) if isinstance(obj.get('tls'), dict) else {}
-        ro = obj.get('reality-opts') or tls_data.get('reality') or obj.get('reality_settings') or obj.get('reality-settings') or {}
         
-        pbk = ro.get('public-key') or ro.get('public_key') or obj.get('public-key') or obj.get('public_key') or ""
-        sid = ro.get('short-id') or ro.get('short_id') or obj.get('short-id') or obj.get('short_id') or ""
-        sni = obj.get('sni') or obj.get('servername') or tls_data.get('sni') or tls_data.get('servername') or ""
+        # 识别 transport (xhttp, ws, grpc)
+        stream_settings = obj.get('stream-settings') or obj.get('streamSettings') or {}
+        net = obj.get('network') or stream_settings.get('network') or obj.get('transport', {}).get('protocol') or 'tcp'
+        
+        # 提取 Reality/TLS 参数
+        tls_data = obj.get('tls', {}) if isinstance(obj.get('tls'), dict) else {}
+        ro = obj.get('reality-opts') or tls_data.get('reality') or obj.get('reality_settings') or {}
+        pbk = ro.get('public-key') or ro.get('public_key') or obj.get('public-key') or ""
+        sid = ro.get('short-id') or ro.get('short_id') or obj.get('short-id') or ""
+        sni = obj.get('sni') or obj.get('servername') or tls_data.get('sni') or ""
 
         geo = get_geo_tag(host, host)
         node_name = f"{geo}_{node_count:02d}_{time_tag}"
 
-        # --- Clash 配置处理 ---
+        # --- Clash 配置处理 (照搬) ---
         clash_node = obj.copy()
         clash_node.update({"name": node_name, "type": p_type, "port": main_port, "server": host})
         if isinstance(clash_node.get('tls'), dict):
             clash_node['tls'] = True
             if sni: clash_node['sni'] = sni
-            if pbk:
-                clash_node['reality-opts'] = {'public-key': pbk, 'short-id': sid}
-                clash_node['network'] = 'tcp'
         final_clash_proxies.append(clash_node)
 
-        # --- 订阅 URI 生成 ---
+        # --- 订阅生成 (跳过 mieru) ---
         if 'mieru' in p_type: 
             node_count += 1
             continue
@@ -109,17 +111,23 @@ def main():
             v2_p = {"insecure": "1", "sni": target_sni}
             hop_ports = srv_raw.split(',', 1)[1] if ',' in srv_raw else ""
             if hop_ports: v2_p["mport"] = hop_ports
-            
-            # v2rayN 格式
             final_v2ray_uris.append(f"hysteria2://{pw}@{srv_uri}:{main_port}?{urllib.parse.urlencode(v2_p)}#{name_enc}")
-            
-            # Shadowrocket 格式 (修复 TypeError: str(main_port) 确保类型一致)
             rocket_port_str = f"{main_port},{hop_ports}" if hop_ports else str(main_port)
             final_rocket_uris.append(f"hysteria2://{pw}@{srv_uri}:{rocket_port_str}?sni={target_sni}&insecure=1#{name_enc}")
         
         elif 'vless' in p_type:
-            v_p = {"encryption": "none", "security": "reality" if pbk else "none", "sni": sni or "itunes.apple.com", "fp": "chrome", "type": "tcp"}
+            # VLESS 基础参数
+            v_p = {"encryption": "none", "security": "reality" if pbk else ("tls" if sni else "none"), "sni": sni or "itunes.apple.com", "fp": "chrome", "type": net}
             if pbk: v_p.update({"pbk": pbk, "sid": sid})
+            
+            # --- 核心：处理 xhttp 参数 ---
+            if net == 'xhttp':
+                xh_opts = obj.get('xhttp-opts') or stream_settings.get('xhttpSettings') or obj.get('transport', {}).get('xhttp', {})
+                if xh_opts:
+                    if xh_opts.get('path'): v_p['path'] = xh_opts.get('path')
+                    if xh_opts.get('mode'): v_p['mode'] = xh_opts.get('mode')
+                    if xh_opts.get('host'): v_p['host'] = xh_opts.get('host')
+
             uri = f"vless://{pw}@{srv_uri}:{main_port}?{urllib.parse.urlencode(v_p)}#{name_enc}"
             final_v2ray_uris.append(uri); final_rocket_uris.append(uri)
 
