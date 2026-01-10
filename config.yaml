@@ -1,238 +1,130 @@
-ipv6: true
-allow-lan: true
 proxies:
-- name: 🌐_01_01-10 21:46
+- name: 🌐_01_01-10 21:51
   type: vless
   server: 195.154.200.13
   port: 17401
   uuid: add14a5b-f648-4423-8a1f-8b8f54c0daef
-  network: tcp
-  udp: true
+  cipher: auto
   tls: true
-  flow: null
-  servername: itunes.apple.com
-  client-fingerprint: chrome
+  sni: itunes.apple.com
   reality-opts:
     public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
     short-id: 8ef4455ba637425b
-  smux:
-    enabled: true
-    protocol: h2mux
-    max-connections: 1
-    min-streams: 4
-    padding: true
-    brutal-opts:
-      enabled: true
-      up: 50
-      down: 100
-- name: 🌐_02_01-10 21:46
-  type: anytls
+  network: tcp
+- name: 🌐_02_01-10 21:51
+  type: vless
   server: 45.221.98.14
   port: 59901
-  password: dongtaiwang.com
-  client-fingerprint: chrome
-  udp: true
-  idle-session-check-interval: 30
-  idle-session-timeout: 30
-  min-idle-session: 0
-  alpn:
-  - h2
-  - http/1.1
-  skip-cert-verify: true
-- name: 🌐_03_01-10 21:46
+  uuid: dongtaiwang.com
+  cipher: auto
+  tls: false
+- name: 🌐_03_01-10 21:51
   type: vless
   server: '2001:bc8:32d7:181:'
   port: 2
   uuid: add14a5b-f648-4423-8a1f-8b8f54c0daef
-  network: tcp
-  udp: true
+  cipher: auto
   tls: true
-  flow: null
-  servername: itunes.apple.com
-  client-fingerprint: chrome
+  sni: itunes.apple.com
   reality-opts:
     public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
     short-id: 8ef4455ba637425b
-  smux:
-    enabled: true
-    protocol: h2mux
-    max-connections: 1
-    min-streams: 4
-    padding: true
-    brutal-opts:
-      enabled: true
-      up: 50
-      down: 100
-- name: 🌐_04_01-10 21:46
+  network: tcp
+- name: 🌐_04_01-10 21:51
   type: vless
   server: '2001:bc8:32d7:181:'
   port: 3
   uuid: add14a5b-f648-4423-8a1f-8b8f54c0daef
-  network: tcp
-  udp: true
+  cipher: auto
   tls: true
-  flow: null
-  servername: itunes.apple.com
-  client-fingerprint: chrome
+  sni: itunes.apple.com
   reality-opts:
     public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
     short-id: 8ef4455ba637425b
-  smux:
-    enabled: true
-    protocol: h2mux
-    max-connections: 1
-    min-streams: 4
-    padding: true
-    brutal-opts:
-      enabled: true
-      up: 50
-      down: 100
-- name: 🌐_05_01-10 21:46
+  network: tcp
+- name: 🌐_05_01-10 21:51
   type: mieru
   server: 157.254.223.48
   port: 33990
-  transport: TCP
-  username: dongtaiwang.com
-  password: dongtaiwang.com
-- name: 🌐_06_01-10 21:46
+  uuid: dongtaiwang.com
+  cipher: auto
+  tls: false
+- name: 🌐_05_01-10 21:51
+  type: tuic
   server: 89.144.35.231
   port: 33457
-  type: tuic
-  uuid: 66d37a65-7f6f-4e7c-a0f6-163bd917756a
-  password: dongtaiwang.com
-  alpn:
-  - h3
+  uuid: dongtaiwang.com
+  cipher: auto
+  tls: true
   sni: apple.com
-  skip-cert-verify: true
-  reduce-rtt: true
-  udp-relay-mode: native
-  congestion-controller: bbr
-- name: 🌐_07_01-10 21:46
+- name: 🌐_06_01-10 21:51
+  type: tuic
   server: '2a14:7583:299d:'
   port: 33457
-  type: tuic
-  uuid: 66d37a65-7f6f-4e7c-a0f6-163bd917756a
-  password: dongtaiwang.com
-  alpn:
-  - h3
-  sni: apple.com
-  skip-cert-verify: true
-  reduce-rtt: true
-  udp-relay-mode: native
-  congestion-controller: bbr
-- server: 157.254.223.43
-  auth: dongtaiwang.com
-  bandwidth:
-    up: 11 mbps
-    down: 55 mbps
+  uuid: dongtaiwang.com
+  cipher: auto
   tls: true
-  quic:
-    initStreamReceiveWindow: 16777216
-    maxStreamReceiveWindow: 16777216
-    initConnReceiveWindow: 33554432
-    maxConnReceiveWindow: 33554432
-  socks5:
-    listen: 127.0.0.1:1080
-  transport:
-    udp:
-      hopInterval: 30s
-  name: 🌐_08_01-10 21:46
+  sni: apple.com
+- name: 🌐_07_01-10 21:51
+  type: vless
+  server: 157.254.223.43
   port: 27921
-  sni: apple.com
-- server: 62.210.124.146
-  auth: dongtaiwang.com
-  bandwidth:
-    up: 11 mbps
-    down: 55 mbps
+  uuid: dongtaiwang.com
+  cipher: auto
   tls: true
-  quic:
-    initStreamReceiveWindow: 16777216
-    maxStreamReceiveWindow: 16777216
-    initConnReceiveWindow: 33554432
-    maxConnReceiveWindow: 33554432
-  socks5:
-    listen: 127.0.0.1:1080
-  transport:
-    udp:
-      hopInterval: 30s
-  name: 🌐_09_01-10 21:46
+  sni: apple.com
+- name: 🌐_08_01-10 21:51
+  type: vless
+  server: 62.210.124.146
   port: 22000
+  uuid: dongtaiwang.com
+  cipher: auto
+  tls: true
   sni: www.microsoft.com
-- server: 2a14:7584:d04a::a
-  auth: dongtaiwang.com
-  bandwidth:
-    up: 11 mbps
-    down: 55 mbps
-  tls: true
-  quic:
-    initStreamReceiveWindow: 16777216
-    maxStreamReceiveWindow: 16777216
-    initConnReceiveWindow: 33554432
-    maxConnReceiveWindow: 33554432
-  socks5:
-    listen: 127.0.0.1:1080
-  transport:
-    udp:
-      hopInterval: 30s
-  name: 🌐_10_01-10 21:46
+- name: 🌐_09_01-10 21:51
+  type: vless
+  server: 2a14:7584:d04a::a
   port: 50022
+  uuid: dongtaiwang.com
+  cipher: auto
+  tls: true
   sni: apple.com
-- type: vless
-  tag: https://github.com/Alvin9999-newpac/fanqiang/wiki
-  uuid: d0b3e27d-bbfc-4a3b-8e60-6973de8fcefa
-  packet_encoding: xudp
+- name: 🌐_10_01-10 21:51
+  type: vless
   server: 157.254.223.44
-  server_port: 18959
-  flow: ''
-  tls: true
-  multiplex:
-    enabled: true
-    protocol: h2mux
-    max_connections: 1
-    min_streams: 4
-    padding: true
-    brutal:
-      enabled: true
-      up_mbps: 50
-      down_mbps: 100
-  name: 🌐_11_01-10 21:46
   port: 18959
-- type: vless
-  tag: https://github.com/Alvin9999-newpac/fanqiang/wiki
-  uuid: d3fd3b3c-f8d4-4894-b91e-5a6a53923a95
-  packet_encoding: xudp
-  server: 89.144.35.232
-  server_port: 15531
-  flow: ''
+  uuid: d0b3e27d-bbfc-4a3b-8e60-6973de8fcefa
+  cipher: auto
   tls: true
-  multiplex:
-    enabled: true
-    protocol: h2mux
-    max_connections: 1
-    min_streams: 4
-    padding: true
-    brutal:
-      enabled: true
-      up_mbps: 50
-      down_mbps: 100
-  name: 🌐_12_01-10 21:46
+  reality-opts:
+    public-key: -hwVEdgFkvjku8ESuDoAA7id5yGGv_zXBvBW_RdhmHA
+    short-id: d557c6895d014075
+- name: 🌐_11_01-10 21:51
+  type: vless
+  server: 89.144.35.232
   port: 15531
+  uuid: d3fd3b3c-f8d4-4894-b91e-5a6a53923a95
+  cipher: auto
+  tls: true
+  reality-opts:
+    public-key: o4gXQf1n5YOoLo6OnyHykodK1ZShHvDqu1FgxNHe6n8
+    short-id: 8346964417a2552b
 proxy-groups:
 - name: 🚀 节点选择
   type: select
   proxies:
   - DIRECT
-  - 🌐_01_01-10 21:46
-  - 🌐_02_01-10 21:46
-  - 🌐_03_01-10 21:46
-  - 🌐_04_01-10 21:46
-  - 🌐_05_01-10 21:46
-  - 🌐_06_01-10 21:46
-  - 🌐_07_01-10 21:46
-  - 🌐_08_01-10 21:46
-  - 🌐_09_01-10 21:46
-  - 🌐_10_01-10 21:46
-  - 🌐_11_01-10 21:46
-  - 🌐_12_01-10 21:46
+  - 🌐_01_01-10 21:51
+  - 🌐_02_01-10 21:51
+  - 🌐_03_01-10 21:51
+  - 🌐_04_01-10 21:51
+  - 🌐_05_01-10 21:51
+  - 🌐_05_01-10 21:51
+  - 🌐_06_01-10 21:51
+  - 🌐_07_01-10 21:51
+  - 🌐_08_01-10 21:51
+  - 🌐_09_01-10 21:51
+  - 🌐_10_01-10 21:51
+  - 🌐_11_01-10 21:51
 rules:
 - MATCH,🚀 节点选择
