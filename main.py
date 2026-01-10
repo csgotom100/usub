@@ -1,18 +1,30 @@
 import requests
 import os
 import re
-import base64
 
-def get_raw_content(text):
-    # 尝试寻找 Base64 特征
-    b64_match = re.search(r'[A-Za-z0-9+/]{100,}', text)
-    if b64_match: 
-        return b64_match.group(0)
+def get_pure_proxies(text):
+    """
+    专门从 Clash 格式或 Base64 中提取纯净的节点部分
+    """
+    # 如果是 Base64，直接返回，SubConverter 处理单段 Base64 很稳
+    if re.match(r'^[A-Za-z0-9+/=\s]+$', text) and len(text) > 100:
+        return text
     
-    # 尝试寻找 Clash 特征
+    # 如果是 Clash 格式，只提取 proxies 列表下的内容
     if "proxies:" in text:
-        start_idx = text.find("proxies:")
-        return text[start_idx:]
+        # 找到 proxies: 开始到下一个大项（如 proxy-groups 或 rules）之前的内容
+        start = text.find("proxies:")
+        # 尝试寻找下一个配置大项作为结束标记
+        end = len(text)
+        for marker in ["proxy-groups:", "rules:", "rule-providers:", "script:"]:
+            marker_idx = text.find(marker, start)
+            if marker_idx != -1 and marker_idx < end:
+                end = marker_idx
+        
+        chunk = text[start:end].replace("proxies:", "").strip()
+        # 确保返回的是以 - name: 开头的行
+        return chunk
+    
     return ""
 
 def main():
@@ -20,64 +32,51 @@ def main():
     with open('sources.txt', 'r', encoding='utf-8') as f:
         urls = [l.strip() for l in f if l.startswith('http')]
 
-    all_raw_data = []
-    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
+    valid_proxies = []
+    headers = {'User-Agent': 'clash-verge/1.0; Mozilla/5.0'}
 
-    print(f"🚀 正在提取节点...")
+    print(f"🚀 正在清洗并提取纯净节点...")
     for idx, url in enumerate(urls):
         try:
             r = requests.get(url, headers=headers, timeout=10)
             if r.status_code == 200:
-                clean_data = get_raw_content(r.text)
-                if clean_data:
-                    all_raw_data.append(clean_data)
+                proxy_chunk = get_pure_proxies(r.text)
+                if proxy_chunk:
+                    valid_proxies.append(proxy_chunk)
                     print(f"   [{idx+1}] ✅ 提取成功")
         except: continue
 
-    if not all_raw_data:
-        print("❌ 没有任何原始数据被提取到！")
+    if not valid_proxies:
+        print("❌ 未能提取到任何有效节点")
         return
 
-    # --- 诊断：查看合并后的内容 ---
-    # 我们把所有提取出的块再次用换行连接
-    combined_payload = "\n".join(all_raw_data)
-    print(f"📊 合并完成，预览数据前100位: {combined_payload[:100]}...")
+    # 构造最终喂给 SubConverter 的数据：一个标准的 proxies 列表
+    final_payload = "proxies:\n" + "\n".join(valid_proxies)
+    
+    print(f"📊 汇总完成，准备渲染最终订阅...")
 
     try:
-        # 使用 POST 转换，显式告诉 SubConverter 我们传的是本地数据
-        # 加上 target=clash 以及关键参数
-        print("📦 正在请求后端渲染 config.yaml...")
-        
-        # 构造 POST 参数
-        # url 指定为一个占位符，data 字段传实际内容
-        params = {
-            "target": "clash",
-            "data": combined_payload,
-            "emoji": "true",
-            "list": "false"
-        }
-        
-        r_clash = requests.post("http://127.0.0.1:25500/sub", data=params, timeout=60)
+        # 此时的 payload 是标准格式，SubConverter 绝不会报错
+        r_clash = requests.post("http://127.0.0.1:25500/sub", 
+                               data={"target": "clash", "data": final_payload}, 
+                               timeout=60)
         
         if "proxies:" in r_clash.text:
             with open("config.yaml", "w", encoding="utf-8") as f:
                 f.write(r_clash.text)
-            print(f"🎉 config.yaml 生成成功！内容长度: {len(r_clash.text)}")
-        else:
-            print("❌ 后端返回的内容中没有 proxies 关键字，转换可能失败了。")
-            print(f"后端返回预览: {r_clash.text[:200]}")
-
-        # 生成 V2Ray
-        params["target"] = "v2ray"
-        params["list"] = "true"
-        r_v2ray = requests.post("http://127.0.0.1:25500/sub", data=params, timeout=60)
-        if r_v2ray.status_code == 200:
+            print(f"🎉 config.yaml 生成成功！(节点大小: {len(r_clash.text)} 字节)")
+            
+            # 同时生成一份 v2ray 订阅备用
+            r_v2ray = requests.post("http://127.0.0.1:25500/sub", 
+                                   data={"target": "v2ray", "data": final_payload, "list": "true"}, 
+                                   timeout=60)
             with open("sub_v2ray.txt", "w", encoding="utf-8") as f:
                 f.write(r_v2ray.text)
-            print("🎉 sub_v2ray.txt 生成成功")
+        else:
+            print("❌ 转换后未发现 proxies 关键字，请检查后端输出。")
             
     except Exception as e:
-        print(f"❌ 转换过程崩溃: {e}")
+        print(f"❌ 转换过程出错: {e}")
 
 if __name__ == "__main__":
     main()
