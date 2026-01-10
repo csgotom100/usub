@@ -1,0 +1,10 @@
+HTTP/1.1 200 OK
+Server: nginx/1.18.0
+Date: Sat, 10 Jan 2026 14:27:57 GMT
+Content-Type: application/octet-stream
+Content-Length: 2215
+Last-Modified: Wed, 07 Jan 2026 00:49:13 GMT
+Connection: keep-alive
+ETag: "695dad89-8a7"
+Accept-Ranges: bytes
+
