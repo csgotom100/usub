@@ -3,16 +3,16 @@ import os
 import re
 
 def is_valid_proxy(block):
-    """核心校验：确保节点包含 server/type/port，并初步过滤不完整的节点"""
+    """核心校验：确保节点包含 server/type/port，并过滤已知错误块"""
     if not all(k in block for k in ["type:", "server:", "port:"]):
         return False
-    # 过滤掉包含旧报错信息的脏块
-    if "key 'username' missing" in block or "transport' missing" in block:
+    # 过滤掉包含旧报错提示的无效块
+    if any(msg in block for msg in ["missing", "failed", "error"]):
         return False
     return True
 
 def clean_node_block(block):
-    """深度清洗：修正 Reality 嵌套，并补全 Hysteria、TUIC 和 Mieru 的必需参数"""
+    """深度清洗：处理 Reality 嵌套，并补全 Hysteria、TUIC 和 Mieru 的必需参数"""
     lines = block.splitlines()
     data = {}
     for line in lines:
@@ -37,18 +37,19 @@ def clean_node_block(block):
         for k in ["up", "down"]:
             if k in data: cleaned.append(f"{k}: {data[k]}")
 
-    # 2. TUIC 协议补全
+    # 2. TUIC 协议补全 (处理 username missing 错误)
     if node_type == "tuic":
         cleaned.append("alpn: [h3]")
+        # TUIC 必须有 uuid，如果源数据只有 password，将其映射为 uuid
+        if "uuid" not in data and "password" in data:
+            cleaned.append(f"uuid: {data['password']}")
         for k in ["congestion-controller", "reduce-rtt"]:
             if k in data: cleaned.append(f"{k}: {data[k]}")
 
-    # 3. Mieru 协议补全 (修正图片中的 transport missing 错误)
+    # 3. Mieru 协议补全 (修复截图中的 transport missing 错误)
     if node_type == "mieru":
-        if "transport" not in data:
-            cleaned.append("transport: tcp") # 默认补全为 tcp
-        else:
-            cleaned.append(f"transport: {data['transport']}")
+        # 强制补全 transport，这是 mieru 协议在 Clash Meta 中的必需项
+        cleaned.append(f"transport: {data.get('transport', 'tcp')}")
 
     # 4. VLESS / Reality 结构修正
     if node_type == "vless":
@@ -78,13 +79,14 @@ def main():
         try:
             r = requests.get(url, headers=headers, timeout=10)
             if r.status_code == 200:
+                # 暴力切割：基于 YAML 列表特征分割块
                 chunks = re.split(r'-\s*name:', r.text)
                 for c in chunks:
                     if is_valid_proxy(c):
                         all_raw_chunks.append(c)
         except: continue
 
-    # 按 Server 去重
+    # 按 Server 地址去重
     unique_dict = {}
     for chunk in all_raw_chunks:
         s_match = re.search(r'server:\s*([^\s]+)', chunk)
@@ -125,7 +127,7 @@ def main():
         clash_config.append(f"      - \"{n}\"")
     clash_config.append("      - DIRECT")
 
-    # --- 神机规则分流逻辑 ---
+    # --- 神机规则分流逻辑 (ACL4SSR) ---
     clash_config.extend([
         "",
         "rules:",
