@@ -14,11 +14,7 @@ def get_geo_tag(text, server):
     return "🌐"
 
 def main():
-    v2ray_uris = []
-    rocket_uris = []
-    clash_proxies = [] 
-    seen_clash = set()
-    seen_sub = set()
+    raw_nodes = [] # 暂存所有初步识别到的节点
     time_tag = get_beijing_time()
 
     if not os.path.exists('sources.txt'): return
@@ -32,96 +28,103 @@ def main():
             is_json = content.startswith(('{', '['))
             data = json.loads(content) if is_json else yaml.safe_load(content)
             
-            def walk(obj):
+            def walk(obj, source_is_json):
                 if isinstance(obj, dict):
                     if 'server' in obj:
-                        # --- 1. Clash 照搬 (保持物理一致性) ---
-                        ckey = f"{obj['server']}_{obj.get('auth') or obj.get('uuid') or obj.get('password')}"
-                        if ckey not in seen_clash:
-                            raw_node = obj.copy()
-                            raw_node['name'] = f"Node_{len(seen_clash)+1}_{time_tag}"
-                            if 'type' not in raw_node:
-                                raw_node['type'] = 'hysteria2' if 'bandwidth' in obj else 'vless'
-                            clash_proxies.append(raw_node)
-                            seen_clash.add(ckey)
-
-                        # --- 2. 订阅提取逻辑 ---
-                        # 识别协议
-                        item_raw = str(obj).lower()
-                        p_type = str(obj.get('type', '')).lower()
-                        if 'mieru' in p_type or 'mieru' in item_raw: return # 订阅不输出 Mieru
-
-                        # 严格拆解 Server 和 Port
-                        srv_raw = str(obj.get('server') or obj.get('add') or "")
-                        if not srv_raw: return
-                        
-                        # 处理 IPv6 格式与端口拆分
-                        if srv_raw.startswith('['):
-                            host = re.search(r'\[(.+)\]', srv_raw).group(1)
-                            port_part = srv_raw.split(']')[-1].strip(':')
-                        elif srv_raw.count(':') > 1 and ',' not in srv_raw: # 纯 IPv6 无端口
-                            host = srv_raw
-                            port_part = str(obj.get('port', ''))
-                        elif ':' in srv_raw:
-                            host, port_part = srv_raw.rsplit(':', 1)
-                        else:
-                            host = srv_raw
-                            port_part = str(obj.get('port', ''))
-
-                        # 提取主端口和跳跃端口
-                        main_port = re.search(r'\d+', port_part).group() if re.search(r'\d+', port_part) else "443"
-                        hop_ports = port_part.split(',', 1)[1] if ',' in port_part else ""
-                        
-                        # 提取共有参数
-                        pw = obj.get('auth') or obj.get('password') or obj.get('uuid') or obj.get('id')
-                        if not pw: return
-                        
-                        tls_obj = obj.get('tls', {}) if isinstance(obj.get('tls'), dict) else {}
-                        sni = obj.get('servername') or obj.get('sni') or tls_obj.get('sni') or ""
-                        
-                        geo = get_geo_tag(host + str(obj.get('name','')), host)
-                        name_tag = f"{geo}_{len(seen_sub)+1}_{time_tag}"
-                        name_enc = urllib.parse.quote(name_tag)
-                        srv_uri = f"[{host}]" if ':' in host else host
-
-                        # --- A. HY2 逻辑 (仅限 JSON 源) ---
-                        if 'bandwidth' in obj or 'hysteria2' in p_type:
-                            if not is_json: return # 遵守你的指令：HY2 只从 JSON 提
-                            sni = sni or "apple.com"
-                            # v2rayN
-                            v2_h = {"insecure": "1", "sni": sni}
-                            if hop_ports: v2_h["mport"] = hop_ports
-                            v2ray_uris.append(f"hysteria2://{pw}@{srv_uri}:{main_port}?{urllib.parse.urlencode(v2_h)}#{name_enc}")
-                            # Shadowrocket
-                            r_port = f"{main_port},{hop_ports}" if hop_ports else main_port
-                            rocket_uris.append(f"hysteria2://{pw}@{srv_uri}:{r_port}?sni={sni}&insecure=1#{name_enc}")
-
-                        # --- B. VLESS 逻辑 (含 Reality) ---
-                        else:
-                            ro = obj.get('reality-opts') or tls_obj.get('reality') or obj.get('reality_settings') or {}
-                            pbk = ro.get('public-key') or ro.get('public_key') or obj.get('public-key') or ""
-                            sid = ro.get('short-id') or ro.get('short_id') or obj.get('short-id') or ""
-                            
-                            v_params = {"encryption": "none", "security": "reality" if pbk else "none", "sni": sni or "itunes.apple.com", "fp": "chrome", "type": "tcp"}
-                            if pbk: v_params.update({"pbk": pbk, "sid": sid})
-                            
-                            uri = f"vless://{pw}@{srv_uri}:{main_port}?{urllib.parse.urlencode(v_params)}#{name_enc}"
-                            v2ray_uris.append(uri)
-                            rocket_uris.append(uri)
-
-                        seen_sub.add(ckey)
+                        # 存储原始对象和来源属性
+                        raw_nodes.append({"data": obj.copy(), "is_json": source_is_json})
                     else:
-                        for v in obj.values(): walk(v)
+                        for v in obj.values(): walk(v, source_is_json)
                 elif isinstance(obj, list):
-                    for i in obj: walk(i)
-            walk(data)
+                    for i in obj: walk(i, source_is_json)
+            walk(data, is_json)
         except: continue
 
+    # --- 统一去重处理 ---
+    final_clash_proxies = []
+    final_v2ray_uris = []
+    final_rocket_uris = []
+    seen_keys = set()
+    node_count = 1
+
+    for item in raw_nodes:
+        obj = item["data"]
+        is_json_source = item["is_json"]
+        
+        # 提取核心去重指纹：服务器:主端口 (忽略跳跃端口的差异)
+        srv_raw = str(obj.get('server') or obj.get('add') or "")
+        main_srv = srv_raw.split(',')[0].strip('[]')
+        pw = str(obj.get('auth') or obj.get('password') or obj.get('uuid') or obj.get('id') or "")
+        
+        unique_key = f"{main_srv}_{pw}".lower()
+        if unique_key in seen_keys or not pw:
+            continue
+        seen_keys.add(unique_key)
+
+        # --- A. 准备 Clash 节点 (照搬) ---
+        clash_node = obj.copy()
+        p_type = str(clash_node.get('type') or ('hysteria2' if 'bandwidth' in obj else 'vless')).lower()
+        clash_node['type'] = p_type
+        
+        geo = get_geo_tag(main_srv + str(obj.get('name','')), main_srv)
+        node_name = f"{geo}_{node_count:02d}_{time_tag}"
+        clash_node['name'] = node_name
+        final_clash_proxies.append(clash_node)
+
+        # --- B. 准备 订阅 URI ---
+        if 'mieru' in p_type: 
+            node_count += 1
+            continue
+
+        # 解析端口
+        if ':' in main_srv and not main_srv.startswith('['): # 处理 IPV4 连带端口的情况
+            host, main_port = main_srv.rsplit(':', 1)
+        else:
+            host = main_srv
+            main_port = re.search(r'\d+', srv_raw.split(':')[-1]).group() if ':' in srv_raw else "443"
+        
+        hop_ports = srv_raw.split(',', 1)[1] if ',' in srv_raw else ""
+        srv_uri = f"[{host}]" if ':' in host else host
+        name_enc = urllib.parse.quote(node_name)
+
+        # HY2 订阅逻辑
+        if p_type == 'hysteria2':
+            if is_json_source: # 仅当源是 JSON 时才进订阅
+                sni = obj.get('sni') or (obj.get('tls',{}) if isinstance(obj.get('tls'),dict) else {}).get('sni') or "apple.com"
+                # v2rayN
+                v2_params = {"insecure": "1", "sni": sni}
+                if hop_ports: v2_params["mport"] = hop_ports
+                final_v2ray_uris.append(f"hysteria2://{pw}@{srv_uri}:{main_port}?{urllib.parse.urlencode(v2_params)}#{name_enc}")
+                # Rocket
+                r_port = f"{main_port},{hop_ports}" if hop_ports else main_port
+                final_rocket_uris.append(f"hysteria2://{pw}@{srv_uri}:{r_port}?sni={sni}&insecure=1#{name_enc}")
+        
+        # VLESS 订阅逻辑
+        else:
+            tls_obj = obj.get('tls', {}) if isinstance(obj.get('tls'), dict) else {}
+            sni = obj.get('servername') or obj.get('sni') or tls_obj.get('sni') or "itunes.apple.com"
+            ro = obj.get('reality-opts') or tls_obj.get('reality') or {}
+            pbk = ro.get('public-key') or ro.get('public_key') or ""
+            sid = ro.get('short-id') or ro.get('short_id') or ""
+            
+            v_params = {"encryption": "none", "security": "reality" if pbk else "none", "sni": sni, "fp": "chrome", "type": "tcp"}
+            if pbk: v_params.update({"pbk": pbk, "sid": sid})
+            uri = f"vless://{pw}@{srv_uri}:{main_port}?{urllib.parse.urlencode(v_params)}#{name_enc}"
+            final_v2ray_uris.append(uri)
+            final_rocket_uris.append(uri)
+
+        node_count += 1
+
     # 保存文件
-    with open("sub_v2ray.txt", "w", encoding="utf-8") as f: f.write("\n".join(v2ray_uris))
-    with open("sub_rocket.txt", "w", encoding="utf-8") as f: f.write("\n".join(rocket_uris))
+    with open("sub_v2ray.txt", "w", encoding="utf-8") as f: f.write("\n".join(final_v2ray_uris))
+    with open("sub_rocket.txt", "w", encoding="utf-8") as f: f.write("\n".join(final_rocket_uris))
     with open("config.yaml", "w", encoding="utf-8") as f:
-        yaml.dump({"ipv6": True, "allow-lan": True, "proxies": clash_proxies, "proxy-groups": [{"name": "🚀 节点选择", "type": "select", "proxies": ["DIRECT"] + [p['name'] for p in clash_proxies]}], "rules": ["MATCH,🚀 节点选择"]}, f, allow_unicode=True, sort_keys=False)
+        yaml.dump({
+            "ipv6": True, "allow-lan": True, "mode": "rule",
+            "proxies": final_clash_proxies,
+            "proxy-groups": [{"name": "🚀 节点选择", "type": "select", "proxies": ["DIRECT"] + [p['name'] for p in final_clash_proxies]}],
+            "rules": ["MATCH,🚀 节点选择"]
+        }, f, allow_unicode=True, sort_keys=False)
 
 if __name__ == "__main__":
     main()
