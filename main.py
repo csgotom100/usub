@@ -10,63 +10,57 @@ def main():
     
     if not urls: return
 
-    print(f"🚀 开始逐个处理 {len(urls)} 个订阅源...")
+    print(f"🚀 启动‘万能提取’模式，正在处理 {len(urls)} 个源...")
     api_base = "http://127.0.0.1:25500/sub?"
     
-    all_nodes = [] # 存放提取出的明文 v2ray 链接
+    all_nodes = []
 
     for idx, url in enumerate(urls):
-        print(f"[{idx+1}/{len(urls)}] 正在抓取: {url[:50]}...")
+        print(f"[{idx+1}/{len(urls)}] 尝试提取: {url[:50]}...")
         try:
-            # 每一个源单独请求 SubConverter，转成明文列表(list=true)
-            # 这样压力极小，几乎不会 500
-            api_url = f"{api_base}target=v2ray&url={urllib.parse.quote(url)}&list=true"
+            # 这里的关键改动：target 设置为 v2ray，但 url 后面不加 list=true
+            # 让 SubConverter 自动识别源格式 (YAML/Base64/SIP002)
+            # 我们直接请求它把源转成最通用的 v2ray base64 格式
+            api_url = f"{api_base}target=v2ray&url={urllib.parse.quote(url)}"
             r = requests.get(api_url, timeout=20)
             
             if r.status_code == 200 and r.text.strip():
-                lines = r.text.splitlines()
-                valid_lines = [l for l in lines if "://" in l]
-                all_nodes.extend(valid_lines)
-                print(f"   ✅ 成功提取 {len(valid_lines)} 个节点")
+                # SubConverter 返回的是 Base64，我们不用解码，直接存着
+                all_nodes.append(r.text.strip())
+                print(f"   ✅ 提取成功 (数据长度: {len(r.text)})")
             else:
-                print(f"   ❌ 跳过 (HTTP {r.status_code})")
-        except Exception as e:
-            print(f"   ⚠️ 超时或错误")
-        
-        # 停顿一下，温柔一点
-        time.sleep(0.2)
+                print(f"   ❌ 失败: HTTP {r.status_code}")
+        except:
+            print(f"   ⚠️ 超时")
+        time.sleep(0.3)
 
-    # 去重
-    unique_nodes = list(set(all_nodes))
-    print(f"--- 📊 汇总完成: 唯一节点总数 {len(unique_nodes)} ---")
-
-    if not unique_nodes:
-        print("😭 最终没有获取到任何节点")
+    if not all_nodes:
+        print("❌ 依然没有提取到任何有效数据")
         return
 
-    # 1. 保存 v2ray 明文列表
-    with open("sub_v2ray.txt", "w", encoding="utf-8") as f:
-        f.write("\n".join(unique_nodes))
+    # 将所有拿到的 base64 块拼接，SubConverter 能识别这种“多重 base64”
+    print(f"--- 📊 抓取完成，正在合并并生成最终配置 ---")
+    
+    # 将汇总后的 base64 数据再次喂回给 SubConverter
+    # 这一次我们让它生成最终的 Clash 和 V2Ray
+    final_data = "|".join(all_nodes) 
 
-    # 2. 生成最终的 Clash 配置 (将汇总后的纯净节点再次喂给 SubConverter)
-    print("🎨 正在渲染最终 config.yaml...")
     try:
-        # 将所有节点拼成大字符串，使用 data 协议
-        # 此时已经是纯净节点，SubConverter 处理起来飞快
-        all_data = "\n".join(unique_nodes)
-        
-        # 如果节点太多，我们通过 POST 提交（SubConverter 的 /sub 接口也支持 POST data）
-        payload = {"target": "clash", "data": all_data}
-        r_clash = requests.post("http://127.0.0.1:25500/sub", data=payload, timeout=60)
-        
+        # 生成 Clash
+        r_clash = requests.post("http://127.0.0.1:25500/sub", data={"target": "clash", "data": final_data}, timeout=60)
         if "proxies:" in r_clash.text:
             with open("config.yaml", "w", encoding="utf-8") as f:
                 f.write(r_clash.text)
-            print("🎉 恭喜！config.yaml 终于生成成功了！")
-        else:
-            print("❌ 最后的渲染步骤失败了")
+            print("🎉 config.yaml 生成成功！")
+
+        # 生成 V2Ray (明文列表)
+        r_v2ray = requests.post("http://127.0.0.1:25500/sub", data={"target": "v2ray", "data": final_data, "list": "true"}, timeout=60)
+        with open("sub_v2ray.txt", "w", encoding="utf-8") as f:
+            f.write(r_v2ray.text)
+        print("🎉 sub_v2ray.txt 生成成功！")
+        
     except Exception as e:
-        print(f"❌ 渲染异常: {e}")
+        print(f"❌ 汇总环节出错: {e}")
 
 if __name__ == "__main__":
     main()
