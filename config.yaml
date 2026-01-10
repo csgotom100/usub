@@ -2,7 +2,7 @@ ipv6: true
 allow-lan: true
 mode: rule
 proxies:
-- name: https://github.com/Alvin9999-newpac/fanqiang/wiki_01-10 20:24
+- name: https://github.com/Alvin9999-newpac/fanqiang/wiki_01-10 20:28
   type: hysteria
   server: 89.144.35.30
   port: 23008
@@ -14,7 +14,7 @@ proxies:
   protocol: udp
   up: 11 Mbps
   down: 55 Mbps
-- name: dongtaiwang.com_1_01-10 20:24
+- name: dongtaiwang.com_1_01-10 20:28
   type: hysteria
   server: 5.178.101.33
   port: 23008
@@ -26,7 +26,7 @@ proxies:
   protocol: udp
   up: 11 Mbps
   down: 55 Mbps
-- name: dongtaiwang.com_2_01-10 20:24
+- name: dongtaiwang.com_2_01-10 20:28
   type: vless
   server: 195.154.200.13
   port: 17401
@@ -50,7 +50,7 @@ proxies:
       enabled: true
       up: 50
       down: 100
-- name: dongtaiwang.com_3_01-10 20:24
+- name: dongtaiwang.com_3_01-10 20:28
   type: hysteria
   server: 2001:bc8:32d7:402::3
   port: 20001
@@ -62,7 +62,7 @@ proxies:
   protocol: udp
   up: 11 Mbps
   down: 55 Mbps
-- name: dongtaiwang.com_4_01-10 20:24
+- name: dongtaiwang.com_4_01-10 20:28
   type: hysteria
   server: 2001:bc8:32d7:402::4
   port: 20001
@@ -74,7 +74,7 @@ proxies:
   protocol: udp
   up: 11 Mbps
   down: 55 Mbps
-- name: dongtaiwang.com_0_01-10 20:24
+- name: dongtaiwang.com_0_01-10 20:28
   type: anytls
   server: 45.221.98.14
   port: 59901
@@ -88,7 +88,7 @@ proxies:
   - h2
   - http/1.1
   skip-cert-verify: true
-- name: dongtaiwang.com_1_01-10 20:24
+- name: dongtaiwang.com_1_01-10 20:28
   type: vless
   server: 2001:bc8:32d7:181::2
   port: 17401
@@ -112,7 +112,7 @@ proxies:
       enabled: true
       up: 50
       down: 100
-- name: dongtaiwang.com_2_01-10 20:24
+- name: dongtaiwang.com_2_01-10 20:28
   type: vless
   server: 2001:bc8:32d7:181::3
   port: 17401
@@ -136,14 +136,14 @@ proxies:
       enabled: true
       up: 50
       down: 100
-- name: dongtaiwang.com_0_01-10 20:24
+- name: dongtaiwang.com_0_01-10 20:28
   type: mieru
   server: 157.254.223.48
   port: 33990
   transport: TCP
   username: dongtaiwang.com
   password: dongtaiwang.com
-- name: https://github.com/Alvin9999-newpac/fanqiang/wiki_01-10 20:24
+- name: https://github.com/Alvin9999-newpac/fanqiang/wiki_01-10 20:28
   server: 89.144.35.231
   port: 33457
   type: tuic
@@ -156,7 +156,7 @@ proxies:
   reduce-rtt: true
   udp-relay-mode: native
   congestion-controller: bbr
-- name: dongtaiwang.com_1_01-10 20:24
+- name: dongtaiwang.com_1_01-10 20:28
   server: 2a14:7583:299d::a
   port: 33457
   type: tuic
@@ -169,7 +169,7 @@ proxies:
   reduce-rtt: true
   udp-relay-mode: native
   congestion-controller: bbr
-- name: https://github.com/Alvin9999-newpac/fanqiang/wiki_01-10 20:24
+- name: https://github.com/Alvin9999-newpac/fanqiang/wiki_01-10 20:28
   type: hysteria
   server: 2a14:7584:d097::a
   port: 54177
@@ -208,7 +208,7 @@ proxies:
       enabled: true
       up_mbps: 50
       down_mbps: 100
-  name: node_01-10 20:24
+  name: node_01-10 20:28
 - type: vless
   tag: https://github.com/Alvin9999-newpac/fanqiang/wiki
   uuid: d3fd3b3c-f8d4-4894-b91e-5a6a53923a95
@@ -236,45 +236,45 @@ proxies:
       enabled: true
       up_mbps: 50
       down_mbps: 100
-  name: node_01-10 20:24
+  name: node_01-10 20:28
 proxy-groups:
 - name: 🚀 节点选择
   type: select
   proxies:
   - ♻️ 自动选择
   - DIRECT
-  - https://github.com/Alvin9999-newpac/fanqiang/wiki_01-10 20:24
-  - dongtaiwang.com_1_01-10 20:24
-  - dongtaiwang.com_2_01-10 20:24
-  - dongtaiwang.com_3_01-10 20:24
-  - dongtaiwang.com_4_01-10 20:24
-  - dongtaiwang.com_0_01-10 20:24
-  - dongtaiwang.com_1_01-10 20:24
-  - dongtaiwang.com_2_01-10 20:24
-  - dongtaiwang.com_0_01-10 20:24
-  - https://github.com/Alvin9999-newpac/fanqiang/wiki_01-10 20:24
-  - dongtaiwang.com_1_01-10 20:24
-  - https://github.com/Alvin9999-newpac/fanqiang/wiki_01-10 20:24
-  - node_01-10 20:24
-  - node_01-10 20:24
+  - https://github.com/Alvin9999-newpac/fanqiang/wiki_01-10 20:28
+  - dongtaiwang.com_1_01-10 20:28
+  - dongtaiwang.com_2_01-10 20:28
+  - dongtaiwang.com_3_01-10 20:28
+  - dongtaiwang.com_4_01-10 20:28
+  - dongtaiwang.com_0_01-10 20:28
+  - dongtaiwang.com_1_01-10 20:28
+  - dongtaiwang.com_2_01-10 20:28
+  - dongtaiwang.com_0_01-10 20:28
+  - https://github.com/Alvin9999-newpac/fanqiang/wiki_01-10 20:28
+  - dongtaiwang.com_1_01-10 20:28
+  - https://github.com/Alvin9999-newpac/fanqiang/wiki_01-10 20:28
+  - node_01-10 20:28
+  - node_01-10 20:28
 - name: ♻️ 自动选择
   type: url-test
   url: http://www.gstatic.com/generate_204
   interval: 300
   proxies:
-  - https://github.com/Alvin9999-newpac/fanqiang/wiki_01-10 20:24
-  - dongtaiwang.com_1_01-10 20:24
-  - dongtaiwang.com_2_01-10 20:24
-  - dongtaiwang.com_3_01-10 20:24
-  - dongtaiwang.com_4_01-10 20:24
-  - dongtaiwang.com_0_01-10 20:24
-  - dongtaiwang.com_1_01-10 20:24
-  - dongtaiwang.com_2_01-10 20:24
-  - dongtaiwang.com_0_01-10 20:24
-  - https://github.com/Alvin9999-newpac/fanqiang/wiki_01-10 20:24
-  - dongtaiwang.com_1_01-10 20:24
-  - https://github.com/Alvin9999-newpac/fanqiang/wiki_01-10 20:24
-  - node_01-10 20:24
-  - node_01-10 20:24
+  - https://github.com/Alvin9999-newpac/fanqiang/wiki_01-10 20:28
+  - dongtaiwang.com_1_01-10 20:28
+  - dongtaiwang.com_2_01-10 20:28
+  - dongtaiwang.com_3_01-10 20:28
+  - dongtaiwang.com_4_01-10 20:28
+  - dongtaiwang.com_0_01-10 20:28
+  - dongtaiwang.com_1_01-10 20:28
+  - dongtaiwang.com_2_01-10 20:28
+  - dongtaiwang.com_0_01-10 20:28
+  - https://github.com/Alvin9999-newpac/fanqiang/wiki_01-10 20:28
+  - dongtaiwang.com_1_01-10 20:28
+  - https://github.com/Alvin9999-newpac/fanqiang/wiki_01-10 20:28
+  - node_01-10 20:28
+  - node_01-10 20:28
 rules:
 - MATCH,🚀 节点选择
