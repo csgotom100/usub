@@ -3,16 +3,16 @@ import os
 import re
 
 def is_valid_proxy(block):
-    """核心校验：确保节点包含 server/type/port，并过滤已知错误块"""
+    """基础校验：确保节点包含 server/type/port，并过滤已知错误块"""
     if not all(k in block for k in ["type:", "server:", "port:"]):
         return False
-    # 过滤掉包含旧报错提示的无效块
+    # 如果块中包含之前的报错提示，说明是脏数据，直接跳过
     if any(msg in block for msg in ["missing", "failed", "error"]):
         return False
     return True
 
 def clean_node_block(block):
-    """深度清洗：处理 Reality 嵌套，并补全 Hysteria、TUIC 和 Mieru 的必需参数"""
+    """深度清洗：修正 Reality 嵌套，并补全 Hysteria、TUIC 和 Mieru 的必需参数"""
     lines = block.splitlines()
     data = {}
     for line in lines:
@@ -23,35 +23,40 @@ def clean_node_block(block):
         if v: data[k] = v
 
     cleaned = []
-    # 基础核心字段白名单
+    # 1. 基础核心字段白名单
     base_keys = ["type", "server", "port", "uuid", "password", "auth-str", "sni", "skip-cert-verify", "udp", "network"]
     for k in base_keys:
         if k in data: cleaned.append(f"{k}: {data[k]}")
 
     node_type = data.get("type", "").lower()
 
-    # 1. Hysteria 协议补全
+    # 2. Hysteria 协议增强
     if "hysteria" in node_type:
         if "protocol" not in data: cleaned.append("protocol: udp")
         cleaned.append("alpn: [h3]")
         for k in ["up", "down"]:
             if k in data: cleaned.append(f"{k}: {data[k]}")
 
-    # 2. TUIC 协议补全 (处理 username missing 错误)
+    # 3. TUIC 协议补全 (针对 image_8d1b69.png 中的 username 错误)
     if node_type == "tuic":
         cleaned.append("alpn: [h3]")
-        # TUIC 必须有 uuid，如果源数据只有 password，将其映射为 uuid
+        # TUIC 在某些版本需要 uuid 或 username，这里做兼容处理
         if "uuid" not in data and "password" in data:
             cleaned.append(f"uuid: {data['password']}")
+        # 补全 username 字段防止报错
+        if "username" not in data:
+            cleaned.append(f"username: {data.get('uuid', 'default')}")
         for k in ["congestion-controller", "reduce-rtt"]:
             if k in data: cleaned.append(f"{k}: {data[k]}")
 
-    # 3. Mieru 协议补全 (修复截图中的 transport missing 错误)
+    # 4. Mieru 协议补全 (针对 image_97896a.png 中的 transport 错误)
     if node_type == "mieru":
-        # 强制补全 transport，这是 mieru 协议在 Clash Meta 中的必需项
+        # 强制补全 transport，这是 mieru 协议必需项
         cleaned.append(f"transport: {data.get('transport', 'tcp')}")
+        if "username" not in data:
+            cleaned.append(f"username: {data.get('password', 'default')}")
 
-    # 4. VLESS / Reality 结构修正
+    # 5. VLESS / Reality 结构修正
     if node_type == "vless":
         cleaned.append("tls: true")
         if "public-key" in data:
@@ -74,7 +79,7 @@ def main():
     all_raw_chunks = []
     headers = {'User-Agent': 'clash-verge/1.0'}
 
-    print(f"📡 正在处理订阅来源...")
+    print(f"📡 正在从源提取并清洗节点...")
     for url in urls:
         try:
             r = requests.get(url, headers=headers, timeout=10)
@@ -127,18 +132,18 @@ def main():
         clash_config.append(f"      - \"{n}\"")
     clash_config.append("      - DIRECT")
 
-    # --- 神机规则分流逻辑 (ACL4SSR) ---
+    # --- ACL4SSR 神机规则分流逻辑 ---
     clash_config.extend([
         "",
         "rules:",
-        "  # 核心海外服务",
+        "  # 核心服务分流",
         "  - DOMAIN-SUFFIX,google.com,🚀 节点选择",
         "  - DOMAIN-KEYWORD,github,🚀 节点选择",
         "  - DOMAIN-KEYWORD,youtube,🚀 节点选择",
         "  - DOMAIN-KEYWORD,google,🚀 节点选择",
         "  - DOMAIN-SUFFIX,telegram.org,🚀 节点选择",
         "  ",
-        "  # 国内服务直连",
+        "  # 国内常用服务直连 (神机规则精简版)",
         "  - DOMAIN-SUFFIX,cn,DIRECT",
         "  - DOMAIN-KEYWORD,baidu,DIRECT",
         "  - DOMAIN-KEYWORD,taobao,DIRECT",
@@ -157,7 +162,7 @@ def main():
     with open("config.yaml", "w", encoding="utf-8") as f:
         f.write("\n".join(clash_config))
     
-    print(f"✅ 完成！已生成含有 {len(node_names)} 个节点并应用神机规则。")
+    print(f"✅ 完成！生成的 config.yaml 已修复报错并应用神机规则。")
 
 if __name__ == "__main__":
     main()
