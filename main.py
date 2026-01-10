@@ -85,3 +85,76 @@ def main():
                     res = get_node_info(obj)
                     if res: nodes.append(res)
                     else:
+                        for v in obj.values(): walk(v)
+                elif isinstance(obj, list):
+                    for i in obj: walk(i)
+            walk(data)
+        except: continue
+
+    # 去重
+    unique = []
+    seen = set()
+    for n in nodes:
+        key = f"{n['server']}:{n['port']}:{n['type']}"
+        if key not in seen:
+            unique.append(n); seen.add(key)
+
+    unique.sort(key=lambda x: 0 if x['type'] == 'anytls' else (1 if x['type'] == 'hysteria2' else 2))
+
+    uris = []
+    clash_proxies = []
+    time_tag = get_beijing_time()
+    
+    for i, n in enumerate(unique, 1):
+        geo = get_geo_tag(n['name'] + n['sni'] + n['server'], n['server'])
+        name = f"{geo}[{n['type'].upper()}] {i:02d} ({time_tag})"
+        name_enc = urllib.parse.quote(name)
+        srv_uri = f"[{n['server']}]" if ':' in n['server'] else n['server']
+        
+        # --- 生成 URI ---
+        if n['type'] == 'vless':
+            params = {"encryption": "none", "security": "reality" if n['pbk'] else "none", "sni": n['sni'] or "itunes.apple.com", "fp": "chrome", "type": "tcp"}
+            if n['pbk']: params.update({"pbk": n['pbk'], "sid": n['sid']})
+            uris.append(f"vless://{n['pw']}@{srv_uri}:{n['port']}?{urllib.parse.urlencode(params)}#{name_enc}")
+        elif n['type'] == 'hysteria2':
+            uris.append(f"hysteria2://{n['pw']}@{srv_uri}:{n['port']}?insecure=1&sni={n['sni'] or 'www.microsoft.com'}#{name_enc}")
+        elif n['type'] == 'anytls':
+            uris.append(f"anytls://{n['pw']}@{srv_uri}:{n['port']}?alpn=h3&insecure=1#{name_enc}")
+        elif n['type'] == 'tuic':
+            uris.append(f"tuic://{n['pw']}@{srv_uri}:{n['port']}?sni={n['sni'] or 'apple.com'}&alpn=h3#{name_enc}")
+
+        # --- 生成 Clash 配置 ---
+        if n['type'] in ['vless', 'hysteria2', 'tuic']:
+            p = {"name": name, "server": n['server'], "port": int(n['port'])}
+            if n['type'] == 'vless':
+                p.update({"type": "vless", "uuid": n['pw'], "tls": True, "servername": n['sni'] or "itunes.apple.com", "network": "tcp", "udp": True})
+                if n['pbk']: p.update({"reality-opts": {"public-key": n['pbk'], "short-id": n['sid']}, "client-fingerprint": "chrome"})
+            elif n['type'] == 'hysteria2':
+                p.update({"type": "hysteria2", "password": n['pw'], "sni": n['sni'] or "www.microsoft.com", "skip-cert-verify": True})
+            elif n['type'] == 'tuic':
+                p.update({"type": "tuic", "uuid": n['pw'], "sni": n['sni'] or "apple.com", "alpn": ["h3"]})
+            clash_proxies.append(p)
+
+    # 1. 保存 sub.txt
+    with open("sub.txt", "w", encoding="utf-8") as f: f.write("\n".join(uris))
+    # 2. 保存 sub_base64.txt
+    with open("sub_base64.txt", "w", encoding="utf-8") as f:
+        f.write(base64.b64encode("\n".join(uris).encode()).decode())
+    
+    # 3. 保存 config.yaml (Clash Meta 版)
+    clash_config = {
+        "ipv6": True,
+        "allow-lan": True,
+        "mode": "rule",
+        "proxies": clash_proxies,
+        "proxy-groups": [
+            {"name": "🚀 节点选择", "type": "select", "proxies": ["♻️ 自动选择", "DIRECT"] + [p['name'] for p in clash_proxies]},
+            {"name": "♻️ 自动选择", "type": "url-test", "url": "http://www.gstatic.com/generate_204", "interval": 300, "proxies": [p['name'] for p in clash_proxies]}
+        ],
+        "rules": ["MATCH,🚀 节点选择"]
+    }
+    with open("config.yaml", "w", encoding="utf-8") as f:
+        yaml.dump(clash_config, f, allow_unicode=True, sort_keys=False)
+
+if __name__ == "__main__":
+    main()
