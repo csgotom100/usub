@@ -73,24 +73,30 @@ def main():
         if unique_key in seen_keys or not host or not pw: continue
         seen_keys.add(unique_key)
 
-        # --- 协议识别 & 传输层识别 (xhttp) ---
         p_type = str(obj.get('type') or ('hysteria2' if 'bandwidth' in obj else 'vless')).lower()
         
-        # 识别 transport (xhttp, ws, grpc)
+        # --- 安全提取传输层协议 (解决 AttributeError) ---
         stream_settings = obj.get('stream-settings') or obj.get('streamSettings') or {}
-        net = obj.get('network') or stream_settings.get('network') or obj.get('transport', {}).get('protocol') or 'tcp'
+        transport_obj = obj.get('transport')
+        
+        net = obj.get('network') or stream_settings.get('network')
+        if not net and isinstance(transport_obj, dict):
+            net = transport_obj.get('protocol')
+        elif not net and isinstance(transport_obj, str):
+            net = transport_obj
+        net = (net or 'tcp').lower()
         
         # 提取 Reality/TLS 参数
         tls_data = obj.get('tls', {}) if isinstance(obj.get('tls'), dict) else {}
         ro = obj.get('reality-opts') or tls_data.get('reality') or obj.get('reality_settings') or {}
         pbk = ro.get('public-key') or ro.get('public_key') or obj.get('public-key') or ""
         sid = ro.get('short-id') or ro.get('short_id') or obj.get('short-id') or ""
-        sni = obj.get('sni') or obj.get('servername') or tls_data.get('sni') or ""
+        sni = obj.get('sni') or obj.get('servername') or (tls_data.get('sni') if isinstance(tls_data, dict) else "")
 
         geo = get_geo_tag(host, host)
         node_name = f"{geo}_{node_count:02d}_{time_tag}"
 
-        # --- Clash 配置处理 (照搬) ---
+        # --- Clash 配置处理 ---
         clash_node = obj.copy()
         clash_node.update({"name": node_name, "type": p_type, "port": main_port, "server": host})
         if isinstance(clash_node.get('tls'), dict):
@@ -98,7 +104,7 @@ def main():
             if sni: clash_node['sni'] = sni
         final_clash_proxies.append(clash_node)
 
-        # --- 订阅生成 (跳过 mieru) ---
+        # --- 订阅生成 ---
         if 'mieru' in p_type: 
             node_count += 1
             continue
@@ -116,27 +122,5 @@ def main():
             final_rocket_uris.append(f"hysteria2://{pw}@{srv_uri}:{rocket_port_str}?sni={target_sni}&insecure=1#{name_enc}")
         
         elif 'vless' in p_type:
-            # VLESS 基础参数
             v_p = {"encryption": "none", "security": "reality" if pbk else ("tls" if sni else "none"), "sni": sni or "itunes.apple.com", "fp": "chrome", "type": net}
-            if pbk: v_p.update({"pbk": pbk, "sid": sid})
-            
-            # --- 核心：处理 xhttp 参数 ---
-            if net == 'xhttp':
-                xh_opts = obj.get('xhttp-opts') or stream_settings.get('xhttpSettings') or obj.get('transport', {}).get('xhttp', {})
-                if xh_opts:
-                    if xh_opts.get('path'): v_p['path'] = xh_opts.get('path')
-                    if xh_opts.get('mode'): v_p['mode'] = xh_opts.get('mode')
-                    if xh_opts.get('host'): v_p['host'] = xh_opts.get('host')
-
-            uri = f"vless://{pw}@{srv_uri}:{main_port}?{urllib.parse.urlencode(v_p)}#{name_enc}"
-            final_v2ray_uris.append(uri); final_rocket_uris.append(uri)
-
-        node_count += 1
-
-    # --- 输出文件 ---
-    with open("sub_v2ray.txt", "w", encoding="utf-8") as f: f.write("\n".join(final_v2ray_uris))
-    with open("sub_rocket.txt", "w", encoding="utf-8") as f: f.write("\n".join(final_rocket_uris))
-    with open("config.yaml", "w", encoding="utf-8") as f:
-        yaml.dump({"ipv6": True, "allow-lan": True, "proxies": final_clash_proxies, "proxy-groups": [{"name": "🚀 节点选择", "type": "select", "proxies": ["DIRECT"] + [p['name'] for p in final_clash_proxies]}], "rules": ["MATCH,🚀 节点选择"]}, f, allow_unicode=True, sort_keys=False)
-
-if __name__ == "__main__": main()
+            if pbk
