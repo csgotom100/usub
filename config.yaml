@@ -2,9 +2,66 @@ port: 7890
 socks-port: 7891
 allow-lan: true
 mode: rule
-log-level: info
 proxies:
-  - name: "anytls_01"
+  - name: "hysteria_01"
+    type: hysteria
+    server: 89.144.35.30
+    port: 23008
+    auth-str: dongtaiwang.com
+    sni: apple.com
+    skip-cert-verify: true
+    alpn:
+    - h3
+    protocol: udp
+    up: "11 Mbps"
+    down: "55 Mbps"
+  - name: "hysteria_02"
+    type: hysteria
+    server: 5.178.101.33
+    port: 23008
+    auth-str: dongtaiwang.com
+    sni: apple.com
+    skip-cert-verify: true
+    alpn:
+    - h3
+    protocol: udp
+    up: "11 Mbps"
+    down: "55 Mbps"
+  - name: "vless_03"
+    type: vless
+    server: 195.154.200.13
+    port: 17401
+    uuid: add14a5b-f648-4423-8a1f-8b8f54c0daef
+    network: tcp
+    udp: true
+    tls: true
+    flow:
+  - name: "hysteria_04"
+    type: hysteria
+    server: 2001:bc8:32d7:402::3
+    port: 20001
+    auth-str: dongtaiwang.com
+    sni: apple.com
+    skip-cert-verify: true
+    alpn:
+    - h3
+    protocol: udp
+    up: "11 Mbps"
+    down: "55 Mbps"
+  - name: "hysteria_05"
+    type: hysteria
+    server: 2001:bc8:32d7:402::4
+    port: 20001
+    auth-str: dongtaiwang.com
+    sni: apple.com
+    skip-cert-verify: true
+    alpn:
+    - h3
+    protocol: udp
+    up: "11 Mbps"
+    down: "55 Mbps"
+    proxy-groups:
+  - name: "anytls_11"
     type: anytls
     server: 45.221.98.14
     port: 59901
@@ -18,14 +75,86 @@ proxies:
     - h2
     - http/1.1
     skip-cert-verify: true
+    proxy-groups:
+  - name: "vless_13"
+    type: vless
+    server: 2001:bc8:32d7:181::2
+    port: 17401
+    uuid: add14a5b-f648-4423-8a1f-8b8f54c0daef
+    network: tcp
+    udp: true
+    tls: true
+    flow:
+  - name: "vless_14"
+    type: vless
+    server: 2001:bc8:32d7:181::3
+    port: 17401
+    uuid: add14a5b-f648-4423-8a1f-8b8f54c0daef
+    network: tcp
+    udp: true
+    tls: true
+    flow:
+  - name: "mieru_18"
+    type: mieru
+    server: 157.254.223.48
+    port: 33990
+    transport: TCP
+  - name: "tuic_20"
+    server: 89.144.35.231
+    port: 33457
+    type: tuic
+    uuid: 66d37a65-7f6f-4e7c-a0f6-163bd917756a
+    password: dongtaiwang.com
+    alpn: [h3]
+    sni: apple.com
+    skip-cert-verify: true
+    reduce-rtt: true
+    udp-relay-mode: native
+    congestion-controller: bbr
+  - name: "tuic_21"
+    server: 2a14:7583:299d::a
+    port: 33457
+    type: tuic
+    uuid: 66d37a65-7f6f-4e7c-a0f6-163bd917756a
+    password: dongtaiwang.com
+    alpn: [h3]
+    sni: apple.com
+    skip-cert-verify: true
+    reduce-rtt: true
+    udp-relay-mode: native
+    congestion-controller: bbr
+    proxy-groups:
+  - name: "hysteria_24"
+    type: hysteria
+    server: 2a14:7584:d097::a
+    port: 54177
+    auth-str: dongtaiwang.com
+    sni: apple.com
+    skip-cert-verify: true
+    alpn:
+    - h3
+    protocol: udp
+    up: "11 Mbps"
+    down: "55 Mbps"
+    proxy-groups:
 
 proxy-groups:
   - name: 🚀 节点选择
     type: select
     proxies:
-      - "anytls_01"
+      - "hysteria_01"
+      - "hysteria_02"
+      - "vless_03"
+      - "hysteria_04"
+      - "hysteria_05"
+      - "anytls_11"
+      - "vless_13"
+      - "vless_14"
+      - "mieru_18"
+      - "tuic_20"
+      - "tuic_21"
+      - "hysteria_24"
       - DIRECT
 
 rules:
-  - GEOIP,CN,DIRECT
   - MATCH,🚀 节点选择
