@@ -1,17 +1,21 @@
+port: 7890
+allow-lan: true
+mode: rule
+log-level: info
 proxies:
-- name: ♻️ 自动选择
-- name: https://github.com/Alvin9999-newpac/fanqiang/wiki
-- name: 🌍 国外媒体
-- name: 🍎 苹果服务
-- name: 🛑 全球拦截
-- name: dongtaiwang.com_0
-- name: 🐟 漏网之鱼
-- name: 📲 电报信息
-- name: dongtaiwang.com_4
-- name: dongtaiwang.com_2
-- name: 🍃 应用净化
-- name: 🎯 全球直连
-- name: dongtaiwang.com_3
-- name: Ⓜ️ 微软服务
-- name: 🚀 节点选择
-- name: dongtaiwang.com_1
+  - name: https://github.com/Alvin9999-newpac/fanqiang/wiki
+  - name: 🐟 漏网之鱼
+  - name: 🛑 全球拦截
+  - name: dongtaiwang.com_0
+  - name: Ⓜ️ 微软服务
+  - name: 🍃 应用净化
+  - name: 🌍 国外媒体
+  - name: 🚀 节点选择
+  - name: 📲 电报信息
+  - name: 🍎 苹果服务
+  - name: dongtaiwang.com_1
+  - name: ♻️ 自动选择
+  - name: dongtaiwang.com_4
+  - name: dongtaiwang.com_2
+  - name: dongtaiwang.com_3
+  - name: 🎯 全球直连
