@@ -66,88 +66,81 @@ def main():
         obj, is_json_source = item["data"], item["is_json"]
         srv_raw = str(obj.get('server') or obj.get('add') or "")
         host, main_port = parse_node_address(srv_raw, obj.get('port') or obj.get('server_port') or 443)
-        if main_port <= 0 or main_port > 65535: continue
-
         pw = str(obj.get('auth') or obj.get('password') or obj.get('uuid') or obj.get('id') or "")
+        
+        if not host or not pw: continue
         unique_key = f"{host}_{main_port}_{pw}".lower()
-        if unique_key in seen_keys or not host or not pw: continue
+        if unique_key in seen_keys: continue
         seen_keys.add(unique_key)
 
-        # --- 协议识别核心 ---
-        p_type = str(obj.get('type', '')).lower()
-        if not p_type:
-            p_type = 'hysteria2' if 'bandwidth' in obj else 'vless'
-
-        # --- 传输层深度扫描 ---
+        # 协议探测
+        p_type = str(obj.get('type', '')).lower() or ('hysteria2' if 'bandwidth' in obj else 'vless')
+        
+        # 传输层与 TLS 探测
         stream_settings = obj.get('stream-settings') or obj.get('streamSettings') or {}
-        transport_obj = obj.get('transport')
-        
-        # 1. 尝试获取网络协议名 (tcp/ws/xhttp等)
         net = str(obj.get('network') or stream_settings.get('network') or "").lower()
-        if not net:
-            if isinstance(transport_obj, dict): net = str(transport_obj.get('protocol', '')).lower()
-            elif isinstance(transport_obj, str): net = transport_obj.lower()
         
-        # 2. 如果没找到，扫描整个对象看有没有 xhttp 关键字
-        if 'xhttp' in str(obj).lower() and net != 'xhttp':
-            net = 'xhttp'
-
-        # 3. 提取 Reality/TLS 参数
         tls_data = obj.get('tls', {}) if isinstance(obj.get('tls'), dict) else {}
+        sni = obj.get('sni') or obj.get('servername') or (tls_data.get('sni') if isinstance(tls_data, dict) else "")
+        
+        # Reality 处理
         ro = obj.get('reality-opts') or tls_data.get('reality') or obj.get('reality_settings') or {}
         pbk = ro.get('public-key') or ro.get('public_key') or obj.get('public-key') or ""
         sid = ro.get('short-id') or ro.get('short_id') or obj.get('short-id') or ""
-        sni = obj.get('sni') or obj.get('servername') or (tls_data.get('sni') if isinstance(tls_data, dict) else "")
 
-        geo = get_geo_tag(host, host)
+        geo = get_geo_tag(host + str(obj.get('name', '')), host)
         node_name = f"{geo}_{node_count:02d}_{time_tag}"
 
-        # --- Clash 配置处理 (标准化 tls 字段) ---
+        # --- Clash 配置：保持原始结构 ---
         clash_node = obj.copy()
-        clash_node.update({"name": node_name, "type": p_type, "port": main_port, "server": host})
+        clash_node.update({"name": node_name, "port": main_port, "server": host})
+        # 仅修复已知的 Clash bool/map 冲突
         if isinstance(clash_node.get('tls'), dict):
             clash_node['tls'] = True
             if sni: clash_node['sni'] = sni
         final_clash_proxies.append(clash_node)
 
-        # --- 订阅生成 (跳过 mieru) ---
-        if 'mieru' in p_type: 
+        # --- 订阅生成 (剔除 mieru) ---
+        if 'mieru' in p_type:
             node_count += 1
             continue
 
         srv_uri = f"[{host}]" if ':' in host else host
         name_enc = urllib.parse.quote(node_name)
 
-        if p_type == 'hysteria2' and is_json_source:
-            target_sni = sni or "apple.com"
-            v2_p = {"insecure": "1", "sni": target_sni}
+        if p_type == 'hysteria2':
+            v2_p = {"insecure": "1", "sni": sni or "apple.com"}
             hop_ports = srv_raw.split(',', 1)[1] if ',' in srv_raw else ""
             if hop_ports: v2_p["mport"] = hop_ports
             final_v2ray_uris.append(f"hysteria2://{pw}@{srv_uri}:{main_port}?{urllib.parse.urlencode(v2_p)}#{name_enc}")
-            rocket_port_str = f"{main_port},{hop_ports}" if hop_ports else str(main_port)
-            final_rocket_uris.append(f"hysteria2://{pw}@{srv_uri}:{rocket_port_str}?sni={target_sni}&insecure=1#{name_enc}")
+            final_rocket_uris.append(f"hysteria2://{pw}@{srv_uri}:{main_port}?sni={v2_p['sni']}&insecure=1#{name_enc}")
         
-        elif 'vless' in p_type:
-            v_p = {"encryption": "none", "security": "reality" if pbk else ("tls" if sni else "none"), "sni": sni or "itunes.apple.com", "fp": "chrome", "type": net or "tcp"}
-            if pbk: v_p.update({"pbk": pbk, "sid": sid})
+        else: # 处理 VLESS 家族 (含 xhttp, anytls)
+            v_p = {"encryption": "none", "fp": "chrome", "type": net or "tcp"}
             
-            # --- xhttp 参数提取增强 ---
-            xh_opts = obj.get('xhttp-opts') or stream_settings.get('xhttpSettings') or {}
-            if not xh_opts and isinstance(transport_obj, dict):
-                xh_opts = transport_obj.get('xhttp', {})
+            # 安全性判定
+            if pbk: v_p.update({"security": "reality", "pbk": pbk, "sid": sid, "sni": sni})
+            elif sni: v_p.update({"security": "tls", "sni": sni})
+            else: v_p["security"] = "none"
 
-            if net == 'xhttp' or xh_opts:
+            # xhttp 专项补全
+            xh_opts = obj.get('xhttp-opts') or stream_settings.get('xhttpSettings') or obj.get('transport', {}).get('xhttp', {})
+            if xh_opts:
                 v_p['type'] = 'xhttp'
-                for key in ['path', 'mode', 'host']:
-                    val = xh_opts.get(key)
-                    if val: v_p[key] = val
+                for k in ['path', 'mode', 'host']:
+                    if xh_opts.get(k): v_p[k] = xh_opts.get(k)
+            
+            # AnyTLS 专项补全 (如果发现是 anytls，保持 type 并尝试提取 path)
+            if 'anytls' in str(obj).lower() or p_type == 'anytls':
+                v_p['type'] = 'anytls'
 
             uri = f"vless://{pw}@{srv_uri}:{main_port}?{urllib.parse.urlencode(v_p)}#{name_enc}"
-            final_v2ray_uris.append(uri); final_rocket_uris.append(uri)
+            final_v2ray_uris.append(uri)
+            final_rocket_uris.append(uri)
 
         node_count += 1
 
-    # --- 输出文件 ---
+    # --- 输出 ---
     with open("sub_v2ray.txt", "w", encoding="utf-8") as f: f.write("\n".join(final_v2ray_uris))
     with open("sub_rocket.txt", "w", encoding="utf-8") as f: f.write("\n".join(final_rocket_uris))
     with open("config.yaml", "w", encoding="utf-8") as f:
