@@ -26,10 +26,10 @@ jobs:
         run: |
           git config --local user.email "actions@github.com"
           git config --local user.name "GitHub Action"
-          # 1. 强制清理仓库中已存在的垃圾文件
+          # 1. 强制从 Git 索引中移除所有压缩包（包括历史遗留）
           git rm *.tar.gz* || true
-          # 2. 仅添加生成的订阅文件
+          # 2. 仅添加你需要的文件
           git add config.yaml sub_v2ray.txt || true
-          # 3. 如果文件没变化则跳过，防止产生空提交
+          # 3. 提交并推送
           git commit -m "Update nodes $(date)" || exit 0
           git push
