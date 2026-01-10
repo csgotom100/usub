@@ -3,10 +3,10 @@ name: Auto Update Sub
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 */6 * * *'
+    - cron: '0 */12 * * *'
 
 jobs:
-  convert:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -17,29 +17,19 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install Dependencies
-        run: pip install requests
-
-      - name: Setup SubConverter
-        run: |
-          # ... 下载解压步骤 ...
-          cd subconverter
-          # 加上 -d 参数启动后台调试模式，或者确保没有防火墙拦截
-          chmod +x subconverter
-          nohup ./subconverter > /dev/null 2>&1 &
-          # 给它充足的启动时间
-          sleep 10
-
       - name: Run Main Script
-        run: python main.py
+        run: |
+          pip install requests
+          python main.py
 
       - name: Commit and Push
         run: |
           git config --local user.email "actions@github.com"
           git config --local user.name "GitHub Action"
-          # 关键点：只添加我们需要的文件
+          # 1. 强制清理仓库中已存在的垃圾文件
+          git rm *.tar.gz* || true
+          # 2. 仅添加生成的订阅文件
           git add config.yaml sub_v2ray.txt || true
-          # 顺便删掉仓库里以前那些多余的压缩包
-          git rm subconverter_linux64.tar.gz* || true
+          # 3. 如果文件没变化则跳过，防止产生空提交
           git commit -m "Update nodes $(date)" || exit 0
           git push
