@@ -3,7 +3,7 @@ import os
 import re
 
 def clean_node_block(block):
-    """深度清洗：根据协议特性自动补全缺失参数，确保 100% 兼容 Clash"""
+    """深度清洗：自动补全缺失字段，确保与你提供的 config.yaml 格式完全一致"""
     lines = block.splitlines()
     data = {}
     for line in lines:
@@ -14,34 +14,34 @@ def clean_node_block(block):
         if v: data[k] = v
 
     cleaned = []
-    # 1. 提取基础核心字段
+    # 1. 基础字段提取
     base_keys = ["type", "server", "port", "uuid", "password", "auth-str", "sni", "skip-cert-verify", "udp", "network"]
     for k in base_keys:
         if k in data: cleaned.append(f"{k}: {data[k]}")
 
     node_type = data.get("type", "").lower()
 
-    # 2. 针对 mieru 协议补全 transport (修复报错的关键)
+    # 2. 针对 mieru 协议补全 transport (对应 Node_09)
     if node_type == "mieru":
         cleaned.append(f"transport: {data.get('transport', 'TCP')}")
 
-    # 3. 针对 tuic 协议补全 username (修复报错的关键)
+    # 3. 针对 tuic 协议补全 username (对应 Node_10, 11)
     if node_type == "tuic":
         cleaned.append("alpn: [h3]")
         if "username" not in data:
-            # 优先用 uuid 作为 username，没有就用 password，再没有就填 default
-            u_val = data.get("uuid", data.get("password", "default"))
+            u_val = data.get("uuid", data.get("password", "default_user"))
             cleaned.append(f"username: {u_val}")
         for k in ["congestion-controller", "reduce-rtt"]:
             if k in data: cleaned.append(f"{k}: {data[k]}")
 
-    # 4. 针对 hysteria 协议补全 alpn
+    # 4. 针对 hysteria 协议补全 protocol 和 alpn (对应 Node_01, 12 等)
     if "hysteria" in node_type:
+        cleaned.append("protocol: udp")
         cleaned.append("alpn: [h3]")
-        for k in ["protocol", "up", "down"]:
+        for k in ["up", "down"]:
             if k in data: cleaned.append(f"{k}: {data[k]}")
 
-    # 5. 修正 VLESS Reality 嵌套结构
+    # 5. VLESS Reality 结构化修正 (对应 Node_03, 07, 08)
     if node_type == "vless":
         cleaned.append("tls: true")
         if "public-key" in data:
@@ -65,14 +65,11 @@ def main():
         try:
             r = requests.get(url, headers=headers, timeout=10)
             if r.status_code == 200:
-                # 暴力切割：提取出每个节点块
                 chunks = re.split(r'-\s*name:', r.text)
                 for c in chunks:
-                    if "server:" in c and "type:" in c:
-                        all_raw_chunks.append(c)
+                    if "server:" in c and "type:" in c: all_raw_chunks.append(c)
         except: continue
 
-    # 按 Server 去重
     unique_dict = {}
     for chunk in all_raw_chunks:
         s_match = re.search(r'server:\s*([^\s]+)', chunk)
@@ -90,7 +87,7 @@ def main():
         for attr in clean_node_block(chunk):
             clash_config.append(f"    {attr}")
 
-    # 策略组
+    # 策略组部分
     clash_config.extend([
         "", "proxy-groups:",
         "  - name: 🚀 节点选择",
@@ -101,7 +98,7 @@ def main():
         clash_config.append(f"      - \"{n}\"")
     clash_config.append("      - DIRECT")
 
-    # 神机规则 (ACL4SSR 精简版)
+    # 神机分流规则 (对应你 GitHub 链接中的规则)
     clash_config.extend([
         "", "rules:",
         "  # 核心服务分流",
@@ -129,7 +126,7 @@ def main():
 
     with open("config.yaml", "w", encoding="utf-8") as f:
         f.write("\n".join(clash_config))
-    print(f"✅ 完美格式已生成！包含 {len(node_names)} 个节点。")
+    print(f"✅ 成功复刻 GitHub 配置，生成 {len(node_names)} 个节点。")
 
 if __name__ == "__main__":
     main()
