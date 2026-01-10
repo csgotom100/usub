@@ -3,17 +3,16 @@ import os
 import re
 
 def is_valid_proxy(block):
-    """基础校验：确保节点包含核心三要素，防止 Clash 加载失败"""
+    """核心校验：确保节点包含 server/type/port，并初步过滤不完整的节点"""
     if not all(k in block for k in ["type:", "server:", "port:"]):
         return False
-    # 针对 TUIC 协议的特殊检查
-    if "type: tuic" in block:
-        if "uuid:" not in block and "username:" not in block:
-            return False
+    # 过滤掉包含旧报错信息的脏块
+    if "key 'username' missing" in block or "transport' missing" in block:
+        return False
     return True
 
 def clean_node_block(block):
-    """极致清洗：处理 Reality 嵌套结构并补全 Hysteria 必备字段"""
+    """深度清洗：修正 Reality 嵌套，并补全 Hysteria、TUIC 和 Mieru 的必需参数"""
     lines = block.splitlines()
     data = {}
     for line in lines:
@@ -24,25 +23,35 @@ def clean_node_block(block):
         if v: data[k] = v
 
     cleaned = []
-    # 1. 基础核心字段 (白名单模式)
+    # 基础核心字段白名单
     base_keys = ["type", "server", "port", "uuid", "password", "auth-str", "sni", "skip-cert-verify", "udp", "network"]
     for k in base_keys:
         if k in data: cleaned.append(f"{k}: {data[k]}")
 
-    # 2. Hysteria / TUIC 特色字段处理
-    if "hysteria" in data.get("type", ""):
+    node_type = data.get("type", "").lower()
+
+    # 1. Hysteria 协议补全
+    if "hysteria" in node_type:
         if "protocol" not in data: cleaned.append("protocol: udp")
-        cleaned.append("alpn: [h3]")  # 强制补全 ALPN 保证连通性
+        cleaned.append("alpn: [h3]")
         for k in ["up", "down"]:
             if k in data: cleaned.append(f"{k}: {data[k]}")
 
-    if data.get("type") == "tuic":
+    # 2. TUIC 协议补全
+    if node_type == "tuic":
         cleaned.append("alpn: [h3]")
         for k in ["congestion-controller", "reduce-rtt"]:
             if k in data: cleaned.append(f"{k}: {data[k]}")
 
-    # 3. VLESS / Reality 结构修正 (将散乱的属性归位到 reality-opts)
-    if data.get("type") == "vless":
+    # 3. Mieru 协议补全 (修正图片中的 transport missing 错误)
+    if node_type == "mieru":
+        if "transport" not in data:
+            cleaned.append("transport: tcp") # 默认补全为 tcp
+        else:
+            cleaned.append(f"transport: {data['transport']}")
+
+    # 4. VLESS / Reality 结构修正
+    if node_type == "vless":
         cleaned.append("tls: true")
         if "public-key" in data:
             cleaned.append("reality-opts:")
@@ -54,7 +63,6 @@ def clean_node_block(block):
     return cleaned
 
 def main():
-    # 确保读取 sources.txt 中的订阅链接
     if not os.path.exists('sources.txt'):
         print("❌ 错误: 找不到 sources.txt")
         return
@@ -65,19 +73,18 @@ def main():
     all_raw_chunks = []
     headers = {'User-Agent': 'clash-verge/1.0'}
 
-    print(f"🚀 正在从 {len(urls)} 个来源抓取节点...")
+    print(f"📡 正在处理订阅来源...")
     for url in urls:
         try:
             r = requests.get(url, headers=headers, timeout=10)
             if r.status_code == 200:
-                # 暴力切割法：通过 - name: 定位每一个可能的节点块
                 chunks = re.split(r'-\s*name:', r.text)
                 for c in chunks:
                     if is_valid_proxy(c):
                         all_raw_chunks.append(c)
         except: continue
 
-    # 按 Server 地址去重，防止相同节点多次出现
+    # 按 Server 去重
     unique_dict = {}
     for chunk in all_raw_chunks:
         s_match = re.search(r'server:\s*([^\s]+)', chunk)
@@ -86,10 +93,10 @@ def main():
     
     unique_nodes = list(unique_dict.values())
     if not unique_nodes:
-        print("❌ 未抓取到任何有效节点")
+        print("⚠️ 未发现有效节点")
         return
 
-    # --- 构建 Clash 配置文件主体 ---
+    # --- 组装配置文件 ---
     clash_config = [
         "port: 7890",
         "allow-lan: true",
@@ -102,12 +109,11 @@ def main():
     for i, chunk in enumerate(unique_nodes):
         name = f"Node_{len(node_names) + 1:02d}"
         node_names.append(name)
-        
         clash_config.append(f"  - name: \"{name}\"")
         for attr in clean_node_block(chunk):
             clash_config.append(f"    {attr}")
 
-    # --- 策略组设置 (神机规则逻辑) ---
+    # --- 策略组 (神机规则配套) ---
     clash_config.extend([
         "",
         "proxy-groups:",
@@ -119,18 +125,18 @@ def main():
         clash_config.append(f"      - \"{n}\"")
     clash_config.append("      - DIRECT")
 
-    # --- 神机规则分流逻辑 (智能分流) ---
+    # --- 神机规则分流逻辑 ---
     clash_config.extend([
         "",
         "rules:",
-        "  # 核心服务分流",
+        "  # 核心海外服务",
         "  - DOMAIN-SUFFIX,google.com,🚀 节点选择",
         "  - DOMAIN-KEYWORD,github,🚀 节点选择",
         "  - DOMAIN-KEYWORD,youtube,🚀 节点选择",
         "  - DOMAIN-KEYWORD,google,🚀 节点选择",
         "  - DOMAIN-SUFFIX,telegram.org,🚀 节点选择",
         "  ",
-        "  # 国内常用服务直连",
+        "  # 国内服务直连",
         "  - DOMAIN-SUFFIX,cn,DIRECT",
         "  - DOMAIN-KEYWORD,baidu,DIRECT",
         "  - DOMAIN-KEYWORD,taobao,DIRECT",
@@ -142,19 +148,14 @@ def main():
         "  - GEOIP,LAN,DIRECT",
         "  - GEOIP,CN,DIRECT",
         "  ",
-        "  # 兜底规则 (其余全部按节点选择)",
+        "  # 兜底规则",
         "  - MATCH,🚀 节点选择"
     ])
 
-    # 写入 config.yaml
     with open("config.yaml", "w", encoding="utf-8") as f:
         f.write("\n".join(clash_config))
-        
-    # 同时生成一个简单的 v2ray 格式列表备份
-    with open("sub_v2ray.txt", "w", encoding="utf-8") as f:
-        f.write("\n\n".join(unique_nodes))
     
-    print(f"🎉 任务圆满完成！已生成 {len(node_names)} 个节点并应用神机规则。")
+    print(f"✅ 完成！已生成含有 {len(node_names)} 个节点并应用神机规则。")
 
 if __name__ == "__main__":
     main()
