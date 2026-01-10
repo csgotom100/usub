@@ -1,77 +1,91 @@
 import requests
 import os
+import re
 import base64
+
+def decode_base64(data):
+    """尝试解码 Base64 数据"""
+    try:
+        # 补全 Base64 末尾的等号
+        missing_padding = len(data) % 4
+        if missing_padding:
+            data += '=' * (4 - missing_padding)
+        return base64.b64decode(data).decode('utf-8')
+    except:
+        return ""
+
+def extract_nodes(text):
+    """从文本中提取节点行 (支持明文和 Base64)"""
+    nodes = []
+    # 如果是 Base64 订阅，先解码
+    if re.match(r'^[A-Za-z0-9+/=\s]+$', text) and len(text) > 50:
+        decoded = decode_base64(text)
+        if decoded: text = decoded
+
+    # 提取所有看起来像节点的行 (ss, vmess, vless, trojan, hysteria 等)
+    lines = text.splitlines()
+    for line in lines:
+        line = line.strip()
+        if "://" in line: # 标准链接格式
+            nodes.append(line)
+        elif "- name:" in line: # Clash 格式节点行
+            nodes.append(line)
+    return nodes
 
 def main():
     if not os.path.exists('sources.txt'): return
     with open('sources.txt', 'r', encoding='utf-8') as f:
         urls = [l.strip() for l in f if l.startswith('http')]
 
-    all_raw_data = []
-    headers = {'User-Agent': 'clash-verge/1.0; Mozilla/5.0'}
+    all_nodes = []
+    headers = {'User-Agent': 'clash-verge/1.0'}
 
-    print(f"🚀 正在本地下载源数据...")
+    print(f"🚀 正在本地下载并分析源数据...")
     for idx, url in enumerate(urls):
         try:
-            # 加上较短的超时，避免浪费时间在死链上
-            r = requests.get(url, headers=headers, timeout=8)
-            if r.status_code == 200 and len(r.text) > 100:
-                all_raw_data.append(r.text)
-                print(f"   [{idx+1}] ✅ 抓取成功")
+            r = requests.get(url, headers=headers, timeout=10)
+            if r.status_code == 200:
+                nodes = extract_nodes(r.text)
+                if nodes:
+                    all_nodes.extend(nodes)
+                    print(f"   [{idx+1}] ✅ 提取到 {len(nodes)} 个节点")
         except: continue
 
-    if not all_raw_data:
-        print("❌ 没有任何有效数据")
+    # 去重
+    unique_nodes = list(set(all_nodes))
+    print(f"--- 📊 汇总完成: 唯一节点总数 {len(unique_nodes)} ---")
+
+    if not unique_nodes:
+        print("❌ 最终没有获取到任何节点")
         return
 
-    # 将所有内容合并成一个巨大的临时文件
-    # 这样我们可以通过 POST 传输而不受 URL 长度限制
-    combined_content = "\n".join(all_raw_data)
-    
-    print(f"📊 准备进行本地渲染 (混合模式)...")
+    # 1. 生成 V2Ray 订阅文件
+    with open("sub_v2ray.txt", "w", encoding="utf-8") as f:
+        f.write("\n".join([n for n in unique_nodes if "://" in n]))
+    print("🎉 sub_v2ray.txt 生成成功")
 
-    api_url = "http://127.0.0.1:25500/sub"
-    
-    # 核心策略：
-    # 1. 使用 target=clash
-    # 2. 增加 &list=true (只输出节点列表，避开复杂的规则集下载)
-    # 3. 之后我们再手动给它加上简单的头信息
-    
+    # 2. 生成一个最基础的 Clash 配置文件
+    # 如果节点是 Clash 格式则直接放进 proxies，如果是链接格式则放入后端的 data 转换
+    # 为了保险，我们直接尝试再次 POST 给后端（因为这次数据很小）
+    # 如果后端还是不行，我们就生成一个简单的列表
+    print("🎨 正在尝试最终渲染...")
     try:
-        # 第一步：先尝试获取纯节点列表格式 (这个最不容易报错)
-        payload = {
-            "target": "clash",
-            "data": combined_content,
-            "list": "true", # 关键：只输出节点，不输出规则和分组
-            "emoji": "true"
-        }
+        payload = "\n".join(unique_nodes)
+        r = requests.post("http://127.0.0.1:25500/sub", data={"target": "clash", "data": payload}, timeout=30)
         
-        print("📦 请求后端提取纯净节点...")
-        r = requests.post(api_url, data=payload, timeout=60)
-        
-        if "proxies:" in r.text or "- name:" in r.text:
-            # 如果返回的内容没有 proxies: 开头，我们帮它加上
-            final_clash = r.text
-            if "proxies:" not in r.text:
-                final_clash = "proxies:\n" + r.text
-            
+        if "proxies:" in r.text:
             with open("config.yaml", "w", encoding="utf-8") as f:
-                f.write(final_clash)
-            print(f"🎉 config.yaml 已生成 (大小: {len(final_clash)} 字节)")
-            
-            # 同步生成 V2Ray 订阅
-            payload["target"] = "v2ray"
-            r_v2ray = requests.post(api_url, data=payload, timeout=60)
-            with open("sub_v2ray.txt", "w", encoding="utf-8") as f:
-                f.write(r_v2ray.text)
-            print("🎉 sub_v2ray.txt 已生成")
+                f.write(r.text)
+            print("🎉 config.yaml 完美生成！")
         else:
-            print("❌ 提取失败，后端未返回有效节点。")
-            # 打印前 200 个字符看看后端到底说了什么
-            print(f"DEBUG 后端原始输出: {r.text[:200]}")
-
-    except Exception as e:
-        print(f"❌ 运行异常: {e}")
+            # 兜底：如果后端还是空白，手动生成一个极简 Clash
+            with open("config.yaml", "w", encoding="utf-8") as f:
+                f.write("proxies:\n")
+                for node in unique_nodes:
+                    if "- name:" in node: f.write(f"{node}\n")
+            print("⚠️ 后端仍不可用，已生成极简版 config.yaml")
+    except:
+        print("❌ 转换失败")
 
 if __name__ == "__main__":
     main()
