@@ -1,0 +1,44 @@
+name: Auto Update Sub
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 */6 * * *' # 每 6 小时自动跑一次
+
+jobs:
+  convert:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install Dependencies
+        run: pip install requests
+
+      - name: Setup SubConverter
+        run: |
+          # 下载官方最新的二进制文件
+          wget https://github.com/tindy2013/subconverter/releases/latest/download/subconverter_linux64.tar.gz
+          tar -zxf subconverter_linux64.tar.gz
+          cd subconverter
+          chmod +x subconverter
+          # 在后台启动 SubConverter 进程
+          ./subconverter & 
+          echo "Waiting for SubConverter to initialize..."
+          sleep 5
+
+      - name: Run Main Script
+        run: python main.py
+
+      - name: Commit and Push
+        run: |
+          git config --local user.email "actions@github.com"
+          git config --local user.name "GitHub Action"
+          git add .
+          git commit -m "Update sub via SubConverter" || exit 0
+          git push
