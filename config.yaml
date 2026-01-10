@@ -3,9 +3,28 @@ socks-port: 7891
 allow-lan: true
 mode: rule
 log-level: info
-external-controller: 127.0.0.1:9090
-
 proxies:
+  - name: dongtaiwang.com_0                     
+    type: anytls
+    server: 45.221.98.14
+    port: 59901
+    password: dongtaiwang.com
+    client-fingerprint: chrome
+    udp: true
+    idle-session-check-interval: 30
+    idle-session-timeout: 30
+    min-idle-session: 0
+    alpn:
+    - h2
+    - http/1.1
+    skip-cert-verify: true
+
+proxy-groups:
+  - name: 🚀 节点选择
+    type: select
+    proxies:
+      - "dongtaiwang.com_0"
+      - DIRECT
 
 rules:
   - GEOIP,CN,DIRECT
