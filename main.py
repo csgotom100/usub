@@ -2,12 +2,12 @@ import requests
 import os
 import re
 
-def is_valid_clash_proxy(block):
+def is_valid_proxy(block):
     """校验节点是否包含必要字段，防止 Clash 报错"""
     # 基础检查：必须包含 type, server, port
     if not all(k in block for k in ["type:", "server:", "port:"]):
         return False
-    # 针对 TUIC 协议的特殊检查
+    # 针对 TUIC 协议的特殊检查：必须包含 uuid 或 username
     if "type: tuic" in block:
         if "uuid:" not in block and "username:" not in block:
             return False
@@ -21,13 +21,12 @@ def extract_nodes_brute_force(text):
         if "name:" in line and current_node:
             nodes.append("\n".join(current_node))
             current_node = []
-        # 过滤掉干扰行
         if any(x in line for x in ["🚀", "🍎", "🎯", "♻️", "🛑"]): continue
         current_node.append(line)
     if current_node: nodes.append("\n".join(current_node))
     
-    # 关键：只保留通过校验的节点
-    return [n for n in nodes if is_valid_clash_proxy(n)]
+    # 只返回合法的节点
+    return [n for n in nodes if is_valid_proxy(n)]
 
 def main():
     if not os.path.exists('sources.txt'): return
@@ -48,9 +47,18 @@ def main():
     # 按 server 地址去重
     unique_nodes = list({re.search(r'server:\s*([^\s]+)', n).group(1): n for n in all_raw_chunks if "server:" in n}.values())
 
-    if not unique_nodes: return
+    if not unique_nodes:
+        print("❌ 提取失败：没有符合要求的有效节点")
+        return
 
-    clash_config = ["port: 7890", "mode: rule", "proxies:"]
+    clash_config = [
+        "port: 7890",
+        "allow-lan: true",
+        "mode: rule",
+        "log-level: info",
+        "proxies:"
+    ]
+    
     node_names = []
     for i, chunk in enumerate(unique_nodes):
         name = f"Node_{i+1:02d}"
@@ -60,7 +68,10 @@ def main():
             if "name:" in l or not l.strip(): continue
             clash_config.append(f"    {l.strip()}")
 
-    clash_config.extend(["", "proxy-groups:", "  - name: 🚀 节点选择", "    type: select", "    proxies:"])
+    clash_config.extend([
+        "", "proxy-groups:", "  - name: 🚀 节点选择",
+        "    type: select", "    proxies:"
+    ])
     clash_config.extend([f"      - \"{n}\"" for n in node_names])
     clash_config.extend(["      - DIRECT", "", "rules:", "  - MATCH,🚀 节点选择"])
 
