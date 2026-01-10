@@ -1,7 +1,7 @@
 ipv6: true
 allow-lan: true
 proxies:
-- name: 🌐_01_01-10 21:42
+- name: 🌐_01_01-10 21:46
   type: vless
   server: 195.154.200.13
   port: 17401
@@ -25,7 +25,21 @@ proxies:
       enabled: true
       up: 50
       down: 100
-- name: 🌐_02_01-10 21:42
+- name: 🌐_02_01-10 21:46
+  type: anytls
+  server: 45.221.98.14
+  port: 59901
+  password: dongtaiwang.com
+  client-fingerprint: chrome
+  udp: true
+  idle-session-check-interval: 30
+  idle-session-timeout: 30
+  min-idle-session: 0
+  alpn:
+  - h2
+  - http/1.1
+  skip-cert-verify: true
+- name: 🌐_03_01-10 21:46
   type: vless
   server: '2001:bc8:32d7:181:'
   port: 2
@@ -49,7 +63,7 @@ proxies:
       enabled: true
       up: 50
       down: 100
-- name: 🌐_03_01-10 21:42
+- name: 🌐_04_01-10 21:46
   type: vless
   server: '2001:bc8:32d7:181:'
   port: 3
@@ -73,14 +87,14 @@ proxies:
       enabled: true
       up: 50
       down: 100
-- name: 🌐_04_01-10 21:42
+- name: 🌐_05_01-10 21:46
   type: mieru
   server: 157.254.223.48
   port: 33990
   transport: TCP
   username: dongtaiwang.com
   password: dongtaiwang.com
-- name: 🌐_05_01-10 21:42
+- name: 🌐_06_01-10 21:46
   server: 89.144.35.231
   port: 33457
   type: tuic
@@ -93,7 +107,7 @@ proxies:
   reduce-rtt: true
   udp-relay-mode: native
   congestion-controller: bbr
-- name: 🌐_06_01-10 21:42
+- name: 🌐_07_01-10 21:46
   server: '2a14:7583:299d:'
   port: 33457
   type: tuic
@@ -122,8 +136,7 @@ proxies:
   transport:
     udp:
       hopInterval: 30s
-  name: 🌐_07_01-10 21:42
-  type: hysteria2
+  name: 🌐_08_01-10 21:46
   port: 27921
   sni: apple.com
 - server: 62.210.124.146
@@ -142,8 +155,7 @@ proxies:
   transport:
     udp:
       hopInterval: 30s
-  name: 🌐_08_01-10 21:42
-  type: hysteria2
+  name: 🌐_09_01-10 21:46
   port: 22000
   sni: www.microsoft.com
 - server: 2a14:7584:d04a::a
@@ -162,8 +174,7 @@ proxies:
   transport:
     udp:
       hopInterval: 30s
-  name: 🌐_09_01-10 21:42
-  type: hysteria2
+  name: 🌐_10_01-10 21:46
   port: 50022
   sni: apple.com
 - type: vless
@@ -184,7 +195,7 @@ proxies:
       enabled: true
       up_mbps: 50
       down_mbps: 100
-  name: 🌐_10_01-10 21:42
+  name: 🌐_11_01-10 21:46
   port: 18959
 - type: vless
   tag: https://github.com/Alvin9999-newpac/fanqiang/wiki
@@ -204,23 +215,24 @@ proxies:
       enabled: true
       up_mbps: 50
       down_mbps: 100
-  name: 🌐_11_01-10 21:42
+  name: 🌐_12_01-10 21:46
   port: 15531
 proxy-groups:
 - name: 🚀 节点选择
   type: select
   proxies:
   - DIRECT
-  - 🌐_01_01-10 21:42
-  - 🌐_02_01-10 21:42
-  - 🌐_03_01-10 21:42
-  - 🌐_04_01-10 21:42
-  - 🌐_05_01-10 21:42
-  - 🌐_06_01-10 21:42
-  - 🌐_07_01-10 21:42
-  - 🌐_08_01-10 21:42
-  - 🌐_09_01-10 21:42
-  - 🌐_10_01-10 21:42
-  - 🌐_11_01-10 21:42
+  - 🌐_01_01-10 21:46
+  - 🌐_02_01-10 21:46
+  - 🌐_03_01-10 21:46
+  - 🌐_04_01-10 21:46
+  - 🌐_05_01-10 21:46
+  - 🌐_06_01-10 21:46
+  - 🌐_07_01-10 21:46
+  - 🌐_08_01-10 21:46
+  - 🌐_09_01-10 21:46
+  - 🌐_10_01-10 21:46
+  - 🌐_11_01-10 21:46
+  - 🌐_12_01-10 21:46
 rules:
 - MATCH,🚀 节点选择
