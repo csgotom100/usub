@@ -1,0 +1,36 @@
+HTTP/1.1 200 OK
+Date: Sat, 10 Jan 2026 14:34:43 GMT
+Content-Type: text/plain; charset=utf-8
+Content-Length: 2982
+Connection: keep-alive
+Server: cloudflare
+CF-Ray: 9bbce5973997fa2e-SJC
+CF-Cache-Status: REVALIDATED
+Accept-Ranges: bytes
+Cache-Control: max-age=60, public, must-revalidate, stale-while-revalidate=60, stale-if-error=300, s-maxage=60
+Content-Disposition: inline
+ETag: "ba9d559c91cf411bebd861fb9e16276c"
+Strict-Transport-Security: max-age=31536000
+content-security-policy: base-uri 'self'; child-src https://www.google.com/recaptcha/ https://www.recaptcha.net/ https://www.googletagmanager.com/ns.html https://*.zuora.com/apps/PublicHostedPageLite.do https://gitlab.com/admin/ https://gitlab.com/assets/ https://gitlab.com/-/speedscope/index.html https://gitlab.com/-/sandbox/ 'self' blob: data: https://embed.figma.com https://www.figma.com https://www.youtube.com; connect-src 'self' https://gitlab.com wss://gitlab.com https://sentry.gitlab.net https://new-sentry.gitlab.net https://customers.gitlab.com https://snowplow.trx.gitlab.net https://sourcegraph.com https://collector.prd-278964.gl-product-analytics.com https://analytics.gitlab.com snowplowprd.trx.gitlab.net; default-src 'self'; font-src 'self'; form-action 'self' https: http:; frame-ancestors 'self'; frame-src https://www.google.com/recaptcha/ https://www.recaptcha.net/ https://www.googletagmanager.com/ns.html https://*.zuora.com/apps/PublicHostedPageLite.do https://gitlab.com/admin/ https://gitlab.com/assets/ https://gitlab.com/-/speedscope/index.html https://gitlab.com/-/sandbox/ https://embed.figma.com https://www.figma.com https://www.youtube.com; img-src 'self' data: blob: http: https:; manifest-src 'self'; media-src 'self' data: blob: http: https:; object-src 'none'; report-uri https://new-sentry.gitlab.net/api/4/security/?sentry_key=f5573e26de8f4293b285e556c35dfd6e&sentry_environment=gprd; script-src 'strict-dynamic' 'self' 'unsafe-inline' 'unsafe-eval' https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/ https://www.recaptcha.net/ https://apis.google.com https://*.zuora.com/apps/PublicHostedPageLite.do 'nonce-aiMtkh7CPGgxJWrk04+4bQ=='; style-src 'self' 'unsafe-inline'; worker-src 'self' https://gitlab.com/assets/ blob: data:
+gitlab-lb: haproxy-main-35-lb-gprd
+gitlab-sv: web-gke-us-east1-c
+nel: {"max_age": 0}
+permissions-policy: interest-cohort=()
+ratelimit-limit: 500
+ratelimit-name: throttle_unauthenticated_web
+ratelimit-observed: 35
+ratelimit-remaining: 465
+ratelimit-reset: 1766789760
+referrer-policy: strict-origin-when-cross-origin
+x-content-type-options: nosniff
+x-download-options: noopen
+x-frame-options: SAMEORIGIN
+x-gitlab-meta: {"correlation_id":"9b442a0cf79b7b81-ATL","version":"1"}
+x-permitted-cross-domain-policies: none
+x-request-id: 9b442a0cf79b7b81-ATL
+x-runtime: 0.196299
+x-ua-compatible: IE=edge
+x-xss-protection: 1; mode=block
+Set-Cookie: __cf_bm=yM84Rk0.fMmXwY77cYSLSgBvrFMNrZ7v3XNxX4HC7g0-1768055683-1.0.1.1-tvsw2us_zGWCd3ZefggrDJh4aPitr2e5bei250y1ZW41s.C_tug.TlZu.befDKyHu_h0Mfh0Cu78Oub1aQg8x4GsQW6FpC_wgqmsikOoMYU; path=/; expires=Sat, 10-Jan-26 15:04:43 GMT; domain=.gitlab.com; HttpOnly; Secure; SameSite=None
+Set-Cookie: _cfuvid=Z66CEKxRdbIFDZ9RRXee4nm4xLfEHq.qHI8MT7FUuIM-1768055683954-0.0.1.1-604800000; path=/; domain=.gitlab.com; HttpOnly; Secure; SameSite=None
+
