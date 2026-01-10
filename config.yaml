@@ -91,6 +91,7 @@ proxies:
     server: 157.254.223.48
     port: 33990
     password: dongtaiwang.com
+    transport: TCP
   - name: "Node_10"
     type: tuic
     server: 89.144.35.231
@@ -143,14 +144,14 @@ proxy-groups:
       - DIRECT
 
 rules:
-  # 核心服务分流
+  # 核心海外服务
   - DOMAIN-SUFFIX,google.com,🚀 节点选择
   - DOMAIN-KEYWORD,github,🚀 节点选择
   - DOMAIN-KEYWORD,youtube,🚀 节点选择
   - DOMAIN-KEYWORD,google,🚀 节点选择
   - DOMAIN-SUFFIX,telegram.org,🚀 节点选择
   
-  # 国内常用服务直连
+  # 国内服务直连
   - DOMAIN-SUFFIX,cn,DIRECT
   - DOMAIN-KEYWORD,baidu,DIRECT
   - DOMAIN-KEYWORD,taobao,DIRECT
@@ -162,5 +163,5 @@ rules:
   - GEOIP,LAN,DIRECT
   - GEOIP,CN,DIRECT
   
-  # 兜底规则 (其余全部按节点选择)
+  # 兜底规则
   - MATCH,🚀 节点选择
