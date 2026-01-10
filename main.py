@@ -1,3 +1,18 @@
+import json, requests, base64, yaml, urllib.parse, os, re, warnings
+from datetime import datetime, timedelta
+
+warnings.filterwarnings("ignore")
+
+def get_beijing_time():
+    return (datetime.utcnow() + timedelta(hours=8)).strftime("%m-%d %H:%M")
+
+def get_geo_tag(text, server):
+    words = {"🇭🇰": ["hk", "香港"], "🇺🇸": ["us", "美国"], "🇯🇵": ["jp", "日本"], "🇸🇬": ["sg", "新加坡"], "🇹🇼": ["tw", "台湾"]}
+    content = str(text).lower() + str(server).lower()
+    for tag, keys in words.items():
+        if any(k in content for k in keys): return tag
+    return "🌐"
+
 def get_node_info(item):
     try:
         if not isinstance(item, dict): return None
@@ -5,33 +20,102 @@ def get_node_info(item):
         if not raw_server: return None
         
         srv = str(raw_server).strip()
-        # 提取端口：优先找独立字段，没有再从 server 字符串里抠
         port_field = str(item.get('port') or item.get('server_port') or "")
         
-        # --- 真正的 IPv6/IPv4 提取逻辑 ---
-        if srv.startswith('['): # 处理 [2001:db8::1]:12345
+        # 1. IPv6/IPv4 分离逻辑
+        if srv.startswith('['): 
             match = re.match(r'\[(.+)\]:(\d+)', srv)
             if match:
                 srv, port = match.group(1), match.group(2)
             else:
-                srv = srv.strip('[]')
-                port = port_field
-        elif srv.count(':') > 1: # 裸 IPv6 地址 2001:db8::1
-            # 这种情况通常 srv 就是纯 IP，端口在 port_field 里
+                srv, port = srv.strip('[]'), port_field
+        elif srv.count(':') > 1:
+            # 裸 IPv6，端口必在独立字段
             port = port_field
-        elif ':' in srv: # 标准 IPv4:Port 1.1.1.1:443
+        elif ':' in srv:
             parts = srv.rsplit(':', 1)
             srv, port = parts[0], parts[1]
-        else: # 纯域名或 IP
+        else:
             port = port_field
 
-        # 清洗端口：只留数字
         port = "".join(re.findall(r'\d+', str(port)))
         if not port: return None 
 
-        # 协议判定 (排除 Mieru)
+        # 2. 协议判定 (跳过 Mieru)
+        item_raw = str(item).lower()
         p_type = str(item.get('type') or "").lower()
-        if p_type == 'mieru': return None 
+        if p_type == 'mieru' or 'mieru' in item_raw: return None 
         
-        # 剩下的逻辑 (PW, SNI, PBK, SID) 保持不变
-        # ...
+        pw = item.get('auth') or item.get('password') or item.get('uuid') or item.get('id')
+        p = 'vless'
+        if 'anytls' in item_raw: p = 'anytls'
+        elif 'tuic' in item_raw: p = 'tuic'
+        
+        if not pw and p != 'anytls': return None
+
+        # 3. 提取 Reality/TLS 参数
+        tls = item.get('tls', {}) if isinstance(item.get('tls'), dict) else {}
+        sni = item.get('servername') or item.get('sni') or tls.get('sni') or item.get('peer') or ""
+        ro = item.get('reality-opts') or tls.get('reality') or item.get('reality_settings') or {}
+        pbk = ro.get('public-key') or ro.get('public_key') or item.get('public-key') or ""
+        sid = ro.get('short-id') or ro.get('short_id') or item.get('short-id') or ""
+
+        return {
+            "server": srv.strip('[]'), "port": port, "type": p, "pw": pw,
+            "sni": sni, "pbk": pbk, "sid": sid, "name": item.get('tag') or item.get('name') or ""
+        }
+    except:
+        return None
+
+def main():
+    nodes = []
+    if not os.path.exists('sources.txt'): return
+    with open('sources.txt', 'r', encoding='utf-8') as f:
+        urls = [l.strip() for l in f if l.startswith('http')]
+
+    for url in urls:
+        try:
+            r = requests.get(url, timeout=15, verify=False)
+            content = r.text.strip()
+            data = json.loads(content) if content.startswith(('{', '[')) else yaml.safe_load(content)
+            def walk(obj):
+                if isinstance(obj, dict):
+                    res = get_node_info(obj)
+                    if res: nodes.append(res)
+                    else:
+                        for v in obj.values(): walk(v)
+                elif isinstance(obj, list):
+                    for i in obj: walk(i)
+            walk(data)
+        except: continue
+
+    unique = []
+    seen = set()
+    for n in nodes:
+        key = f"{n['server']}:{n['port']}:{n['type']}"
+        if key not in seen:
+            unique.append(n); seen.add(key)
+
+    unique.sort(key=lambda x: 0 if x['type'] == 'anytls' else 1)
+
+    uris = []
+    time_tag = get_beijing_time()
+    for i, n in enumerate(unique, 1):
+        geo = get_geo_tag(n['name'] + n['sni'] + n['server'], n['server'])
+        name = f"{geo}[{n['type'].upper()}] {i:02d} ({time_tag})"
+        name_enc = urllib.parse.quote(name)
+        srv_uri = f"[{n['server']}]" if ':' in n['server'] else n['server']
+        
+        if n['type'] == 'vless':
+            v_params = {"encryption": "none", "security": "reality" if n['pbk'] else "none", "sni": n['sni'] or "itunes.apple.com", "fp": "chrome", "type": "tcp"}
+            if n['pbk']: v_params.update({"pbk": n['pbk'], "sid": n['sid']})
+            uris.append(f"vless://{n['pw']}@{srv_uri}:{n['port']}?{urllib.parse.urlencode(v_params)}#{name_enc}")
+        elif n['type'] == 'anytls':
+            uris.append(f"anytls://{n['pw']}@{srv_uri}:{n['port']}?alpn=h3&insecure=1#{name_enc}")
+
+    with open("sub.txt", "w", encoding="utf-8") as f: f.write("\n".join(uris))
+    with open("sub_base64.txt", "w", encoding="utf-8") as f:
+        f.write(base64.b64encode("\n".join(uris).encode()).decode())
+
+if __name__ == "__main__":
+    main()
