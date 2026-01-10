@@ -10,8 +10,8 @@ proxies:
     auth-str: dongtaiwang.com
     sni: apple.com
     skip-cert-verify: true
-    alpn: [h3]
     protocol: udp
+    alpn: [h3]
     up: "11 Mbps"
     down: "55 Mbps"
   - name: "Node_02"
@@ -21,8 +21,8 @@ proxies:
     auth-str: dongtaiwang.com
     sni: apple.com
     skip-cert-verify: true
-    alpn: [h3]
     protocol: udp
+    alpn: [h3]
     up: "11 Mbps"
     down: "55 Mbps"
   - name: "Node_03"
@@ -44,8 +44,8 @@ proxies:
     auth-str: dongtaiwang.com
     sni: apple.com
     skip-cert-verify: true
-    alpn: [h3]
     protocol: udp
+    alpn: [h3]
     up: "11 Mbps"
     down: "55 Mbps"
   - name: "Node_05"
@@ -55,8 +55,8 @@ proxies:
     auth-str: dongtaiwang.com
     sni: apple.com
     skip-cert-verify: true
-    alpn: [h3]
     protocol: udp
+    alpn: [h3]
     up: "11 Mbps"
     down: "55 Mbps"
   - name: "Node_06"
@@ -127,8 +127,8 @@ proxies:
     auth-str: dongtaiwang.com
     sni: apple.com
     skip-cert-verify: true
-    alpn: [h3]
     protocol: udp
+    alpn: [h3]
     up: "11 Mbps"
     down: "55 Mbps"
 
