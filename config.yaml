@@ -10,8 +10,8 @@ proxies:
     auth-str: dongtaiwang.com
     sni: apple.com
     skip-cert-verify: true
-    protocol: udp
     alpn: [h3]
+    protocol: udp
     up: "11 Mbps"
     down: "55 Mbps"
   - name: "Node_02"
@@ -21,8 +21,8 @@ proxies:
     auth-str: dongtaiwang.com
     sni: apple.com
     skip-cert-verify: true
-    protocol: udp
     alpn: [h3]
+    protocol: udp
     up: "11 Mbps"
     down: "55 Mbps"
   - name: "Node_03"
@@ -44,8 +44,8 @@ proxies:
     auth-str: dongtaiwang.com
     sni: apple.com
     skip-cert-verify: true
-    protocol: udp
     alpn: [h3]
+    protocol: udp
     up: "11 Mbps"
     down: "55 Mbps"
   - name: "Node_05"
@@ -55,8 +55,8 @@ proxies:
     auth-str: dongtaiwang.com
     sni: apple.com
     skip-cert-verify: true
-    protocol: udp
     alpn: [h3]
+    protocol: udp
     up: "11 Mbps"
     down: "55 Mbps"
   - name: "Node_06"
@@ -95,6 +95,7 @@ proxies:
     server: 157.254.223.48
     port: 33990
     password: dongtaiwang.com
+    transport: tcp
   - name: "Node_10"
     type: tuic
     server: 89.144.35.231
@@ -104,6 +105,7 @@ proxies:
     sni: apple.com
     skip-cert-verify: true
     alpn: [h3]
+    username: 66d37a65-7f6f-4e7c-a0f6-163bd917756a
     congestion-controller: bbr
     reduce-rtt: true
   - name: "Node_11"
@@ -115,6 +117,7 @@ proxies:
     sni: apple.com
     skip-cert-verify: true
     alpn: [h3]
+    username: 66d37a65-7f6f-4e7c-a0f6-163bd917756a
     congestion-controller: bbr
     reduce-rtt: true
   - name: "Node_12"
@@ -124,8 +127,8 @@ proxies:
     auth-str: dongtaiwang.com
     sni: apple.com
     skip-cert-verify: true
-    protocol: udp
     alpn: [h3]
+    protocol: udp
     up: "11 Mbps"
     down: "55 Mbps"
 
@@ -151,10 +154,7 @@ rules:
   - DOMAIN-SUFFIX,google.com,🚀 节点选择
   - DOMAIN-KEYWORD,github,🚀 节点选择
   - DOMAIN-KEYWORD,youtube,🚀 节点选择
-  - DOMAIN-KEYWORD,google,🚀 节点选择
-  - DOMAIN-SUFFIX,telegram.org,🚀 节点选择
   - DOMAIN-SUFFIX,cn,DIRECT
-  - DOMAIN-KEYWORD,baidu,DIRECT
   - GEOIP,LAN,DIRECT
   - GEOIP,CN,DIRECT
   - MATCH,🚀 节点选择
