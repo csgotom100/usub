@@ -5,13 +5,14 @@ import re
 def extract_real_nodes(text):
     real_nodes = []
     # 匹配 Clash 节点块：从 - name: 开始，直到遇到下一个 - name: 或配置大项
-    # 这个正则能完美提取包含 server, port, type 的完整块
-    pattern = r'-\s*name:[\s\S]+?server:\s*[^\s]+[\s\S]+?(?=\n-\s*name:|\n[a-z\-]+:|$)'
+    # 这个正则能处理各种缩进不规范的情况
+    pattern = r'(?:^|\n)-\s*name:[\s\S]+?(?=\n(?:-?\s*name:|[a-z\-]+:)|$)'
     matches = re.findall(pattern, text)
     
     for m in matches:
-        if "type:" in m and "server:" in m:
-            real_nodes.append(m.strip())
+        content = m.strip()
+        if "server:" in content and "type:" in content:
+            real_nodes.append(content)
             
     # 同时兼容提取标准链接 (vmess/ss等)
     links = re.findall(r'(?:vmess|ss|trojan|vless|ssr|hy2)://[^\s]+', text)
@@ -27,68 +28,64 @@ def main():
     all_nodes = []
     headers = {'User-Agent': 'clash-verge/1.0'}
 
-    print(f"🚀 正在提取真实节点...")
+    print(f"🚀 开始深度扫描节点...")
     for idx, url in enumerate(urls):
         try:
             r = requests.get(url, headers=headers, timeout=10)
             if r.status_code == 200:
                 nodes = extract_real_nodes(r.text)
-                all_nodes.extend(nodes)
-                if nodes: print(f"   [{idx+1}] ✅ 提取到 {len(nodes)} 个节点")
+                if nodes:
+                    all_nodes.extend(nodes)
+                    print(f"   [{idx+1}] ✅ 提取到 {len(nodes)} 个节点")
         except: continue
 
+    # 简单去重
     unique_nodes = list(set(all_nodes))
     if not unique_nodes:
-        print("❌ 没抓到任何有效节点")
+        print("❌ 未抓取到有效节点，请检查源链接")
         return
 
     print(f"--- 📊 汇总完成: 有效节点 {len(unique_nodes)} ---")
 
-    # 1. 生成 V2Ray 订阅 (链接格式)
+    # 1. 保存原始节点供调试
     with open("sub_v2ray.txt", "w", encoding="utf-8") as f:
-        f.write("\n".join([n for n in unique_nodes if "://" in n]))
+        f.write("\n\n".join(unique_nodes))
 
-    # 2. 【核心】手动构建标准的 Clash 配置文件
-    print(f"🎨 正在生成全手工 config.yaml...")
-    
-    # 提取节点名称用于分组
+    # 2. 构建 config.yaml
     node_names = []
-    proxy_list = []
+    proxy_blocks = []
     
     for node in unique_nodes:
-        if "- name:" in node:
-            # 提取 name: 后面的值
-            name_match = re.search(r'name:\s*([''"]?)(.*?)\1(?:\s|$)', node)
-            if name_match:
-                name = name_match.group(2)
-                node_names.append(name)
-                proxy_list.append(node)
-        elif "://" in node:
-            # 这种链接需要转换，暂时放在备注里或跳过
-            # 如果你有大量这种链接，我们可以以后再加转换逻辑
-            continue
+        # 清理节点内容：移除可能存在的旧缩进，统一由脚本添加
+        clean_node = node.lstrip('-').lstrip() 
+        # 尝试提取名字用于策略组
+        name_match = re.search(r'name:\s*["\']?(.*?)["\']?(?:\n|$)', clean_node)
+        if name_match:
+            name = name_match.group(1).strip()
+            # 这里的名字如果包含特殊字符，最好用引号包裹
+            node_names.append(name)
+            proxy_blocks.append(clean_node)
 
-    # 构造 Clash 模板
-    clash_config = [
+    clash_template = [
         "port: 7890",
         "socks-port: 7891",
         "allow-lan: true",
         "mode: rule",
         "log-level: info",
-        "external-controller: 127.0.0.1:9090",
-        "",
         "proxies:"
     ]
     
-    # 添加节点
-    for p in proxy_list:
-        # 确保缩进正确 (每个节点块前加两个空格)
-        indented_node = "  " + p.replace("\n", "\n  ")
-        clash_config.append(indented_node)
+    # 填充 proxies
+    for block in proxy_blocks:
+        # 每个节点块开头必须是 - name: 且带两个空格缩进
+        lines = block.splitlines()
+        clash_template.append(f"  - {lines[0]}") # 处理第一行 name
+        for line in lines[1:]:
+            clash_template.append(f"    {line.strip()}") # 其余行增加四个空格缩进
 
-    # 添加基础策略组
+    # 填充策略组
     if node_names:
-        clash_config.extend([
+        clash_template.extend([
             "",
             "proxy-groups:",
             "  - name: 🚀 节点选择",
@@ -96,11 +93,11 @@ def main():
             "    proxies:"
         ])
         for name in node_names:
-            clash_config.append(f"      - \"{name}\"")
-        clash_config.append("      - DIRECT")
+            clash_template.append(f"      - \"{name}\"")
+        clash_template.append("      - DIRECT")
 
-    # 添加基础规则
-    clash_config.extend([
+    # 填充规则
+    clash_template.extend([
         "",
         "rules:",
         "  - GEOIP,CN,DIRECT",
@@ -108,9 +105,9 @@ def main():
     ])
 
     with open("config.yaml", "w", encoding="utf-8") as f:
-        f.write("\n".join(clash_config))
+        f.write("\n".join(clash_template))
     
-    print("🎉 任务圆满完成！config.yaml 已生成，包含完整节点和策略组。")
+    print("🎉 config.yaml 注入成功！")
 
 if __name__ == "__main__":
     main()
