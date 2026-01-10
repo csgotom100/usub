@@ -74,14 +74,10 @@ def main():
         if unique_key in seen_keys or not host or not pw: continue
         seen_keys.add(unique_key)
 
-        # --- 统一协议识别 ---
         p_type = str(obj.get('type') or ('hysteria2' if 'bandwidth' in obj else 'vless')).lower()
-        
-        # --- 提取 TLS/Reality 参数 (模糊匹配) ---
         tls_data = obj.get('tls', {}) if isinstance(obj.get('tls'), dict) else {}
         ro = obj.get('reality-opts') or tls_data.get('reality') or obj.get('reality_settings') or obj.get('reality-settings') or {}
         
-        # 核心 Reality 参数提取
         pbk = ro.get('public-key') or ro.get('public_key') or obj.get('public-key') or obj.get('public_key') or ""
         sid = ro.get('short-id') or ro.get('short_id') or obj.get('short-id') or obj.get('short_id') or ""
         sni = obj.get('sni') or obj.get('servername') or tls_data.get('sni') or tls_data.get('servername') or ""
@@ -89,18 +85,15 @@ def main():
         geo = get_geo_tag(host, host)
         node_name = f"{geo}_{node_count:02d}_{time_tag}"
 
-        # --- Clash 配置处理 (标准化 tls 字段防止报错) ---
+        # --- Clash 配置处理 ---
         clash_node = obj.copy()
         clash_node.update({"name": node_name, "type": p_type, "port": main_port, "server": host})
-        
-        # 修复 Clash 报错：如果 tls 是 map，提取关键值后转为 bool
         if isinstance(clash_node.get('tls'), dict):
             clash_node['tls'] = True
             if sni: clash_node['sni'] = sni
             if pbk:
                 clash_node['reality-opts'] = {'public-key': pbk, 'short-id': sid}
                 clash_node['network'] = 'tcp'
-
         final_clash_proxies.append(clash_node)
 
         # --- 订阅 URI 生成 ---
@@ -112,11 +105,17 @@ def main():
         name_enc = urllib.parse.quote(node_name)
 
         if p_type == 'hysteria2' and is_json_source:
-            v2_p = {"insecure": "1", "sni": sni or "apple.com"}
+            target_sni = sni or "apple.com"
+            v2_p = {"insecure": "1", "sni": target_sni}
             hop_ports = srv_raw.split(',', 1)[1] if ',' in srv_raw else ""
             if hop_ports: v2_p["mport"] = hop_ports
+            
+            # v2rayN 格式
             final_v2ray_uris.append(f"hysteria2://{pw}@{srv_uri}:{main_port}?{urllib.parse.urlencode(v2_p)}#{name_enc}")
-            final_rocket_uris.append(f"hysteria2://{pw}@{srv_uri}:{main_port + (',' + hop_ports if hop_ports else '')}?sni={v2_p['sni']}&insecure=1#{name_enc}")
+            
+            # Shadowrocket 格式 (修复 TypeError: str(main_port) 确保类型一致)
+            rocket_port_str = f"{main_port},{hop_ports}" if hop_ports else str(main_port)
+            final_rocket_uris.append(f"hysteria2://{pw}@{srv_uri}:{rocket_port_str}?sni={target_sni}&insecure=1#{name_enc}")
         
         elif 'vless' in p_type:
             v_p = {"encryption": "none", "security": "reality" if pbk else "none", "sni": sni or "itunes.apple.com", "fp": "chrome", "type": "tcp"}
@@ -126,7 +125,7 @@ def main():
 
         node_count += 1
 
-    # --- 输出 ---
+    # --- 输出文件 ---
     with open("sub_v2ray.txt", "w", encoding="utf-8") as f: f.write("\n".join(final_v2ray_uris))
     with open("sub_rocket.txt", "w", encoding="utf-8") as f: f.write("\n".join(final_rocket_uris))
     with open("config.yaml", "w", encoding="utf-8") as f:
