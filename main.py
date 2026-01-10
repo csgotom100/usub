@@ -16,13 +16,14 @@ def get_geo_tag(text, server):
 def get_node_info(item):
     try:
         if not isinstance(item, dict): return None
+        # 1. 基础地址和端口提取
         srv = item.get('server') or item.get('add') or item.get('address')
         if not srv or str(srv).startswith('127.'): return None
         
         srv = str(srv).strip()
         port = str(item.get('port') or item.get('server_port') or "")
         
-        # IPv6 修复逻辑
+        # IPv6 格式修复
         if srv.count(':') > 1 and not srv.startswith('['):
             if srv.endswith(':'): srv = srv + "1"
             if not port and not any(c.isalpha() for c in srv.split(':')[-1]):
@@ -31,43 +32,39 @@ def get_node_info(item):
         port = re.findall(r'\d+', port)[0] if re.findall(r'\d+', port) else ""
         if not port: return None
 
-        # 密码/UUID 获取
-        pw = item.get('auth') or item.get('password') or item.get('uuid') or item.get('id')
+        # 2. 协议判断 - 提升 HY2 权重
+        p_raw = str(item.get('type') or item.get('protocol') or "").lower()
         
+        # 提取关键字段
+        pw = item.get('password') or item.get('auth') or item.get('uuid') or item.get('id')
         tls = item.get('tls', {}) if isinstance(item.get('tls'), dict) else {}
         sni = item.get('servername') or item.get('sni') or tls.get('server_name') or ""
+        
+        # 判定 Hysteria2 的标志：明确有 hy2 字样，或者同时有 auth 和 up/down
+        if 'hy2' in p_raw or 'hysteria2' in p_raw or ('auth' in item and ('up' in item or 'down' in item)):
+            p = 'hysteria2'
+        elif 'tuic' in p_raw:
+            p = 'tuic'
+        elif 'anytls' in p_raw:
+            p = 'anytls'
+        else:
+            p = 'vless'
+
+        # 3. 提取特定协议参数
         pbk = item.get('public-key') or item.get('public_key') or tls.get('reality', {}).get('public_key') or item.get('reality-opts', {}).get('public-key') or ""
         sid = item.get('short-id') or item.get('short_id') or tls.get('reality', {}).get('short_id') or item.get('reality-opts', {}).get('short-id') or ""
-
+        
         path = ""
         for k in ['path', 'xhttp-opts', 'xhttpSettings', 'transport']:
             v = item.get(k)
             if isinstance(v, str) and v.startswith('/'): path = v
             elif isinstance(v, dict) and v.get('path'): path = v.get('path')
-        
-        flow = item.get('flow') or ""
-
-        # --- 增强协议判断逻辑 ---
-        p_raw = str(item.get('type') or item.get('protocol') or "").lower()
-        if 'hy2' in p_raw or 'hysteria2' in p_raw: 
-            p = 'hysteria2'
-        elif 'tuic' in p_raw: 
-            p = 'tuic'
-        elif 'anytls' in p_raw: 
-            p = 'anytls'
-        elif 'vless' in p_raw or 'uuid' in item or 'id' in item:
-            p = 'vless'
-        elif 'auth' in item: # 补充兜底判断 Hysteria2
-            p = 'hysteria2'
-        else:
-            return None
 
         if not pw and p != 'anytls': return None
 
         return {
             "server": srv.strip('[]'), "port": port, "type": p, "pw": pw,
-            "sni": sni, "pbk": pbk, "sid": sid, "path": path, "flow": flow,
-            "name": item.get('tag') or item.get('name') or ""
+            "sni": sni, "pbk": pbk, "sid": sid, "path": path, "name": item.get('tag') or item.get('name') or ""
         }
     except: return None
 
@@ -81,8 +78,10 @@ def main():
         try:
             r = requests.get(url, timeout=15, verify=False)
             content = r.text.strip()
-            # 兼容 JSON 和 YAML
+            # 这里增加了对内容是否为空的判断
+            if not content: continue
             data = json.loads(content) if content.startswith(('{', '[')) else yaml.safe_load(content)
+            
             def walk(obj):
                 if isinstance(obj, dict):
                     res = get_node_info(obj)
@@ -93,7 +92,7 @@ def main():
             walk(data)
         except: continue
 
-    # 严格去重：防止 server+port+type 重复
+    # 4. 改进去重逻辑：排除名字干扰，只看核心连接属性
     unique = []
     seen = set()
     for n in nodes:
@@ -101,23 +100,26 @@ def main():
         if key not in seen:
             unique.append(n); seen.add(key)
 
-    # 排序：AnyTLS 优先
-    unique.sort(key=lambda x: 0 if x['type'] == 'anytls' else 1)
-    
+    # 5. 排序逻辑：将 HY2 和 AnyTLS 放在最前面
+    def sort_key(x):
+        if x['type'] == 'anytls': return 0
+        if x['type'] == 'hysteria2': return 1
+        return 2
+    unique.sort(key=sort_key)
+
     uris = []
     clash_proxies = []
     time_tag = get_beijing_time()
     
     for i, n in enumerate(unique, 1):
         geo = get_geo_tag(n['name'] + n['sni'] + n['server'], n['server'])
-        # 统一名称格式
         name = f"{geo}[{n['type'].upper()}] {i:02d} ({time_tag})"
         name_enc = urllib.parse.quote(name)
         srv_uri = f"[{n['server']}]" if ':' in n['server'] else n['server']
         
-        # 1. 生成 URI (用于 sub.txt)
+        # 生成 URI (用于 sub.txt)
         if n['type'] == 'vless':
-            params = {"security": "reality" if n['pbk'] else "none", "sni": n['sni'] or "apple.com", "pbk": n['pbk'], "sid": n['sid'], "flow": n['flow']}
+            params = {"security": "reality" if n['pbk'] else "none", "sni": n['sni'] or "apple.com", "pbk": n['pbk'], "sid": n['sid']}
             if n['path']: params.update({"type": "xhttp", "path": n['path']})
             uris.append(f"vless://{n['pw']}@{srv_uri}:{n['port']}?{urllib.parse.urlencode({k:v for k,v in params.items() if v})}#{name_enc}")
         elif n['type'] == 'hysteria2':
@@ -127,7 +129,7 @@ def main():
         elif n['type'] == 'tuic':
             uris.append(f"tuic://{n['pw']}@{srv_uri}:{n['port']}?sni={n['sni'] or 'apple.com'}&alpn=h3#{name_enc}")
 
-        # 2. 生成 Clash 节点
+        # 生成 Clash 节点
         if n['type'] in ['vless', 'hysteria2', 'tuic']:
             p = {"name": name, "server": n['server'], "port": int(n['port'])}
             if n['type'] == 'vless':
@@ -145,7 +147,6 @@ def main():
     with open("sub_base64.txt", "w", encoding="utf-8") as f:
         f.write(base64.b64encode("\n".join(uris).encode()).decode())
     
-    # 生成完整 Clash 配置
     clash_config = {
         "ipv6": True,
         "proxies": clash_proxies,
