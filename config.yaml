@@ -5,9 +5,9 @@ log-level: info
 proxies:
   - name: "Node_01"
     type: hysteria
-    server: 89.144.35.30
+    server: ip1.758733.xyz
     port: 23008
-    auth-str: dongtaiwang.com
+    auth-str: alvin9999.com
     sni: apple.com
     skip-cert-verify: true
     alpn: [h3]
@@ -58,9 +58,9 @@ proxies:
     down: "55 Mbps"
   - name: "Node_06"
     type: hysteria
-    server: 89.144.35.30
+    server: ip1.758733.xyz
     port: 23008
-    auth-str: dongtaiwang.com
+    auth-str: alvin9999.com
     sni: apple.com
     skip-cert-verify: true
     alpn: [h3]
