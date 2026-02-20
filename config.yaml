@@ -4,16 +4,14 @@ mode: rule
 log-level: info
 proxies:
   - name: "Node_01"
-    type: hysteria
+    type: tuic
     server: ip1.758733.xyz
-    port: 23008
-    auth-str: alvin9999.com
-    sni: apple.com
-    skip-cert-verify: true
+    port: 10088
+    uuid: 9bbd1f42-7ae7-4239-bd10-a68de95e3295
+    password: dongtaiwang.com
+    username: 9bbd1f42-7ae7-4239-bd10-a68de95e3295
     alpn: [h3]
-    protocol: udp
-    up: "11 Mbps"
-    down: "55 Mbps"
+    reduce-rtt: true
   - name: "Node_02"
     type: vless
     server: 2001:bc8:32d7:181::2
@@ -51,16 +49,14 @@ proxies:
       public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
       short-id: 8ef4455ba637425b
   - name: "Node_06"
-    type: hysteria
+    type: tuic
     server: ip1.758733.xyz
-    port: 23008
-    auth-str: alvin9999.com
-    sni: apple.com
-    skip-cert-verify: true
+    port: 10088
+    uuid: 9bbd1f42-7ae7-4239-bd10-a68de95e3295
+    password: dongtaiwang.com
+    username: 9bbd1f42-7ae7-4239-bd10-a68de95e3295
     alpn: [h3]
-    protocol: udp
-    up: "11 Mbps"
-    down: "55 Mbps"
+    reduce-rtt: true
   - name: "Node_07"
     type: vless
     server: 2001:bc8:32d7:181::2
