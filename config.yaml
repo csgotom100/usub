@@ -156,17 +156,23 @@ proxies:
       public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
       short-id: 8ef4455ba637425b
   - name: "Node_18"
-    type: mieru
+    type: tuic
     server: 157.254.223.48
-    port: 33990
-    password: dongtaiwang.com
-    transport: tcp
+    port: 11540
+    uuid: 6845cb43-4b8d-49e8-a011-1051d6c4d2ae
+    password: 6845cb43-4b8d-49e8-a011-1051d6c4d2ae
+    username: 6845cb43-4b8d-49e8-a011-1051d6c4d2ae
+    alpn: [h3]
+    reduce-rtt: true
   - name: "Node_19"
-    type: mieru
+    type: tuic
     server: 157.254.223.48
-    port: 33990
-    password: dongtaiwang.com
-    transport: tcp
+    port: 11540
+    uuid: 6845cb43-4b8d-49e8-a011-1051d6c4d2ae
+    password: 6845cb43-4b8d-49e8-a011-1051d6c4d2ae
+    username: 6845cb43-4b8d-49e8-a011-1051d6c4d2ae
+    alpn: [h3]
+    reduce-rtt: true
   - name: "Node_20"
     type: hysteria
     server: 2a14:7584:d097::a
