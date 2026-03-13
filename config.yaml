@@ -51,26 +51,10 @@ proxies:
       public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
       short-id: 8ef4455ba637425b
   - name: "Node_06"
-    type: tuic
-    server: ip1.758733.xyz
-    port: 10088
-    uuid: 9bbd1f42-7ae7-4239-bd10-a68de95e3295
-    password: dongtaiwang.com
-    username: 9bbd1f42-7ae7-4239-bd10-a68de95e3295
-    alpn: [h3]
-    reduce-rtt: true
+    type: anytls
+    server: 45.221.98.14
+    port: 59901
   - name: "Node_07"
-    type: hysteria
-    server: ip1.758733.xyz
-    port: 23008
-    auth-str: alvin9999.com
-    sni: apple.com
-    skip-cert-verify: true
-    alpn: [h3]
-    protocol: udp
-    up: "11 Mbps"
-    down: "55 Mbps"
-  - name: "Node_08"
     type: vless
     server: 2001:bc8:32d7:181::3
     port: 17401
@@ -79,9 +63,18 @@ proxies:
     reality-opts:
       public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
       short-id: 8ef4455ba637425b
+  - name: "Node_08"
+    type: vless
+    server: 2001:bc8:32d7:181::2
+    port: 17401
+    uuid: add14a5b-f648-4423-8a1f-8b8f54c0daef
+    tls: true
+    reality-opts:
+      public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
+      short-id: 8ef4455ba637425b
   - name: "Node_09"
     type: vless
-    server: 2001:bc8:32d7:181::4
+    server: 2001:bc8:32d7:181::3
     port: 17401
     uuid: add14a5b-f648-4423-8a1f-8b8f54c0daef
     tls: true
@@ -90,7 +83,7 @@ proxies:
       short-id: 8ef4455ba637425b
   - name: "Node_10"
     type: vless
-    server: 2001:bc8:32d7:181::5
+    server: 2001:bc8:32d7:181::3
     port: 17401
     uuid: add14a5b-f648-4423-8a1f-8b8f54c0daef
     tls: true
@@ -98,9 +91,14 @@ proxies:
       public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
       short-id: 8ef4455ba637425b
   - name: "Node_11"
-    type: anytls
-    server: 45.221.98.14
-    port: 59901
+    type: vless
+    server: 2001:bc8:32d7:181::2
+    port: 17401
+    uuid: add14a5b-f648-4423-8a1f-8b8f54c0daef
+    tls: true
+    reality-opts:
+      public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
+      short-id: 8ef4455ba637425b
   - name: "Node_12"
     type: vless
     server: 2001:bc8:32d7:181::3
@@ -111,102 +109,57 @@ proxies:
       public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
       short-id: 8ef4455ba637425b
   - name: "Node_13"
-    type: vless
-    server: 2001:bc8:32d7:181::2
-    port: 17401
-    uuid: add14a5b-f648-4423-8a1f-8b8f54c0daef
-    tls: true
-    reality-opts:
-      public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
-      short-id: 8ef4455ba637425b
+    type: tuic
+    server: 157.254.223.48
+    port: 11540
+    uuid: 6845cb43-4b8d-49e8-a011-1051d6c4d2ae
+    password: 6845cb43-4b8d-49e8-a011-1051d6c4d2ae
+    username: 6845cb43-4b8d-49e8-a011-1051d6c4d2ae
+    alpn: [h3]
+    reduce-rtt: true
   - name: "Node_14"
-    type: vless
-    server: 2001:bc8:32d7:181::3
-    port: 17401
-    uuid: add14a5b-f648-4423-8a1f-8b8f54c0daef
-    tls: true
-    reality-opts:
-      public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
-      short-id: 8ef4455ba637425b
+    type: tuic
+    server: 157.254.223.48
+    port: 11540
+    uuid: 6845cb43-4b8d-49e8-a011-1051d6c4d2ae
+    password: 6845cb43-4b8d-49e8-a011-1051d6c4d2ae
+    username: 6845cb43-4b8d-49e8-a011-1051d6c4d2ae
+    alpn: [h3]
+    reduce-rtt: true
   - name: "Node_15"
-    type: vless
-    server: 2001:bc8:32d7:181::3
-    port: 17401
-    uuid: add14a5b-f648-4423-8a1f-8b8f54c0daef
-    tls: true
-    reality-opts:
-      public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
-      short-id: 8ef4455ba637425b
+    type: hysteria
+    server: 2a14:7584:d097::a
+    port: 54177
+    auth-str: dongtaiwang.com
+    sni: apple.com
+    skip-cert-verify: true
+    alpn: [h3]
+    protocol: udp
+    up: "11 Mbps"
+    down: "55 Mbps"
   - name: "Node_16"
-    type: vless
-    server: 2001:bc8:32d7:181::2
-    port: 17401
-    uuid: add14a5b-f648-4423-8a1f-8b8f54c0daef
-    tls: true
-    reality-opts:
-      public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
-      short-id: 8ef4455ba637425b
+    type: hysteria
+    server: 2a14:7584:d097::a
+    port: 54177
+    auth-str: dongtaiwang.com
+    sni: apple.com
+    skip-cert-verify: true
+    alpn: [h3]
+    protocol: udp
+    up: "11 Mbps"
+    down: "55 Mbps"
   - name: "Node_17"
-    type: vless
-    server: 2001:bc8:32d7:181::3
-    port: 17401
-    uuid: add14a5b-f648-4423-8a1f-8b8f54c0daef
-    tls: true
-    reality-opts:
-      public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
-      short-id: 8ef4455ba637425b
+    type: hysteria
+    server: 2a14:7584:d097::a
+    port: 54177
+    auth-str: dongtaiwang.com
+    sni: apple.com
+    skip-cert-verify: true
+    alpn: [h3]
+    protocol: udp
+    up: "11 Mbps"
+    down: "55 Mbps"
   - name: "Node_18"
-    type: tuic
-    server: 157.254.223.48
-    port: 11540
-    uuid: 6845cb43-4b8d-49e8-a011-1051d6c4d2ae
-    password: 6845cb43-4b8d-49e8-a011-1051d6c4d2ae
-    username: 6845cb43-4b8d-49e8-a011-1051d6c4d2ae
-    alpn: [h3]
-    reduce-rtt: true
-  - name: "Node_19"
-    type: tuic
-    server: 157.254.223.48
-    port: 11540
-    uuid: 6845cb43-4b8d-49e8-a011-1051d6c4d2ae
-    password: 6845cb43-4b8d-49e8-a011-1051d6c4d2ae
-    username: 6845cb43-4b8d-49e8-a011-1051d6c4d2ae
-    alpn: [h3]
-    reduce-rtt: true
-  - name: "Node_20"
-    type: hysteria
-    server: 2a14:7584:d097::a
-    port: 54177
-    auth-str: dongtaiwang.com
-    sni: apple.com
-    skip-cert-verify: true
-    alpn: [h3]
-    protocol: udp
-    up: "11 Mbps"
-    down: "55 Mbps"
-  - name: "Node_21"
-    type: hysteria
-    server: 2a14:7584:d097::a
-    port: 54177
-    auth-str: dongtaiwang.com
-    sni: apple.com
-    skip-cert-verify: true
-    alpn: [h3]
-    protocol: udp
-    up: "11 Mbps"
-    down: "55 Mbps"
-  - name: "Node_22"
-    type: hysteria
-    server: 2a14:7584:d097::a
-    port: 54177
-    auth-str: dongtaiwang.com
-    sni: apple.com
-    skip-cert-verify: true
-    alpn: [h3]
-    protocol: udp
-    up: "11 Mbps"
-    down: "55 Mbps"
-  - name: "Node_23"
     type: hysteria
     server: 2a14:7584:d097::a
     port: 54177
@@ -240,11 +193,6 @@ proxy-groups:
       - "Node_16"
       - "Node_17"
       - "Node_18"
-      - "Node_19"
-      - "Node_20"
-      - "Node_21"
-      - "Node_22"
-      - "Node_23"
       - DIRECT
 
 rules:
