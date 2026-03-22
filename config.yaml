@@ -107,14 +107,16 @@ proxies:
     alpn: [h3]
     reduce-rtt: true
   - name: "Node_12"
-    type: vless
-    server: 2001:bc8:32d7:181::3
-    port: 17401
-    uuid: add14a5b-f648-4423-8a1f-8b8f54c0daef
-    tls: true
-    reality-opts:
-      public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
-      short-id: 8ef4455ba637425b
+    type: hysteria
+    server: 195.154.200.13
+    port: 45008
+    auth-str: dongtaiwang.com
+    sni: apple.com
+    skip-cert-verify: true
+    alpn: [h3]
+    protocol: udp
+    up: "11 Mbps"
+    down: "55 Mbps"
   - name: "Node_13"
     type: vless
     server: 2001:bc8:32d7:181::2
@@ -134,14 +136,16 @@ proxies:
       public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
       short-id: 8ef4455ba637425b
   - name: "Node_15"
-    type: vless
-    server: 2001:bc8:32d7:181::3
-    port: 17401
-    uuid: add14a5b-f648-4423-8a1f-8b8f54c0daef
-    tls: true
-    reality-opts:
-      public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
-      short-id: 8ef4455ba637425b
+    type: hysteria
+    server: 195.154.200.13
+    port: 45008
+    auth-str: dongtaiwang.com
+    sni: apple.com
+    skip-cert-verify: true
+    alpn: [h3]
+    protocol: udp
+    up: "11 Mbps"
+    down: "55 Mbps"
   - name: "Node_16"
     type: vless
     server: 2001:bc8:32d7:181::2
