@@ -98,9 +98,14 @@ proxies:
       public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
       short-id: 8ef4455ba637425b
   - name: "Node_11"
-    type: anytls
-    server: 45.221.98.14
-    port: 59901
+    type: tuic
+    server: 157.254.223.24
+    port: 41122
+    uuid: 2aec7bfd-4178-4ee5-9bc5-fe4c241fdc15
+    password: 2aec7bfd-4178-4ee5-9bc5-fe4c241fdc15
+    username: 2aec7bfd-4178-4ee5-9bc5-fe4c241fdc15
+    alpn: [h3]
+    reduce-rtt: true
   - name: "Node_12"
     type: vless
     server: 2001:bc8:32d7:181::3
