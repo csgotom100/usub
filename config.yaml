@@ -13,44 +13,6 @@ proxies:
     alpn: [h3]
     reduce-rtt: true
   - name: "Node_02"
-    type: hysteria
-    server: ip1.758733.xyz
-    port: 23008
-    auth-str: alvin9999.com
-    sni: apple.com
-    skip-cert-verify: true
-    alpn: [h3]
-    protocol: udp
-    up: "11 Mbps"
-    down: "55 Mbps"
-  - name: "Node_03"
-    type: vless
-    server: 2001:bc8:32d7:181::3
-    port: 17401
-    uuid: add14a5b-f648-4423-8a1f-8b8f54c0daef
-    tls: true
-    reality-opts:
-      public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
-      short-id: 8ef4455ba637425b
-  - name: "Node_04"
-    type: vless
-    server: 2001:bc8:32d7:181::4
-    port: 17401
-    uuid: add14a5b-f648-4423-8a1f-8b8f54c0daef
-    tls: true
-    reality-opts:
-      public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
-      short-id: 8ef4455ba637425b
-  - name: "Node_05"
-    type: vless
-    server: 2001:bc8:32d7:181::5
-    port: 17401
-    uuid: add14a5b-f648-4423-8a1f-8b8f54c0daef
-    tls: true
-    reality-opts:
-      public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
-      short-id: 8ef4455ba637425b
-  - name: "Node_06"
     type: tuic
     server: ip1.758733.xyz
     port: 10088
@@ -59,45 +21,7 @@ proxies:
     username: 9bbd1f42-7ae7-4239-bd10-a68de95e3295
     alpn: [h3]
     reduce-rtt: true
-  - name: "Node_07"
-    type: hysteria
-    server: ip1.758733.xyz
-    port: 23008
-    auth-str: alvin9999.com
-    sni: apple.com
-    skip-cert-verify: true
-    alpn: [h3]
-    protocol: udp
-    up: "11 Mbps"
-    down: "55 Mbps"
-  - name: "Node_08"
-    type: vless
-    server: 2001:bc8:32d7:181::3
-    port: 17401
-    uuid: add14a5b-f648-4423-8a1f-8b8f54c0daef
-    tls: true
-    reality-opts:
-      public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
-      short-id: 8ef4455ba637425b
-  - name: "Node_09"
-    type: vless
-    server: 2001:bc8:32d7:181::4
-    port: 17401
-    uuid: add14a5b-f648-4423-8a1f-8b8f54c0daef
-    tls: true
-    reality-opts:
-      public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
-      short-id: 8ef4455ba637425b
-  - name: "Node_10"
-    type: vless
-    server: 2001:bc8:32d7:181::5
-    port: 17401
-    uuid: add14a5b-f648-4423-8a1f-8b8f54c0daef
-    tls: true
-    reality-opts:
-      public-key: IXcXrT_Y0ATTZlGOhPnSmKo-cuGr4yMKV9Rz4-nA3yU
-      short-id: 8ef4455ba637425b
-  - name: "Node_11"
+  - name: "Node_03"
     type: tuic
     server: 163.172.116.154
     port: 33887
@@ -106,7 +30,7 @@ proxies:
     username: 9adb384a-0f16-4501-a8f3-b6b2556fce87
     alpn: [h3]
     reduce-rtt: true
-  - name: "Node_12"
+  - name: "Node_04"
     type: tuic
     server: 157.254.223.24
     port: 41122
@@ -115,7 +39,7 @@ proxies:
     username: 2aec7bfd-4178-4ee5-9bc5-fe4c241fdc15
     alpn: [h3]
     reduce-rtt: true
-  - name: "Node_13"
+  - name: "Node_05"
     type: tuic
     server: 157.254.223.24
     port: 41122
@@ -124,7 +48,7 @@ proxies:
     username: 2aec7bfd-4178-4ee5-9bc5-fe4c241fdc15
     alpn: [h3]
     reduce-rtt: true
-  - name: "Node_14"
+  - name: "Node_06"
     type: tuic
     server: 157.254.223.48
     port: 11540
@@ -133,7 +57,7 @@ proxies:
     username: 6845cb43-4b8d-49e8-a011-1051d6c4d2ae
     alpn: [h3]
     reduce-rtt: true
-  - name: "Node_15"
+  - name: "Node_07"
     type: tuic
     server: 157.254.223.48
     port: 11540
@@ -142,7 +66,7 @@ proxies:
     username: 6845cb43-4b8d-49e8-a011-1051d6c4d2ae
     alpn: [h3]
     reduce-rtt: true
-  - name: "Node_16"
+  - name: "Node_08"
     type: hysteria
     server: 2a14:7584:d097::a
     port: 54177
@@ -153,7 +77,7 @@ proxies:
     protocol: udp
     up: "11 Mbps"
     down: "55 Mbps"
-  - name: "Node_17"
+  - name: "Node_09"
     type: hysteria
     server: 2a14:7584:d097::a
     port: 54177
@@ -164,7 +88,7 @@ proxies:
     protocol: udp
     up: "11 Mbps"
     down: "55 Mbps"
-  - name: "Node_18"
+  - name: "Node_10"
     type: hysteria
     server: 2a14:7584:d097::a
     port: 54177
@@ -175,7 +99,7 @@ proxies:
     protocol: udp
     up: "11 Mbps"
     down: "55 Mbps"
-  - name: "Node_19"
+  - name: "Node_11"
     type: hysteria
     server: 2a14:7584:d097::a
     port: 54177
@@ -202,14 +126,6 @@ proxy-groups:
       - "Node_09"
       - "Node_10"
       - "Node_11"
-      - "Node_12"
-      - "Node_13"
-      - "Node_14"
-      - "Node_15"
-      - "Node_16"
-      - "Node_17"
-      - "Node_18"
-      - "Node_19"
       - DIRECT
 
 rules:
