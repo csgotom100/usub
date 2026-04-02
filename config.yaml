@@ -50,20 +50,20 @@ proxies:
     reduce-rtt: true
   - name: "Node_06"
     type: tuic
-    server: 157.254.223.48
-    port: 11540
-    uuid: 6845cb43-4b8d-49e8-a011-1051d6c4d2ae
-    password: 6845cb43-4b8d-49e8-a011-1051d6c4d2ae
-    username: 6845cb43-4b8d-49e8-a011-1051d6c4d2ae
+    server: 5.178.101.117
+    port: 30006
+    uuid: 36106e0f-4d9a-470b-a3fd-535f3b7a1e92
+    password: dongtaiwang.com
+    username: 36106e0f-4d9a-470b-a3fd-535f3b7a1e92
     alpn: [h3]
     reduce-rtt: true
   - name: "Node_07"
     type: tuic
-    server: 157.254.223.48
-    port: 11540
-    uuid: 6845cb43-4b8d-49e8-a011-1051d6c4d2ae
-    password: 6845cb43-4b8d-49e8-a011-1051d6c4d2ae
-    username: 6845cb43-4b8d-49e8-a011-1051d6c4d2ae
+    server: 5.178.101.117
+    port: 30006
+    uuid: 36106e0f-4d9a-470b-a3fd-535f3b7a1e92
+    password: dongtaiwang.com
+    username: 36106e0f-4d9a-470b-a3fd-535f3b7a1e92
     alpn: [h3]
     reduce-rtt: true
   - name: "Node_08"
