@@ -32,20 +32,20 @@ proxies:
     reduce-rtt: true
   - name: "Node_04"
     type: tuic
-    server: 157.254.223.24
-    port: 41122
-    uuid: 2aec7bfd-4178-4ee5-9bc5-fe4c241fdc15
-    password: 2aec7bfd-4178-4ee5-9bc5-fe4c241fdc15
-    username: 2aec7bfd-4178-4ee5-9bc5-fe4c241fdc15
+    server: 178.18.147.199
+    port: 42487
+    uuid: b35b50d1-7830-4a68-94db-349c2d2f8e43
+    password: b35b50d1-7830-4a68-94db-349c2d2f8e43
+    username: b35b50d1-7830-4a68-94db-349c2d2f8e43
     alpn: [h3]
     reduce-rtt: true
   - name: "Node_05"
     type: tuic
-    server: 157.254.223.24
-    port: 41122
-    uuid: 2aec7bfd-4178-4ee5-9bc5-fe4c241fdc15
-    password: 2aec7bfd-4178-4ee5-9bc5-fe4c241fdc15
-    username: 2aec7bfd-4178-4ee5-9bc5-fe4c241fdc15
+    server: 178.18.147.199
+    port: 42487
+    uuid: b35b50d1-7830-4a68-94db-349c2d2f8e43
+    password: b35b50d1-7830-4a68-94db-349c2d2f8e43
+    username: b35b50d1-7830-4a68-94db-349c2d2f8e43
     alpn: [h3]
     reduce-rtt: true
   - name: "Node_06"
