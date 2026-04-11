@@ -14,6 +14,24 @@ proxies:
     reduce-rtt: true
   - name: "Node_02"
     type: tuic
+    server: ip1.758733.xyz
+    port: 10088
+    uuid: 9bbd1f42-7ae7-4239-bd10-a68de95e3295
+    password: dongtaiwang.com
+    username: 9bbd1f42-7ae7-4239-bd10-a68de95e3295
+    alpn: [h3]
+    reduce-rtt: true
+  - name: "Node_03"
+    type: tuic
+    server: 163.172.116.154
+    port: 33887
+    uuid: 9adb384a-0f16-4501-a8f3-b6b2556fce87
+    password: dongtaiwang.com
+    username: 9adb384a-0f16-4501-a8f3-b6b2556fce87
+    alpn: [h3]
+    reduce-rtt: true
+  - name: "Node_04"
+    type: tuic
     server: 178.18.147.199
     port: 42487
     uuid: b35b50d1-7830-4a68-94db-349c2d2f8e43
@@ -21,7 +39,16 @@ proxies:
     username: b35b50d1-7830-4a68-94db-349c2d2f8e43
     alpn: [h3]
     reduce-rtt: true
-  - name: "Node_03"
+  - name: "Node_05"
+    type: tuic
+    server: 178.18.147.199
+    port: 42487
+    uuid: b35b50d1-7830-4a68-94db-349c2d2f8e43
+    password: b35b50d1-7830-4a68-94db-349c2d2f8e43
+    username: b35b50d1-7830-4a68-94db-349c2d2f8e43
+    alpn: [h3]
+    reduce-rtt: true
+  - name: "Node_06"
     type: tuic
     server: 5.178.101.117
     port: 30006
@@ -30,7 +57,16 @@ proxies:
     username: 36106e0f-4d9a-470b-a3fd-535f3b7a1e92
     alpn: [h3]
     reduce-rtt: true
-  - name: "Node_04"
+  - name: "Node_07"
+    type: tuic
+    server: 5.178.101.117
+    port: 30006
+    uuid: 36106e0f-4d9a-470b-a3fd-535f3b7a1e92
+    password: dongtaiwang.com
+    username: 36106e0f-4d9a-470b-a3fd-535f3b7a1e92
+    alpn: [h3]
+    reduce-rtt: true
+  - name: "Node_08"
     type: hysteria
     server: 2a14:7584:d097::a
     port: 54177
@@ -41,7 +77,7 @@ proxies:
     protocol: udp
     up: "11 Mbps"
     down: "55 Mbps"
-  - name: "Node_05"
+  - name: "Node_09"
     type: hysteria
     server: 2a14:7584:d097::a
     port: 54177
@@ -52,7 +88,18 @@ proxies:
     protocol: udp
     up: "11 Mbps"
     down: "55 Mbps"
-  - name: "Node_06"
+  - name: "Node_10"
+    type: hysteria
+    server: 2a14:7584:d097::a
+    port: 54177
+    auth-str: dongtaiwang.com
+    sni: apple.com
+    skip-cert-verify: true
+    alpn: [h3]
+    protocol: udp
+    up: "11 Mbps"
+    down: "55 Mbps"
+  - name: "Node_11"
     type: hysteria
     server: 2a14:7584:d097::a
     port: 54177
@@ -74,6 +121,11 @@ proxy-groups:
       - "Node_04"
       - "Node_05"
       - "Node_06"
+      - "Node_07"
+      - "Node_08"
+      - "Node_09"
+      - "Node_10"
+      - "Node_11"
       - DIRECT
 
 rules:
