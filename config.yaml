@@ -143,17 +143,6 @@ proxies:
     protocol: udp
     up: "11 Mbps"
     down: "55 Mbps"
-  - name: "Node_15"
-    type: hysteria
-    server: 2a14:7584:d097::a
-    port: 54177
-    auth-str: dongtaiwang.com
-    sni: apple.com
-    skip-cert-verify: true
-    alpn: [h3]
-    protocol: udp
-    up: "11 Mbps"
-    down: "55 Mbps"
 
 proxy-groups:
   - name: 🚀 节点选择
@@ -173,7 +162,6 @@ proxy-groups:
       - "Node_12"
       - "Node_13"
       - "Node_14"
-      - "Node_15"
       - DIRECT
 
 rules:
