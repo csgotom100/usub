@@ -85,22 +85,15 @@ proxies:
     up: "11 Mbps"
     down: "55 Mbps"
   - name: "Node_09"
-    type: hysteria
-    server: 2a14:7584:d097::a
-    port: 54177
-    auth-str: dongtaiwang.com
-    sni: apple.com
-    skip-cert-verify: true
-    alpn: [h3]
-    protocol: udp
-    up: "11 Mbps"
-    down: "55 Mbps"
+    type: select
+    server: None
+    port: None
   - name: "Node_10"
     type: hysteria
-    server: 2a14:7584:d097::a
-    port: 54177
-    auth-str: dongtaiwang.com
-    sni: apple.com
+    server: 62.210.70.191
+    port: 23556
+    auth-str: github.com/Alvin9999-newpac/fanqiang
+    sni: bing.com
     skip-cert-verify: true
     alpn: [h3]
     protocol: udp
@@ -108,6 +101,17 @@ proxies:
     down: "55 Mbps"
   - name: "Node_11"
     type: hysteria
+    server: 62.210.70.191
+    port: 23556
+    auth-str: github.com/Alvin9999-newpac/fanqiang
+    sni: bing.com
+    skip-cert-verify: true
+    alpn: [h3]
+    protocol: udp
+    up: "11 Mbps"
+    down: "55 Mbps"
+  - name: "Node_12"
+    type: hysteria
     server: 2a14:7584:d097::a
     port: 54177
     auth-str: dongtaiwang.com
@@ -117,7 +121,29 @@ proxies:
     protocol: udp
     up: "11 Mbps"
     down: "55 Mbps"
-  - name: "Node_12"
+  - name: "Node_13"
+    type: hysteria
+    server: 2a14:7584:d097::a
+    port: 54177
+    auth-str: dongtaiwang.com
+    sni: apple.com
+    skip-cert-verify: true
+    alpn: [h3]
+    protocol: udp
+    up: "11 Mbps"
+    down: "55 Mbps"
+  - name: "Node_14"
+    type: hysteria
+    server: 2a14:7584:d097::a
+    port: 54177
+    auth-str: dongtaiwang.com
+    sni: apple.com
+    skip-cert-verify: true
+    alpn: [h3]
+    protocol: udp
+    up: "11 Mbps"
+    down: "55 Mbps"
+  - name: "Node_15"
     type: hysteria
     server: 2a14:7584:d097::a
     port: 54177
@@ -145,6 +171,9 @@ proxy-groups:
       - "Node_10"
       - "Node_11"
       - "Node_12"
+      - "Node_13"
+      - "Node_14"
+      - "Node_15"
       - DIRECT
 
 rules:
