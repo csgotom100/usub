@@ -16,8 +16,8 @@ proxies:
     down: "55 Mbps"
   - name: "Node_02"
     type: hysteria
-    server: 163.172.117.163
-    port: 36699
+    server: 62.210.70.191
+    port: 24667
     auth-str: dongtaiwang.com
     sni: bing.com
     skip-cert-verify: true
@@ -27,9 +27,9 @@ proxies:
     down: "55 Mbps"
   - name: "Node_03"
     type: hysteria
-    server: 62.210.70.191
-    port: 23556
-    auth-str: github.com/Alvin9999-newpac/fanqiang
+    server: 163.172.117.163
+    port: 36699
+    auth-str: dongtaiwang.com
     sni: bing.com
     skip-cert-verify: true
     alpn: [h3]
@@ -37,10 +37,6 @@ proxies:
     up: "11 Mbps"
     down: "55 Mbps"
   - name: "Node_04"
-    type: select
-    server: None
-    port: None
-  - name: "Node_05"
     type: hysteria
     server: 62.210.70.191
     port: 23556
@@ -51,6 +47,10 @@ proxies:
     protocol: udp
     up: "11 Mbps"
     down: "55 Mbps"
+  - name: "Node_05"
+    type: select
+    server: None
+    port: None
   - name: "Node_06"
     type: hysteria
     server: 62.210.70.191
@@ -74,10 +74,6 @@ proxies:
     up: "11 Mbps"
     down: "55 Mbps"
   - name: "Node_08"
-    type: select
-    server: None
-    port: None
-  - name: "Node_09"
     type: hysteria
     server: 62.210.70.191
     port: 23556
@@ -88,6 +84,10 @@ proxies:
     protocol: udp
     up: "11 Mbps"
     down: "55 Mbps"
+  - name: "Node_09"
+    type: select
+    server: None
+    port: None
   - name: "Node_10"
     type: hysteria
     server: 62.210.70.191
@@ -101,10 +101,10 @@ proxies:
     down: "55 Mbps"
   - name: "Node_11"
     type: hysteria
-    server: 2a14:7584:d097::a
-    port: 54177
-    auth-str: dongtaiwang.com
-    sni: apple.com
+    server: 62.210.70.191
+    port: 23556
+    auth-str: github.com/Alvin9999-newpac/fanqiang
+    sni: bing.com
     skip-cert-verify: true
     alpn: [h3]
     protocol: udp
@@ -143,6 +143,17 @@ proxies:
     protocol: udp
     up: "11 Mbps"
     down: "55 Mbps"
+  - name: "Node_15"
+    type: hysteria
+    server: 2a14:7584:d097::a
+    port: 54177
+    auth-str: dongtaiwang.com
+    sni: apple.com
+    skip-cert-verify: true
+    alpn: [h3]
+    protocol: udp
+    up: "11 Mbps"
+    down: "55 Mbps"
 
 proxy-groups:
   - name: 🚀 节点选择
@@ -162,6 +173,7 @@ proxy-groups:
       - "Node_12"
       - "Node_13"
       - "Node_14"
+      - "Node_15"
       - DIRECT
 
 rules:
