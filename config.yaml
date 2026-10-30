@@ -5,7 +5,7 @@ log-level: info
 proxies:
   - name: "Node_01"
     type: hysteria
-    server: 62.210.70.191
+    server: 62.210.28.175
     port: 24667
     auth-str: dongtaiwang.com
     sni: bing.com
@@ -16,7 +16,7 @@ proxies:
     down: "55 Mbps"
   - name: "Node_02"
     type: hysteria
-    server: 62.210.70.191
+    server: 62.210.28.175
     port: 24667
     auth-str: dongtaiwang.com
     sni: bing.com
