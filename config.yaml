@@ -26,129 +26,99 @@ proxies:
     up: "11 Mbps"
     down: "55 Mbps"
   - name: "Node_03"
-    type: hysteria
-    server: 62.210.124.132
-    port: 24667
-    auth-str: dongtaiwang.com
-    sni: bing.com
+    type: hysteria2
+    server: 2001:bc8:32d7:17b::17
+    port: 22000
+    auth-str: "dongtaiwang.com"
+    sni: "www.microsoft.com"
     skip-cert-verify: true
     alpn: [h3]
     protocol: udp
     up: "11 Mbps"
     down: "55 Mbps"
   - name: "Node_04"
-    type: hysteria
-    server: 62.210.70.191
-    port: 23556
-    auth-str: github.com/Alvin9999-newpac/fanqiang
-    sni: bing.com
+    type: hysteria2
+    server: 2001:bc8:32d7:17b::17
+    port: 22000
+    auth-str: "dongtaiwang.com"
+    sni: "www.microsoft.com"
     skip-cert-verify: true
     alpn: [h3]
     protocol: udp
     up: "11 Mbps"
     down: "55 Mbps"
   - name: "Node_05"
-    type: select
-    server: None
-    port: None
+    type: hysteria2
+    server: 2001:bc8:32d7:17b::11
+    port: 22000
+    auth-str: "dongtaiwang.com"
+    sni: "www.microsoft.com"
+    skip-cert-verify: true
+    alpn: [h3]
+    protocol: udp
+    up: "11 Mbps"
+    down: "55 Mbps"
   - name: "Node_06"
-    type: hysteria
-    server: 62.210.70.191
-    port: 23556
-    auth-str: github.com/Alvin9999-newpac/fanqiang
-    sni: bing.com
+    type: hysteria2
+    server: 2001:bc8:32d7:17b::17
+    port: 22000
+    auth-str: "dongtaiwang.com"
+    sni: "www.microsoft.com"
     skip-cert-verify: true
     alpn: [h3]
     protocol: udp
     up: "11 Mbps"
     down: "55 Mbps"
   - name: "Node_07"
-    type: hysteria
-    server: 62.210.70.191
-    port: 23556
-    auth-str: github.com/Alvin9999-newpac/fanqiang
-    sni: bing.com
+    type: hysteria2
+    server: 2001:bc8:32d7:17b::13
+    port: 22000
+    auth-str: "dongtaiwang.com"
+    sni: "www.microsoft.com"
     skip-cert-verify: true
     alpn: [h3]
     protocol: udp
     up: "11 Mbps"
     down: "55 Mbps"
   - name: "Node_08"
-    type: hysteria
-    server: 62.210.70.191
-    port: 23556
-    auth-str: github.com/Alvin9999-newpac/fanqiang
-    sni: bing.com
+    type: hysteria2
+    server: 2001:bc8:32d7:17b::17
+    port: 22000
+    auth-str: "dongtaiwang.com"
+    sni: "www.microsoft.com"
     skip-cert-verify: true
     alpn: [h3]
     protocol: udp
     up: "11 Mbps"
     down: "55 Mbps"
   - name: "Node_09"
-    type: select
-    server: None
-    port: None
+    type: hysteria2
+    server: 2001:bc8:32d7:17b::15
+    port: 22000
+    auth-str: "dongtaiwang.com"
+    sni: "www.microsoft.com"
+    skip-cert-verify: true
+    alpn: [h3]
+    protocol: udp
+    up: "11 Mbps"
+    down: "55 Mbps"
   - name: "Node_10"
-    type: hysteria
-    server: 62.210.70.191
-    port: 23556
-    auth-str: github.com/Alvin9999-newpac/fanqiang
-    sni: bing.com
+    type: hysteria2
+    server: 2001:bc8:32d7:17b::17
+    port: 22000
+    auth-str: "dongtaiwang.com"
+    sni: "www.microsoft.com"
     skip-cert-verify: true
     alpn: [h3]
     protocol: udp
     up: "11 Mbps"
     down: "55 Mbps"
   - name: "Node_11"
-    type: hysteria
-    server: 62.210.70.191
-    port: 23556
-    auth-str: github.com/Alvin9999-newpac/fanqiang
-    sni: bing.com
-    skip-cert-verify: true
-    alpn: [h3]
-    protocol: udp
-    up: "11 Mbps"
-    down: "55 Mbps"
-  - name: "Node_12"
-    type: hysteria
-    server: 2a14:7584:d097::a
-    port: 54177
-    auth-str: dongtaiwang.com
-    sni: apple.com
-    skip-cert-verify: true
-    alpn: [h3]
-    protocol: udp
-    up: "11 Mbps"
-    down: "55 Mbps"
-  - name: "Node_13"
-    type: hysteria
-    server: 2a14:7584:d097::a
-    port: 54177
-    auth-str: dongtaiwang.com
-    sni: apple.com
-    skip-cert-verify: true
-    alpn: [h3]
-    protocol: udp
-    up: "11 Mbps"
-    down: "55 Mbps"
-  - name: "Node_14"
-    type: hysteria
-    server: 2a14:7584:d097::a
-    port: 54177
-    auth-str: dongtaiwang.com
-    sni: apple.com
-    skip-cert-verify: true
-    alpn: [h3]
-    protocol: udp
-    up: "11 Mbps"
-    down: "55 Mbps"
-  - name: "Node_15"
-    type: hysteria
-    server: 2a14:7584:d097::a
-    port: 54177
-    auth-str: dongtaiwang.com
-    sni: apple.com
+    type: hysteria2
+    server: 2001:bc8:32d7:17b::16
+    port: 22000
+    auth-str: "dongtaiwang.com"
+    sni: "www.microsoft.com"
     skip-cert-verify: true
     alpn: [h3]
     protocol: udp
@@ -170,10 +140,6 @@ proxy-groups:
       - "Node_09"
       - "Node_10"
       - "Node_11"
-      - "Node_12"
-      - "Node_13"
-      - "Node_14"
-      - "Node_15"
       - DIRECT
 
 rules:
